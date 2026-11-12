@@ -1423,3 +1423,51 @@ svg.hotted path.hot{stroke:#d02a12!important;stroke-dasharray:1;stroke-dashoffse
   .atlas--first .atlas__list .go{display:none!important}
   .atlas__tip{font-size:12px;margin-top:10px}
 }
+
+/* ───── 12.11-4: большие айфоны (iPhone 13 Pro Max и больше, 414–760 px) ───── */
+@media (max-width:760px){
+  /* музыка — справа, над WhatsApp: слева больше ничего не перекрывает текст */
+  .eq{left:auto;right:max(23px,env(safe-area-inset-right,0px));bottom:calc(max(28px,env(safe-area-inset-bottom,0px)) + 66px)}
+  .wa-float{left:auto;right:max(18px,env(safe-area-inset-right,0px))}
+  [dir=rtl] .eq{right:auto;left:max(23px,env(safe-area-inset-left,0px))}
+  [dir=rtl] .wa-float{right:auto;left:max(18px,env(safe-area-inset-left,0px))}
+  /* закреплённая цена не закрывает кнопки калькулятора */
+  body.has-pricefix #calc{padding-bottom:120px}
+  body.has-pricefix .wa-float,body.has-pricefix .eq{transform:translateY(-78px)}
+}
+@media (min-width:414px) and (max-width:760px){
+  :root{--gutter:22px}
+  body{font-size:17px}
+  .wrap{padding-inline:max(22px,env(safe-area-inset-left,0px))}
+  .lead,.hero__sub{font-size:17px;line-height:1.6}
+  h2{font-size:clamp(34px,9vw,42px)}
+  .hero h1{font-size:clamp(46px,12.2vw,56px)}
+  .hero__play{width:84px;height:84px}
+  /* «Услуги» */
+  .fmt__item{grid-template-columns:42% 1fr;column-gap:18px}
+  .fmt__item .fmt__tag{font-size:12px}
+  .fmt__item h3{font-size:27px!important}
+  .fmt__item .more{font-size:12px}
+  .soon__art{width:min(100%,86px)}
+  .soon__txt b{font-size:12px}
+  /* страница формата */
+  .mapfirst__head h1{font-size:38px}
+  .atlas--first .atlas__list{gap:8px}
+  .atlas--first .atlas__list a{padding:12px 12px 13px}
+  .atlas--first .atlas__list a b{font-size:32px}
+  .atlas--first .atlas__list a span{font-size:17px}
+  .dirchips button{font-size:12px;padding:9px 13px}
+  /* программа и калькулятор */
+  .phero--slides{--peek:40px}
+  .phero--slides h1{font-size:52px}
+  .calc.wiz .calc__grid>fieldset>legend{font-size:32px}
+  .tabs2 span,.people span{font-size:15px}
+  .pricefix b{font-size:36px}
+  /* вопросы */
+  .faq summary{font-size:20px;padding-right:56px}
+}
+@media (max-width:760px){
+  .eq{transition:opacity .5s var(--ease-out),transform .5s var(--ease-out),border-color .4s,background .4s}
+  .eq.is-away:not([aria-pressed=true]){opacity:0;pointer-events:none;transform:scale(.8)}
+}
+@media (min-width:414px) and (max-width:760px){.fmt__item .more{letter-spacing:.04em;white-space:nowrap}}

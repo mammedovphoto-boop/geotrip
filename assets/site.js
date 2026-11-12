@@ -639,6 +639,8 @@ document.documentElement.classList.add('js');
       if(on){mk();var pr=au.play();if(pr&&pr.catch)pr.catch(function(){eq.setAttribute('aria-pressed','false');want=false;var once=function(){removeEventListener('pointerdown',once);if(!want)set(true,true)};addEventListener('pointerdown',once)});ramp(0.42)}
       else if(au){ramp(0,function(){au.pause()})}};
     eq.addEventListener('click',function(e){e.stopPropagation();set(!want)});
+    /* на телефоне кнопка музыки видна на первом экране и пока музыка играет — дальше не закрывает текст */
+    var away=function(){eq.classList.toggle('is-away',innerWidth<=760&&scrollY>innerHeight*0.6)};away();addEventListener('scroll',away,{passive:true});addEventListener('resize',away);
     var pref=null;try{pref=localStorage.getItem('gt_music')}catch(e){}
     if(pref==='1')set(true,true);
     /* фильм со звуком — музыку на это время приглушаем */
