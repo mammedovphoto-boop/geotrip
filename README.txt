@@ -2,7 +2,7 @@
 =============================================================
 
 dist/        — готовый сайт (его загружают на хостинг); в репозиторий не кладётся, собирается командой python build.py
-anketa/      — анкета путешественника (index-ru.html и index-en.html), заявка уходит в WhatsApp
+anketa/      — анкета путешественника: /anketa/ (русская) и /anketa/en.html (английская), заявка уходит в WhatsApp
 journey/     — 3D-карта маршрутов, journey/tiles — спутниковые снимки 2025 и рельеф
 functions/   — личный кабинет (регистрация, вход, «Мои поездки»); работает на Cloudflare Pages
 schema.sql   — таблицы базы личного кабинета
@@ -32,7 +32,8 @@ schema.sql   — таблицы базы личного кабинета
   1. Зарегистрируйтесь на dash.cloudflare.com.
   2. Удобнее всего через GitHub: загрузите эту папку в репозиторий, затем
      Workers & Pages → Create → Pages → Connect to Git → выберите репозиторий.
-     Build command: pip install jinja2 && python build.py     Output directory: dist
+     Framework preset: None   Build command: python build.py   Output directory: dist
+     (jinja2 поставится сам из requirements.txt)
      (Папка functions/ подхватится автоматически — это и есть личный кабинет.)
   3. Личный кабинет: Workers & Pages → D1 → Create database «geotrip» → Console → вставьте schema.sql → Execute.
      Затем в проекте Pages: Settings → Bindings → Add → D1 database, имя переменной DB, база geotrip.

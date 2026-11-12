@@ -172,6 +172,8 @@ def build():
                     ignore=shutil.ignore_patterns("map-*.svg", "main_art*.svg", "aboutus_*.svg"))
     if os.path.isdir(os.path.join(HERE, "journey")):
         shutil.copytree(os.path.join(HERE, "journey"), os.path.join(DIST, "journey"))
+    if os.path.isdir(os.path.join(HERE, "anketa")):
+        shutil.copytree(os.path.join(HERE, "anketa"), os.path.join(DIST, "anketa"))
     for extra in os.listdir(os.path.join(HERE, "static")):
         shutil.copy(os.path.join(HERE, "static", extra), DIST)
     if os.path.exists(os.path.join(HERE, "functions")):
