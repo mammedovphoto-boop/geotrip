@@ -175,13 +175,13 @@ ru:{brand:'GeoTrip · Грузия',h1:'Соберём ваше путешест
  rm:{dbl:['Дабл','одна двуспальная кровать'],twn:['Твин','две отдельные кровати'],trp:['Трипл','три отдельные кровати'],sgl:['Сингл','номер на одного'],fam:['Семейный','для родителей с детьми']},
  bedsH:'Разместим {p} гостей в номерах на {b} мест.',meals:'Питание',mealsO:['Только завтраки','Завтраки и ужины','Полный пансион'],
  s4k:'Шаг 4 · На чём',s4:'Транспорт и гид',car:'Машина',
- cars:[['Джипы 4×4','Toyota Land Cruiser, горы и перевалы',4],['Минивэн','Mercedes V-Class, до 6 человек',6],['Седан','бизнес-класс, до 3 человек',3],['Микроавтобус','Mercedes Sprinter, для группы',16]],
+ cars:[['Джип 4×4','Toyota Land Cruiser, горы и перевалы',4],['Минивэн','Mercedes V-Class, до 6 человек',6],['Седан','бизнес-класс, до 3 человек',3],['Микроавтобус','Mercedes Sprinter, для группы',16]],
  carsN:'Количество машин',carsH:'в машину садятся до {n} человек',
  guide:'Водитель и гид',guides:[['Только водитель','говорит по-русски или по-английски, без экскурсий'],['Водитель + профессиональный гид','гид едет с вами весь маршрут'],['Водитель-гид','один человек: и за рулём, и рассказывает'],['Сами за рулём','аренда машины, без водителя']],
  transfer:'Встреча и проводы в аэропорту',
  s5k:'Шаг 5 · Что увидеть',s5:'Регионы и впечатления',regions:'Куда хотите',any:'можно несколько',
  regionsO:['Тбилиси','Кахетия, вино','Казбеги','Сванетия','Тушети','Хевсурети','Батуми и море','Боржоми и Вардзия','Имеретия, Кутаиси','Гудаури, лыжи','На ваш выбор'],
- acts:'Впечатления',actsO:['Вертолёт','Багги','Джип-сафари','Яхта','Дегустации вина','Гастро-ужины','Конные прогулки','Рафтинг','Треккинг','Лыжи','Фотосессия','SPA'],
+ acts:'Впечатления',actsO:['Вертолёт','Багги','Джип-сафари','Квадроциклы','Параплан','Стрельба','Яхта','Рафтинг','Конные прогулки','Треккинг','Рыбалка','Лыжи','Дегустации вина','Мастер-класс: хинкали и хачапури','Гастро-ужины','Серные бани','SPA','Фотосессия'],
  heli:'Какой вертолёт',heliO:['Панорамный полёт','Трансфер на вертолёте','Полёт с посадкой в горах'],
  pace:'Темп',paceO:['Спокойный','Сбалансированный','Активный'],
  s6k:'Шаг 6 · Бюджет',s6:'Бюджет и пожелания',budget:'Бюджет на человека, без международных перелётов',
@@ -210,13 +210,13 @@ en:{brand:'GeoTrip · Georgia',h1:'Let’s plan your journey',lead:'Seven short 
  rm:{dbl:['Double','one double bed'],twn:['Twin','two separate beds'],trp:['Triple','three separate beds'],sgl:['Single','a room for one'],fam:['Family','parents with children']},
  bedsH:'{p} guests in rooms for {b}.',meals:'Meals',mealsO:['Breakfast only','Breakfast and dinner','Full board'],
  s4k:'Step 4 · Getting around',s4:'Transport and guide',car:'Vehicle',
- cars:[['4×4 jeeps','Toyota Land Cruiser, mountain roads and passes',4],['Minivan','Mercedes V-Class, up to 6 people',6],['Sedan','business class, up to 3 people',3],['Minibus','Mercedes Sprinter, for groups',16]],
+ cars:[['4×4 jeep','Toyota Land Cruiser, mountain roads and passes',4],['Minivan','Mercedes V-Class, up to 6 people',6],['Sedan','business class, up to 3 people',3],['Minibus','Mercedes Sprinter, for groups',16]],
  carsN:'Number of vehicles',carsH:'each vehicle seats up to {n} people',
  guide:'Driver and guide',guides:[['Driver only','English- or Russian-speaking, no guided tours'],['Driver + professional guide','a guide travels with you the whole way'],['Driver-guide','one person who drives and guides'],['Self-drive','car rental, no driver']],
  transfer:'Airport pick-up and drop-off',
  s5k:'Step 5 · What to see',s5:'Regions and experiences',regions:'Where you’d like to go',any:'choose any',
  regionsO:['Tbilisi','Kakheti wine region','Kazbegi','Svaneti','Tusheti','Khevsureti','Batumi and the sea','Borjomi and Vardzia','Imereti, Kutaisi','Gudauri skiing','Up to you'],
- acts:'Experiences',actsO:['Helicopter','Buggies','Jeep safari','Yacht','Wine tastings','Chef’s dinners','Horse riding','Rafting','Trekking','Skiing','Photo shoot','SPA'],
+ acts:'Experiences',actsO:['Helicopter','Buggy','Jeep safari','Quad bike','Paragliding','Shooting','Yacht','Rafting','Horse riding','Trekking','Fishing','Skiing','Wine tasting','Cooking class: khinkali and khachapuri','Chef’s dinner','Sulphur baths','SPA','Photo shoot'],
  heli:'Which helicopter experience',heliO:['Panoramic flight','Helicopter transfer','Flight with a mountain landing'],
  pace:'Pace',paceO:['Relaxed','Balanced','Active'],
  s6k:'Step 6 · Budget',s6:'Budget and wishes',budget:'Budget per person, excluding international flights',
@@ -237,7 +237,7 @@ try{var h=location.hash.replace('#','');if(h==='ru'||h==='en')L=h;else{var s=loc
 /* ───── состояние ───── */
 var st={arrive:'',depart:'',season:-1,inAp:0,inTime:'',inNo:'',outAp:0,outTime:'',outNo:'',adults:2,kids:0,ages:'',occasion:-1,lang:0,
   hotel:0,dbl:1,twn:0,trp:0,sgl:0,fam:0,meals:0,car:0,cars:1,guide:1,transfer:true,regions:[],acts:[],heli:[],pace:1,budget:5,wish:'',name:'',phone:'',from:''};
-var touched={cars:false,rooms:false},cur=0,KEY='gt_anketa_v3';
+var touched={cars:false,rooms:false},cur=0,KEY='gt_anketa_v4';
 try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv){for(var k in st)if(k in sv)st[k]=sv[k];touched=sv._t||touched}}catch(e){}
 function save(){try{var o=JSON.parse(JSON.stringify(st));o._t=touched;localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 
