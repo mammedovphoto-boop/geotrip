@@ -95,7 +95,12 @@ textarea{min-height:110px;resize:vertical}
 input[type=date]{height:50px}
 .err{color:#ff8a70;font-size:13px;margin:0}
 .flight{display:grid;gap:10px;padding:16px;background:var(--panel);border:1px solid var(--line)}
-.flight b{font-size:14px;font-weight:600}
+.flight b{font-size:15px;font-weight:600}
+.flight .row2{grid-template-columns:1fr 1fr}
+.flight .row2+.row2{grid-template-columns:1.4fr 1fr}
+select{padding-right:8px;text-overflow:ellipsis}
+@media (max-width:560px){.flight{padding:14px 12px}.flight input,.flight select{font-size:15px;padding:12px 10px}}
+.range[hidden]{display:none}
 
 .summary{background:var(--panel);border:1px solid var(--line);padding:18px 18px 16px}
 .summary h3{font:600 11px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--mist);margin:0 0 12px}
@@ -157,9 +162,9 @@ var DEFAULT_LANG='ru', WA='995579997733', WA_SHOW='+995 579 99 77 33';
 var T={
 ru:{brand:'GeoTrip · Грузия',h1:'Соберём ваше путешествие',lead:'Семь коротких шагов, около трёх минут. Ответы придут ведущему экспедиции в WhatsApp, и он предложит маршрут и цену.',
  back:'← Назад',next:'Далее →',step:'Шаг',of:'из',stepsLabel:'Шаги анкеты',
- s1k:'Шаг 1 · Даты и перелёт',s1:'Даты и перелёт',arrive:'Дата прилёта',nights:'Ночей в Грузии',nightsH:'сколько ночей в отелях',flex:'Даты гибкие, можем сдвинуть на несколько дней',
+ s1k:'Шаг 1 · Даты и перелёт',s1:'Когда прилетаете и улетаете',date:'Дата',dErr:'Дата вылета должна быть позже даты прилёта.',arrive:'Дата прилёта',nights:'Ночей в Грузии',nightsH:'сколько ночей в отелях',flex:'Даты гибкие, можем сдвинуть на несколько дней',
  season:'Если точных дат пока нет, выберите сезон',seasons:['Весна','Лето','Осень, сбор винограда','Зима, горы и лыжи'],
- flIn:'Прилёт',flOut:'Вылет',airport:'Аэропорт',time:'Время',flight:'Рейс',flightPh:'необязательно',flightH:'Время рейсов поможет правильно построить первый и последний день.',
+ flIn:'Прилёт',flOut:'Вылет',airport:'Аэропорт',time:'Время',flight:'Рейс',flightPh:'необязательно',flightH:'Время рейсов поможет правильно построить первый и последний день. Номер рейса можно не указывать.',
  airports:['Тбилиси (TBS)','Кутаиси (KUT)','Батуми (BUS)','Другой / сухопутная граница'],
  s2k:'Шаг 2 · Кто едет',s2:'Кто едет',adults:'Взрослые',adultsH:'от 12 лет',kids:'Дети',kidsH:'до 12 лет',kidsAges:'Возраст детей',kidsAgesPh:'например: 4 и 9',
  occasion:'Повод',occasions:['Отпуск','Медовый месяц','С семьёй','Компания друзей','Корпоратив','День рождения'],
@@ -192,9 +197,9 @@ ru:{brand:'GeoTrip · Грузия',h1:'Соберём ваше путешест
  nightsW:['ночь','ночи','ночей'],daysW:['день','дня','дней'],months:['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря']},
 en:{brand:'GeoTrip · Georgia',h1:'Let’s plan your journey',lead:'Seven short steps, about three minutes. Your answers go to our expedition lead on WhatsApp, who will come back with a route and a price.',
  back:'← Back',next:'Next →',step:'Step',of:'of',stepsLabel:'Questionnaire steps',
- s1k:'Step 1 · Dates and flights',s1:'Dates and flights',arrive:'Arrival date',nights:'Nights in Georgia',nightsH:'nights in hotels',flex:'Our dates are flexible by a few days',
+ s1k:'Step 1 · Dates and flights',s1:'When you arrive and leave',date:'Date',dErr:'Departure must be after arrival.',arrive:'Arrival date',nights:'Nights in Georgia',nightsH:'nights in hotels',flex:'Our dates are flexible by a few days',
  season:'No exact dates yet? Pick a season',seasons:['Spring','Summer','Autumn, grape harvest','Winter, mountains and skiing'],
- flIn:'Arrival',flOut:'Departure',airport:'Airport',time:'Time',flight:'Flight',flightPh:'optional',flightH:'Flight times help us plan your first and last day properly.',
+ flIn:'Arrival',flOut:'Departure',airport:'Airport',time:'Time',flight:'Flight',flightPh:'optional',flightH:'Flight times help us plan your first and last day properly. The flight number is optional.',
  airports:['Tbilisi (TBS)','Kutaisi (KUT)','Batumi (BUS)','Other / land border'],
  s2k:'Step 2 · Who',s2:'Who’s travelling',adults:'Adults',adultsH:'12 and over',kids:'Children',kidsH:'under 12',kidsAges:'Children’s ages',kidsAgesPh:'for example: 4 and 9',
  occasion:'Occasion',occasions:['Holiday','Honeymoon','Family trip','Friends','Corporate group','Birthday'],
@@ -230,9 +235,9 @@ var L=DEFAULT_LANG;
 try{var h=location.hash.replace('#','');if(h==='ru'||h==='en')L=h;else{var s=localStorage.getItem('gt_ank_lang');if(s==='ru'||s==='en')L=s}}catch(e){}
 
 /* ───── состояние ───── */
-var st={arrive:'',nights:7,flex:false,season:-1,inAp:0,inTime:'',inNo:'',outAp:0,outTime:'',outNo:'',adults:2,kids:0,ages:'',occasion:-1,lang:0,
+var st={arrive:'',depart:'',season:-1,inAp:0,inTime:'',inNo:'',outAp:0,outTime:'',outNo:'',adults:2,kids:0,ages:'',occasion:-1,lang:0,
   hotel:0,dbl:1,twn:0,trp:0,sgl:0,fam:0,meals:0,car:0,cars:1,guide:1,transfer:true,regions:[],acts:[],heli:[],pace:1,budget:5,wish:'',name:'',phone:'',from:''};
-var touched={cars:false,rooms:false},cur=0,KEY='gt_anketa_v2';
+var touched={cars:false,rooms:false},cur=0,KEY='gt_anketa_v3';
 try{var sv=JSON.parse(localStorage.getItem(KEY)||'null');if(sv){for(var k in st)if(k in sv)st[k]=sv[k];touched=sv._t||touched}}catch(e){}
 function save(){try{var o=JSON.parse(JSON.stringify(st));o._t=touched;localStorage.setItem(KEY,JSON.stringify(o))}catch(e){}}
 
@@ -246,10 +251,11 @@ function ctr(key,b,em,mn,mx){return '<div class="ctr"><div><b>'+esc(b)+'</b>'+(e
 function apSel(key){return '<select id="'+key+'" data-k="'+key+'">'+T[L].airports.map(function(a,i){return '<option value="'+i+'"'+(st[key]===i?' selected':'')+'>'+esc(a)+'</option>'}).join('')+'</select>'}
 function inp(key,type,ph,ac){return '<input type="'+type+'" id="'+key+'" data-k="'+key+'" value="'+esc(st[key])+'"'+(ph?' placeholder="'+esc(ph)+'"':'')+(ac?' autocomplete="'+ac+'"':'')+'>'}
 function addDays(iso,n){var d=new Date(iso+'T12:00:00');d.setDate(d.getDate()+n);return d}
-function fmtRange(){var t=T[L];if(!st.arrive)return '';var a=new Date(st.arrive+'T12:00:00'),b=addDays(st.arrive,st.nights),M=t.months;
+function nights(){if(!st.arrive||!st.depart)return 0;return Math.round((new Date(st.depart+'T12:00:00')-new Date(st.arrive+'T12:00:00'))/864e5)}
+function fmtRange(){var t=T[L];if(!st.arrive||nights()<1)return '';var a=new Date(st.arrive+'T12:00:00'),b=new Date(st.depart+'T12:00:00'),M=t.months;
   if(L==='ru')return a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear()?a.getDate()+'–'+b.getDate()+' '+M[b.getMonth()]+' '+b.getFullYear():a.getDate()+' '+M[a.getMonth()]+(a.getFullYear()!==b.getFullYear()?' '+a.getFullYear():'')+' – '+b.getDate()+' '+M[b.getMonth()]+' '+b.getFullYear();
   return a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear()?a.getDate()+'–'+b.getDate()+' '+M[b.getMonth()]+' '+b.getFullYear():a.getDate()+' '+M[a.getMonth()]+(a.getFullYear()!==b.getFullYear()?' '+a.getFullYear():'')+' – '+b.getDate()+' '+M[b.getMonth()]+' '+b.getFullYear()}
-function dur(){var t=T[L],n=st.nights,d=n+1;return n+' '+plural(n,t.nightsW)+' / '+d+' '+plural(d,t.daysW)}
+function dur(){var t=T[L],n=nights(),d=n+1;if(n<1)return '';return n+' '+plural(n,t.nightsW)+' / '+d+' '+plural(d,t.daysW)}
 var BEDS={dbl:2,twn:2,trp:3,sgl:1,fam:4};
 function autoFill(){var t=T[L],p=st.adults+st.kids,cap=t.cars[st.car]?t.cars[st.car][2]:4;
   if(!touched.cars)st.cars=Math.max(1,Math.ceil(p/cap));
@@ -265,11 +271,11 @@ function build(){
   document.getElementById('steps').setAttribute('aria-label',t.stepsLabel);
   var R=t.rm;
   var S=[
-   [t.s1k,t.s1,'<div class="row2"><div class="q"><label for="arrive">'+t.arrive+'</label>'+inp('arrive','date')+'</div><div class="q"><span class="lbl">'+t.nights+'</span><div class="ctr ctr--sm"><div><em>'+esc(t.nightsH)+'</em></div><div class="step-n" data-ctr="nights" data-min="1" data-max="30"><button type="button" aria-label="−">−</button><output id="o-nights">'+st.nights+'</output><button type="button" aria-label="+">+</button></div></div></div></div><p class="range" id="range"></p>'+
-     '<label class="toggle"><input type="checkbox" data-k="flex"'+(st.flex?' checked':'')+'> '+t.flex+'</label>'+
-     '<div class="q" id="seasonQ"><span class="lbl">'+t.season+'</span>'+radios('season',t.seasons)+'</div>'+
-     '<div class="q"><div class="flight"><b>✈ '+t.flIn+'</b><div class="row3"><label class="fl">'+t.airport+apSel('inAp')+'</label><label class="fl">'+t.time+inp('inTime','time')+'</label><label class="fl">'+t.flight+inp('inNo','text',t.flightPh)+'</label></div></div>'+
-     '<div class="flight"><b>✈ '+t.flOut+' <span class="hint" id="outDate"></span></b><div class="row3"><label class="fl">'+t.airport+apSel('outAp')+'</label><label class="fl">'+t.time+inp('outTime','time')+'</label><label class="fl">'+t.flight+inp('outNo','text',t.flightPh)+'</label></div></div><p class="hint">'+t.flightH+'</p></div>'],
+   [t.s1k,t.s1,
+     '<div class="flight"><b>✈ '+t.flIn+'</b><div class="row2"><label class="fl">'+t.date+inp('arrive','date')+'</label><label class="fl">'+t.time+inp('inTime','time')+'</label></div><div class="row2"><label class="fl">'+t.airport+apSel('inAp')+'</label><label class="fl">'+t.flight+inp('inNo','text',t.flightPh)+'</label></div></div>'+
+     '<div class="flight"><b>✈ '+t.flOut+'</b><div class="row2"><label class="fl">'+t.date+inp('depart','date')+'</label><label class="fl">'+t.time+inp('outTime','time')+'</label></div><div class="row2"><label class="fl">'+t.airport+apSel('outAp')+'</label><label class="fl">'+t.flight+inp('outNo','text',t.flightPh)+'</label></div></div>'+
+     '<p class="range" id="range"></p><p class="err" id="dErr" hidden>'+t.dErr+'</p>'+
+     '<div class="q" id="seasonQ"><span class="lbl">'+t.season+'</span>'+radios('season',t.seasons)+'<p class="hint">'+t.flightH+'</p></div>'],
    [t.s2k,t.s2,'<div class="counters">'+ctr('adults',t.adults,t.adultsH,1,60)+ctr('kids',t.kids,t.kidsH,0,30)+'</div>'+
      '<div class="q" id="agesQ"><label for="ages">'+t.kidsAges+'</label>'+inp('ages','text',t.kidsAgesPh)+'</div>'+
      '<div class="q"><span class="lbl">'+t.occasion+'</span>'+radios('occasion',t.occasions)+'</div>'+
@@ -325,10 +331,11 @@ f.addEventListener('submit',function(e){e.preventDefault()});
 
 function refresh(soft){
   var t=T[L];
-  ['nights','adults','kids','dbl','twn','trp','sgl','fam','cars'].forEach(function(k){var o=document.getElementById('o-'+k);if(o)o.textContent=st[k]});
-  var r=document.getElementById('range');if(r)r.textContent=st.arrive?fmtRange()+' · '+dur():dur();
-  var od=document.getElementById('outDate');if(od){if(st.arrive){var b=addDays(st.arrive,st.nights);od.textContent='· '+b.getDate()+' '+t.months[b.getMonth()]}else od.textContent=''}
-  var sq=document.getElementById('seasonQ');if(sq)sq.hidden=!!st.arrive;
+  ['adults','kids','dbl','twn','trp','sgl','fam','cars'].forEach(function(k){var o=document.getElementById('o-'+k);if(o)o.textContent=st[k]});
+  var n=nights(),r=document.getElementById('range');if(r){r.textContent=n>0?fmtRange()+' · '+dur():'';r.hidden=!(n>0)}
+  var de=document.getElementById('dErr');if(de)de.hidden=!(st.arrive&&st.depart&&n<1);
+  var dp=document.getElementById('depart');if(dp)dp.min=st.arrive||'';
+  var sq=document.getElementById('seasonQ');if(sq)sq.hidden=!!(st.arrive&&st.depart);
   var aq=document.getElementById('agesQ');if(aq)aq.hidden=st.kids<1;
   var hq=document.getElementById('heliQ');if(hq)hq.hidden=st.acts.indexOf(0)<0;
   var ch=document.getElementById('h-cars');if(ch)ch.textContent=st.guide===3?'':t.carsH.replace('{n}',t.cars[st.car][2]);
@@ -345,12 +352,13 @@ function msg(){
   var sec=function(icon,title,rows){rows=rows.filter(function(x){return x[1]!==''&&x[1]!=null});if(!rows.length)return;o.push('');o.push(icon+' *'+title+'*');rows.forEach(function(x){o.push(x[0]?x[0]+': '+x[1]:x[1])})};
   o.push('🌍 *'+m.title+'*');
   sec('👤',m.client,[[m.name,st.name.trim()],[m.from,st.from.trim()],[m.phone,st.phone.trim()]]);
-  var dates=st.arrive?fmtRange()+(st.flex?' ('+m.flex+')':''):(st.season>=0?t.seasons[st.season]+', '+m.notyet:m.notyet);
+  var dates=nights()>0?fmtRange():(st.arrive?st.arrive:(st.season>=0?t.seasons[st.season]+', '+m.notyet:m.notyet));
   var trav=st.adults+' '+m.adults+(st.kids?' + '+st.kids+' '+m.kids+(st.ages.trim()?' ('+m.ages+' '+st.ages.trim()+')':''):'');
   sec('📅',m.trip,[[m.dates,dates],[m.dur,dur()],[m.trav,trav],[m.purpose,st.occasion>=0?t.occasions[st.occasion]:''],[m.pace,t.paceO[st.pace]],[m.lang,t.langs[st.lang]]]);
   var fl=function(ap,tm,no,d){return t.airports[ap]+(d?', '+d:'')+(tm?', '+tm:'')+(no.trim()?', '+no.trim().toUpperCase():'')};
-  var dIn='',dOut='';if(st.arrive){var a=new Date(st.arrive+'T12:00:00'),b=addDays(st.arrive,st.nights);dIn=a.getDate()+' '+t.months[a.getMonth()];dOut=b.getDate()+' '+t.months[b.getMonth()]}
-  sec('✈️',m.flights,[[m.arr,fl(st.inAp,st.inTime,st.inNo,dIn)],[m.dep,fl(st.outAp,st.outTime,st.outNo,dOut)]]);
+  var dm=function(v){if(!v)return '';var d=new Date(v+'T12:00:00');return d.getDate()+' '+t.months[d.getMonth()]};var dIn=dm(st.arrive),dOut=dm(st.depart);
+  var noT=L==='ru'?'время не указано':'time not given';
+  sec('✈️',m.flights,[[m.arr,fl(st.inAp,st.inTime||noT,st.inNo,dIn)],[m.dep,fl(st.outAp,st.outTime||noT,st.outNo,dOut)]]);
   var rooms=[];['dbl','twn','trp','sgl','fam'].forEach(function(k){if(st[k])rooms.push(st[k]+' × '+R[k][0]+' ('+R[k][1]+')')});
   sec('🏨',m.stay,[[m.hotel,t.hotels[st.hotel][0]],[m.rooms,rooms.join(', ')||m.none],[m.meals,t.mealsO[st.meals]]]);
   var self=st.guide===3;
