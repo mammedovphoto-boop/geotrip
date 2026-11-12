@@ -7,7 +7,7 @@
         <p class="calc__hint" data-for="group">{{ ui.c_group_hint }}</p><p class="calc__hint" data-for="private" hidden>{{ ui.c_private_hint }}</p>
       </fieldset>
 
-      <fieldset class="span2" data-for="private" hidden><legend>{{ ui.b_route }}</legend>
+      <fieldset class="span2{% if not custom %} skip{% endif %}" data-for="private" hidden><legend>{{ ui.b_route }}</legend>
         <div class="builder">
           <div class="builder__map">{{ map_svg(t, None, True)|safe }}</div>
           <div class="builder__side">
@@ -27,7 +27,7 @@
         </div>
       </fieldset>
 
-      <fieldset data-for="private" hidden><legend>{{ ui.b_days }}</legend>
+      <fieldset{% if not custom %} class="skip"{% endif %} data-for="private" hidden><legend>{{ ui.b_days }}</legend>
         <div class="stepper"><button type="button" data-days="-1" aria-label="{{ ui.prev }}">−</button><output id="b-days">{{ pr.days }}</output><button type="button" data-days="1" aria-label="{{ ui.next }}">+</button></div>
         <p class="calc__hint" data-days-hint></p>
       </fieldset>
@@ -56,7 +56,7 @@
       {% if ckind == 'custom' %}<fieldset class="span2"><legend>{{ ui.c_trans }}</legend>
         <div class="acts acts--one">{% for k in ['minibus','jeep','mix'] %}<label><input type="radio" name="transport" value="{{ k }}" id="tr-{{ k }}"{% if loop.first %} checked{% endif %}><span>{{ ui['t_' ~ k] }}</span></label>{% endfor %}</div>
       </fieldset>{% endif %}
-      {% if ckind != 'classic' %}<fieldset class="span2"><legend>{{ ui.c_acts }}</legend>
+      {% if ckind == 'custom' %}<fieldset class="span2"><legend>{{ ui.c_acts }}</legend>
         <div class="acts">{% for k in ['heli','jeep','buggy','yacht','jetski','snow'] %}<label><input type="checkbox" name="acts" value="{{ k }}" id="act-{{ k }}"><span>{{ ui['a_' ~ k] }}</span></label>{% endfor %}</div>
         <p class="calc__hint">{{ ui.c_acts_hint2 }}</p>
       </fieldset>
@@ -66,7 +66,7 @@
     </div>
     <aside class="sum" aria-live="polite">
       <p class="sum__route"></p>
-      <dl><dt>{{ ui.c_format }}</dt><dd data-s="mode"></dd><dt>{{ ui.c_dates }}</dt><dd data-s="dates"></dd><dt>{{ ui.c_hotels }}</dt><dd data-s="hotels"></dd><dt>{{ ui.c_people }}</dt><dd data-s="people"></dd><dt>{{ ui.c_rooms }}</dt><dd data-s="rooms"></dd>{% if ckind == 'custom' %}<dt>{{ ui.c_trans }}</dt><dd data-s="transport"></dd>{% endif %}{% if ckind != 'classic' %}<dt>{{ ui.c_acts_short }}</dt><dd data-s="acts"></dd>{% endif %}</dl>
+      <dl><dt>{{ ui.c_format }}</dt><dd data-s="mode"></dd><dt>{{ ui.c_dates }}</dt><dd data-s="dates"></dd><dt>{{ ui.c_hotels }}</dt><dd data-s="hotels"></dd><dt>{{ ui.c_people }}</dt><dd data-s="people"></dd><dt>{{ ui.c_rooms }}</dt><dd data-s="rooms"></dd>{% if ckind == 'custom' %}<dt>{{ ui.c_trans }}</dt><dd data-s="transport"></dd>{% endif %}{% if ckind == 'custom' %}<dt>{{ ui.c_acts_short }}</dt><dd data-s="acts"></dd>{% elif pr[lang].acts %}<dt>{{ ui.c_acts_short }}</dt><dd>{{ pr[lang].acts|join(', ') }}</dd>{% endif %}</dl>
       <p class="sum__stops" data-s="stops" hidden></p>
       <div class="sum__price"><small></small><div class="sum__pp"></div><p class="sum__total"></p><p class="sum__note"></p></div>
       <button class="btn btn--wa" type="submit">{{ icons.wa|safe }}{{ ui.c_book }}</button>

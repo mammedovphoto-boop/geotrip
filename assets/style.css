@@ -1395,3 +1395,31 @@ svg.hotted path.hot{stroke:#d02a12!important;stroke-dasharray:1;stroke-dashoffse
 .calc.wiz .sum__price{order:-2;border-top:0;padding-top:0;border-bottom:1px solid var(--line);padding-bottom:14px}
 .calc.wiz .sum .btn--wa{order:-1}
 @media (min-width:981px){.mapfirst>.wrap{max-width:none;padding-inline:clamp(28px,4vw,72px)}}
+
+/* ───── 12.11-3: калькулятор на странице маршрута — без конструктора и активностей; телефон — карта сверху ───── */
+.calc__grid>fieldset.skip{display:none!important}
+@media (max-width:980px){
+  .mapfirst{min-height:0;padding:72px 0 28px;display:block}
+  .mapfirst>.wrap{padding-inline:max(16px,env(safe-area-inset-left,0px))}
+  .mapfirst__head{margin-bottom:12px}
+  .mapfirst__head .crumbs{margin:0}
+  .mapfirst__head h1{font-size:34px;margin-top:4px}
+  .atlas.atlas--first{display:grid;grid-template-columns:1fr!important;gap:14px}
+  .atlas--first .atlas__map{order:-1;width:auto;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px)));border-radius:0;box-shadow:none;position:relative;top:auto}
+  .atlas--first .atlas__map .geo--sat{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto}
+  .atlas--first .atlas__col{background:none;backdrop-filter:none;-webkit-backdrop-filter:none;border:0;padding:0;min-width:0}
+  .dirchips{flex-wrap:nowrap;overflow-x:auto;margin:0 calc(-1 * max(16px,env(safe-area-inset-left,0px))) 10px;padding:0 max(16px,env(safe-area-inset-left,0px));scrollbar-width:none}
+  .dirchips::-webkit-scrollbar{display:none}
+  .dirchips button{flex:none}
+  .atlas--first .atlas__list{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+  .atlas--first .atlas__list li{min-width:0}
+  .atlas--first .atlas__list a{display:grid;grid-template-columns:auto 1fr;align-items:start;gap:4px 10px;padding:10px 10px 11px;height:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);border-radius:4px}
+  .atlas--first .atlas__list a.is-on{border-color:var(--red-hi);background:rgba(208,42,18,.12)}
+  .atlas--first .atlas__list a b{font-size:28px;line-height:1}
+  .atlas--first .atlas__list a>div{min-width:0}
+  .atlas--first .atlas__list a span{font-size:16px;line-height:1.2;display:block;overflow-wrap:anywhere}
+  .atlas--first .atlas__list a small{font-size:10px}
+  .atlas--first .atlas__list .rg{font-size:10px;margin-top:3px}
+  .atlas--first .atlas__list .go{display:none!important}
+  .atlas__tip{font-size:12px;margin-top:10px}
+}

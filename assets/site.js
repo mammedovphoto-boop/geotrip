@@ -708,7 +708,7 @@ document.documentElement.classList.add('js');
   var bBack=$('.wz__back',nav),bNext=$('.wz__next',nav),done=$('.wz__done',nav),nEl=$('.wz__n',bar),dots=$('.wz__dots',bar);
   $('span',bBack).textContent=T[2];$('span',bNext).textContent=T[3];done.textContent=T[4];
   var render=function(){
-    steps=$$(':scope > fieldset',grid).filter(function(f){return !f.hidden});
+    steps=$$(':scope > fieldset',grid).filter(function(f){return !f.hidden&&!f.classList.contains('skip')});
     if(cur>steps.length-1)cur=steps.length-1;if(cur<0)cur=0;
     $$(':scope > fieldset',grid).forEach(function(f){f.classList.toggle('is-step',f===steps[cur])});
     nEl.textContent=T[0]+' '+(cur+1)+' '+T[1]+' '+steps.length;
