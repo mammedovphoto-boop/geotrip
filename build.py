@@ -12,6 +12,9 @@ from mapgen import map_svg, sat_map, sat_map_custom
 
 LUX = os.environ.get("LUX") == "1"   # LUX=1 python build.py — новая версия оформления, собирается в dist_lux
 DIST = os.path.join(HERE, "dist_lux" if LUX else "dist")
+import hashlib
+# версия стилей и скриптов: меняется при каждой правке, чтобы телефоны не показывали старую копию из кэша
+ASSET_V = hashlib.md5(b"".join(open(os.path.join(HERE, "assets", f), "rb").read() for f in ("style.css", "site.js", "lux.css") if os.path.exists(os.path.join(HERE, "assets", f)))).hexdigest()[:10]
 env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")), autoescape=True)
 SVG_DIR = os.path.join(HERE, "assets", "svg")
 TERRAIN = "map-terrain.webp" if os.path.exists(os.path.join(HERE, "assets", "img", "map-terrain.webp")) else None
@@ -153,6 +156,7 @@ def render(tpl, path, lang, ctx):
         back = "index"
     data["back"] = back
     data["lux"] = LUX
+    data["av"] = ASSET_V
     _arts = {"start": "menu_index", "about": "menu_aboutus", "routes": "menu_tours", "dirs": "menu_tours", "transport": "menu_configure",
              "faq": "menu_news", "stars": "menu_blogs", "photo": "menu_photo-video", "contacts": "menu_contacts"}
     data["menu"] = [(link("index") if sid == "start" else ("#" + sid if slug == "index" else link("index") + "#" + sid), label, _arts.get(sid, "menu_index"), sid)
