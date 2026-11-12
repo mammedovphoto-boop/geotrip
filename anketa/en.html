@@ -87,7 +87,12 @@ textarea{min-height:110px;resize:vertical}
 .fl{display:grid;gap:6px;font-size:13px;color:var(--mist)}
 .toggle{display:flex;align-items:center;gap:10px;color:var(--mist);font-size:14px;cursor:pointer}
 .toggle input{width:18px;height:18px;accent-color:var(--red-hi)}
-.range{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink)}
+.range{font-family:var(--serif);font-weight:700;font-size:20px;color:var(--ink);margin:-8px 0 0}
+.row2{align-items:end}
+.ctr--sm{height:50px;padding:0 4px 0 15px}
+.ctr--sm .step-n button{width:40px;height:40px}
+.ctr--sm .step-n output{font-size:21px}
+input[type=date]{height:50px}
 .err{color:#ff8a70;font-size:13px;margin:0}
 .flight{display:grid;gap:10px;padding:16px;background:var(--panel);border:1px solid var(--line)}
 .flight b{font-size:14px;font-weight:600}
@@ -260,7 +265,7 @@ function build(){
   document.getElementById('steps').setAttribute('aria-label',t.stepsLabel);
   var R=t.rm;
   var S=[
-   [t.s1k,t.s1,'<div class="row2"><div class="q"><label for="arrive">'+t.arrive+'</label>'+inp('arrive','date')+'<span class="range" id="range"></span></div><div class="q"><span class="lbl">'+t.nights+'</span><div class="counters">'+ctr('nights',t.nights,t.nightsH,1,30)+'</div></div></div>'+
+   [t.s1k,t.s1,'<div class="row2"><div class="q"><label for="arrive">'+t.arrive+'</label>'+inp('arrive','date')+'</div><div class="q"><span class="lbl">'+t.nights+'</span><div class="ctr ctr--sm"><div><em>'+esc(t.nightsH)+'</em></div><div class="step-n" data-ctr="nights" data-min="1" data-max="30"><button type="button" aria-label="−">−</button><output id="o-nights">'+st.nights+'</output><button type="button" aria-label="+">+</button></div></div></div></div><p class="range" id="range"></p>'+
      '<label class="toggle"><input type="checkbox" data-k="flex"'+(st.flex?' checked':'')+'> '+t.flex+'</label>'+
      '<div class="q" id="seasonQ"><span class="lbl">'+t.season+'</span>'+radios('season',t.seasons)+'</div>'+
      '<div class="q"><div class="flight"><b>✈ '+t.flIn+'</b><div class="row3"><label class="fl">'+t.airport+apSel('inAp')+'</label><label class="fl">'+t.time+inp('inTime','time')+'</label><label class="fl">'+t.flight+inp('inNo','text',t.flightPh)+'</label></div></div>'+
