@@ -1,0 +1,85 @@
+/* ═══════ GeoTrip · новая версия оформления: тёплый чёрный, слоновая кость, шампань ═══════ */
+.lux{--black:#0c0b09;--coal:#14120f;--line:#2a2620;--mist:#b8b0a2;--ash:#7d7568;--white:#f3ede2;--paper:#efe8db;--ink:#1a1713;--ink-2:#4a443a;
+  --red:#b8935a;--red-hi:#d7b47c;--red-deep:#6e5631;--gold:#c9a66b;
+  --serif:"Cormorant Garamond","Playfair Display",Georgia,serif;--sans:"Manrope","Raleway",system-ui,sans-serif}
+[dir=rtl].lux,.lux[dir=rtl]{--serif:"Amiri","Cormorant Garamond",serif}
+.lux{background:var(--black);color:var(--white);font-weight:300;letter-spacing:.005em}
+.lux h1,.lux h2,.lux h3,.lux .sum__pp,.lux .pricefix b{font-family:var(--serif);font-weight:500;letter-spacing:-.01em}
+.lux h1{font-weight:500;line-height:1}
+.lux .hero h1{font-size:clamp(54px,8.4vw,148px);line-height:.94}
+.lux .hero h1 .ln:nth-child(2){font-style:italic;font-weight:400;color:var(--gold)}
+.lux .hero__sub{font-size:clamp(15px,1.25vw,19px);letter-spacing:.04em;max-width:34em}
+.lux h2{font-size:clamp(40px,5vw,84px);line-height:1.02}
+.lux .kicker,.lux .fmt__tag,.lux .soon__label,.lux .wz__n{color:var(--gold);letter-spacing:.3em}
+.lux .lead{font-weight:300;color:var(--mist)}
+/* кнопки: тонкие, без заливки красным */
+.lux .btn{border-radius:100px;padding:15px 30px;font-size:12px;font-weight:500;letter-spacing:.2em;border-color:rgba(243,237,226,.45)}
+.lux .btn--red{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .btn--red:hover{background:#e3c591;border-color:#e3c591;color:#17130c}
+.lux .btn--wa{background:transparent;border-color:rgba(243,237,226,.5);color:var(--white)}
+.lux .btn--wa:hover{background:var(--white);color:#14120f;border-color:var(--white)}
+.lux .sum .btn--wa{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .wa-float{background:#14120f;border:1px solid rgba(201,166,107,.6);box-shadow:0 10px 30px rgba(0,0,0,.5)}
+.lux .wa-float svg{color:var(--gold);fill:var(--gold)}
+.lux .back{border-radius:100px;border-color:rgba(243,237,226,.35)}
+.lux .top.is-solid{background:rgba(12,11,9,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.lux .hero__play{border-color:rgba(201,166,107,.9);color:var(--gold)}
+.lux .hero__play:hover{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .link-ink,.lux .more,.lux .link-light{letter-spacing:.2em;font-size:12px}
+/* светлые разделы — слоновая кость */
+.lux .paper{background:var(--paper);color:var(--ink)}
+.lux .paper h2{color:var(--ink)}
+.lux .paper .rule{background:var(--red)}
+.lux .who p{font-family:var(--serif);font-size:clamp(22px,2.2vw,34px);line-height:1.35;font-weight:400;color:var(--ink)}
+/* услуги */
+.lux .fmt__item h3{font-size:clamp(34px,3.2vw,52px);font-weight:500}
+.lux .fmt__item:hover h3{color:var(--gold)}
+.lux svg.hotted path{stroke:#4a4132!important}
+.lux svg.hotted path.hot{stroke:var(--gold)!important}
+.lux .fmt__item:hover svg.hotted path{stroke:#7b6a4c!important}
+.lux .fmt__item:hover svg.hotted path.hot{stroke:#f0d6a6!important}
+.lux .fmt__item:hover .fmt__art svg{filter:drop-shadow(0 0 6px rgba(201,166,107,.45)) drop-shadow(0 0 22px rgba(201,166,107,.22))}
+.lux svg .dimp *{stroke:#4a4132}.lux svg .hot *{stroke:var(--gold)}
+.lux .soon{border-top-color:rgba(201,166,107,.25)}
+.lux .soon__txt b{font-family:var(--sans);font-weight:500;font-size:13px;letter-spacing:.28em}
+/* шапка-тропа, чипы, точки */
+.lux .trail a.is-on b,.lux .trail__done{stroke:var(--gold)}
+.lux .dirchips button.is-on{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .atlas__list a b{font-weight:500}
+.lux .atlas__list .rg{color:var(--gold)}
+.lux .atlas--first .atlas__list a.is-on{border-color:var(--gold)}
+.lux .atlas--first .atlas__col,.lux .atlas--first .atlas__map{border-radius:2px}
+.lux .eq[aria-pressed=true]{border-color:var(--gold)}.lux .eq[aria-pressed=true] i{background:var(--gold)}
+/* калькулятор */
+.lux .tabs2 input:checked+span,.lux .people input:checked+span{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .sum{background:#14120f;border-color:rgba(201,166,107,.28);border-radius:2px}
+.lux .sum__pp{color:var(--gold);font-weight:500}
+.lux .pricefix{border-left-color:var(--gold)}.lux .pricefix b{color:var(--gold)}
+@media (max-width:760px){.lux .pricefix{border-top-color:var(--gold)}}
+.lux .wz__dots button.is-on::after{background:var(--gold)}.lux .wz__dots button.is-done::after{background:rgba(201,166,107,.5)}
+.lux .ticks li::before{background:var(--gold)}
+/* карточки, фото — без скруглений, тонкая рамка при наведении */
+.lux .rcard,.lux .star__pic,.lux .tr__pane img{border-radius:0}
+.lux .ps__nav svg{border-color:rgba(201,166,107,.7);color:var(--gold)}
+.lux .ps__nav:hover svg{background:var(--gold);border-color:var(--gold);color:#17130c}
+.lux .ps__dots i.is-on{background:var(--gold)}
+.lux .faq summary{font-family:var(--serif);font-size:clamp(22px,2vw,30px);font-weight:500}
+/* большой подвал */
+.lux .foot{border-top:0;padding-top:0;background:#080705;color:var(--ash)}
+.bigfoot{padding-top:clamp(70px,9vw,140px)}
+.bigfoot__cta{display:flex;justify-content:space-between;align-items:baseline;gap:24px;flex-wrap:wrap;padding-bottom:clamp(30px,4vw,56px);border-bottom:1px solid rgba(201,166,107,.22)}
+.bigfoot__cta span{font-family:var(--serif);font-style:italic;font-size:clamp(34px,4.6vw,76px);line-height:1;color:var(--white)}
+.bigfoot__cta a{font-size:12px;letter-spacing:.26em;text-transform:uppercase;color:var(--gold);text-decoration:none;border-bottom:1px solid rgba(201,166,107,.5);padding-bottom:8px;transition:color .4s,border-color .4s}
+.bigfoot__cta a:hover{color:var(--white);border-color:var(--white)}
+.bigfoot__cta i{font-style:normal;display:inline-block;transition:transform .5s var(--ease-out)}
+.bigfoot__cta a:hover i{transform:translateX(8px)}
+.bigfoot__cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;padding:clamp(26px,3vw,44px) 0}
+.bigfoot__cols b{display:block;font:500 11px/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:var(--ash);margin-bottom:12px}
+.bigfoot__cols a,.bigfoot__cols span{color:var(--white);text-decoration:none;font-size:16px}
+.bigfoot__cols a:hover{color:var(--gold)}
+.bigfoot__mark{font-family:var(--serif);font-weight:500;font-size:clamp(84px,23.5vw,440px);line-height:.78;letter-spacing:-.02em;text-align:center;color:transparent;-webkit-text-stroke:1px rgba(201,166,107,.42);background:linear-gradient(180deg,rgba(201,166,107,.26),rgba(201,166,107,0) 82%);-webkit-background-clip:text;background-clip:text;margin:clamp(10px,2vw,30px) -2vw 0;user-select:none;white-space:nowrap;overflow:hidden;padding-bottom:.06em}
+.lux .foot__in{padding:22px 0 0;border-top:1px solid #1c1913;font-size:12px;letter-spacing:.06em}
+@media (max-width:760px){.bigfoot__cols{grid-template-columns:1fr;gap:18px}.bigfoot__cta{flex-direction:column;align-items:flex-start}}
+.bigfoot__mark{font-size:clamp(64px,17.2vw,330px);margin-inline:0;overflow:visible}
+.lux .paper h2{color:var(--ink)!important}
+.lux .paper h2 *{color:inherit}

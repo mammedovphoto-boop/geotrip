@@ -1,0 +1,112 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}{% from '_parts.html' import shape, svc_block, drift with context %}
+{% block main %}
+<nav class="trail" aria-label="{{ h.trail_label }}">
+  <svg class="trail__svg" viewBox="0 0 110 600" aria-hidden="true"><path class="trail__road" d="M18 4 C18 150, 58 170, 58 300 S18 450, 18 596"/><path class="trail__done" d="M18 4 C18 150, 58 170, 58 300 S18 450, 18 596"/></svg>
+  {% for id, label in h.trail %}<a href="#{{ id }}"{% if loop.first %} class="is-on"{% endif %}><b></b><span>{{ label }}</span></a>{% endfor %}
+</nav>
+
+<section class="hero" id="start">
+  <img class="hero__poster" src="{{ root }}assets/video/poster.jpg" alt="" fetchpriority="high">
+  <div class="hero__slides" aria-hidden="true">{% for im in ['h-kazbegi','h-ushguli','h-vineyard','h-sea','h-mestia','h-stars'] %}<img src="{{ root }}assets/img/{{ im }}.webp" alt=""{% if not loop.first %} loading="lazy"{% endif %}>{% endfor %}</div>
+  <video autoplay muted loop playsinline preload="metadata" poster="{{ root }}assets/video/poster.jpg" aria-hidden="true"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video>
+  <div class="wrap">
+    <button class="hero__play" data-play aria-label="{{ h.play }}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></button>
+    <h1><span class="ln"><span>{{ h.h1a }}</span></span><span class="ln"><span>{{ h.h1b }}</span></span></h1>
+    <p class="hero__sub">{{ h.sub }}</p>
+  </div>
+  <a class="scroll-hint" href="#about" aria-label="{{ h.down }}"><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M11 0v50M3 42l8 8 8-8"/></svg></a>
+</section>
+
+<section class="paper who-screen" id="about">
+  {{ drift() }}
+  <div class="wrap">
+    <div class="who rv">
+      <h2 class="split">{{ h.who_h }}</h2>
+      <i class="rule" aria-hidden="true"></i>
+      <p>{{ h.who_p }}</p>
+    </div>
+    <p class="center rv"><a class="link-ink" href="{{ link('about') }}">{{ ui.about_more }}{{ p.arrow() }}</a></p>
+  </div>
+  <a class="scroll-hint scroll-hint--ink" href="#routes" aria-label="{{ h.down }}"><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M11 0v50M3 42l8 8 8-8"/></svg></a>
+</section>
+
+<section class="scene fmt" id="routes">
+  <div class="wrap">
+    <div class="fmt__head rv"><h2 class="split">{{ h.fmt_h }}</h2><p class="lead">{{ h.fmt_lead }}</p></div>
+    <div class="fmt__grid">
+      {% for slug, mask, img, tag, t, txt, btn in h.fmt_items %}
+      <a class="fmt__item rv" style="--d:{{ loop.index0 * 120 }}ms" href="{{ link(slug) }}">
+        <div class="fmt__art">{{ svg({'east-to-west':'main_art1','full-immersion':'main_art2'}.get(slug,'art-own'), 'fa' ~ loop.index, 'draw', reveal=True)|safe }}</div>
+        <span class="fmt__tag">{{ tag }}</span>
+        <h3>{{ t }}</h3>
+        <p>{{ txt }}</p>
+        <span class="more">{{ btn }}{{ p.arrow() }}</span>
+      </a>
+      {% endfor %}
+    </div>
+    <div class="soon rv">
+      <span class="soon__label">Coming soon</span>
+      <div class="soon__grid">
+        {% for k, t, txt in h.soon %}<div class="soon__item" title="{{ txt }}"><div class="soon__art">{{ svg('soon-' ~ k, 'sn' ~ loop.index)|safe }}</div><div class="soon__txt"><b>{{ t }}</b><small>{{ txt }}</small></div></div>{% endfor %}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="paper tr" id="transport">
+  <div class="wrap">
+    <div class="tr__head rv"><h2 class="split">{{ h.tr_h }}</h2><p class="lead">{{ h.tr_lead }}</p></div>
+    <div class="tr__body" data-tabs>
+      <ul class="tr__list" role="tablist">
+        {% for k, img, t, txt in h.tr_items %}
+        <li><button type="button" role="tab" id="tr-tab-{{ k }}" aria-controls="tr-pane-{{ k }}" aria-selected="{{ 'true' if loop.first else 'false' }}" data-i="{{ loop.index0 }}"><b>{{ t }}</b><span>{{ txt }}</span></button></li>
+        {% endfor %}
+      </ul>
+      <div class="tr__stage">
+        {% for k, img, t, txt in h.tr_items %}
+        <figure class="tr__pane{% if loop.first %} is-on{% endif %}" role="tabpanel" id="tr-pane-{{ k }}" aria-labelledby="tr-tab-{{ k }}">
+          {{ p.img(img, t) }}
+          <figcaption><b>{{ t }}</b><span>{{ txt }}</span>{% if k == 'bus' %}<a class="btn btn--red" href="{{ link('east-to-west') }}">{{ h.fmts[0][3] }}{{ p.arrow() }}</a>{% else %}<a class="btn btn--red" href="{{ link('constructor') }}?add={{ k }}">{{ h.tr_btn }}{{ p.arrow() }}</a>{% endif %}</figcaption>
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+    <p class="tr__note">{{ h.tr_note }} {{ h.tr_photo }}</p>
+    <p class="tr__credits">{{ h.tr_credits }}</p>
+  </div>
+</section>
+
+<section class="scene" id="faq">
+  <div class="wrap faq-home">
+    <div class="faq-home__head rv"><h2 class="split">{{ h.faq_home_h }}</h2><a class="link-light" href="{{ link('faq') }}">{{ ui.all_questions }}{{ p.arrow() }}</a></div>
+    <div class="faq rv">
+      {% for q, a in h.faq_home %}<details><summary>{{ q }}<i aria-hidden="true"></i></summary><div class="ans"><p>{{ a }}</p></div></details>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="scene block--coal" id="stars">
+  <div class="wrap">
+    <div class="scene-head"><div><h2 class="split">{{ h.stars_h }}</h2></div><a class="link-light" href="{{ link('starblogs') }}">{{ ui.all_stories }}{{ p.arrow() }}</a></div>
+    <div class="stars">
+      {% for b in blogs %}<a class="star" href="{{ link('starblogs/' ~ b.slug) }}"><div class="star__pic">{{ p.star() }}{{ p.img(b.img, b[lang].name) }}</div><h3>{{ b[lang].name }}</h3><p>{{ b[lang].role }}</p></a>{% endfor %}
+    </div>
+  </div>
+</section>
+
+<section class="scene" id="photo">
+  <div class="wrap">
+    <div class="scene-head"><div><h2 class="split">{{ h.film_h }}</h2><p class="lead" style="margin:14px 0 0">{{ h.film_p }}</p></div><a class="link-light" href="{{ link('photogallery') }}">{{ ui.all_photos }}{{ p.arrow() }}</a></div>
+    <button type="button" class="reel rv" data-play aria-label="{{ h.play }}"><img src="{{ root }}assets/video/poster.jpg" alt="" loading="lazy"><span class="hero__play" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></span></button>
+    <div class="film">{% for g in gallery[:4] %}{{ p.img(g[0], g[li+1], zoom=True) }}{% endfor %}</div>
+  </div>
+</section>
+
+{{ p.contact_scene('contacts') }}
+<button type="button" class="eq" data-music="{{ root }}assets/audio/ambient.mp3" aria-pressed="false" aria-label="{{ h.music_on }}" data-on="{{ h.music_on }}" data-off="{{ h.music_off }}"><i></i><i></i><i></i><i></i><i></i></button>
+
+<div class="video-modal" role="dialog" aria-modal="true" aria-label="{{ h.play }}">
+  <button type="button" aria-label="{{ ui.close }}">×</button>
+  <video controls playsinline preload="none" poster="{{ root }}assets/video/poster.jpg"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video>
+</div>
+{% endblock %}

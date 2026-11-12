@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="phero">{{ p.img('h-kazbegi', ui.cons_title, eager=True) }}
+  <div class="wrap"><div class="crumbs"><a href="{{ link('travel-in-georgia') }}">{{ nav_name('travel-in-georgia') }}</a></div><h1>{{ ui.cons_title }}</h1><p>{{ ui.cons_sub }}</p>
+  <p class="mt"><a class="btn btn--red" href="#calc">{{ ui.cons_go }}{{ p.arrow() }}</a></p></div></section>
+{% include '_calc.html' %}
+{{ p.contact_scene('contacts') }}
+{% endblock %}

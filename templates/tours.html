@@ -1,0 +1,35 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="phero">{{ p.img('h-kazbegi', tl.h1, eager=True) }}
+  <div class="wrap"><div class="kicker">GeoTrip</div><h1>{{ tl.h1 }}</h1><p>{{ tl.sub }}</p></div></section>
+<section class="block"><div class="wrap">
+  <div class="dirs">
+    {% for t in tours %}
+    <a class="dir" href="{{ link(t.slug) }}">
+      <div class="dir__art">{{ svg(t.art, 'tdir' ~ loop.index, 'draw', reveal=True)|safe }}</div>
+      <h3>{{ t[lang].name }}</h3><p>{{ t[lang].short }}</p>
+      <div class="meta">{% for ch in t[lang].chips %}<span class="tag">{{ ch }}</span>{% endfor %}</div>
+      <span class="more">{{ ui.more }}{{ p.arrow() }}</span>
+    </a>
+    {% endfor %}
+  </div>
+  <div class="cons-cta"><div><h3>{{ ui.cons_link }}</h3><p>{{ ui.cons_link_lead }}</p></div><a class="btn btn--red" href="{{ link('constructor') }}">{{ ui.cons_go }}{{ p.arrow() }}</a></div>
+</div></section>
+{% for key in ['east', 'center', 'west', 'all'] %}
+<section class="block region{% if loop.index is odd %} block--coal{% endif %}" id="r-{{ key }}"><div class="wrap">
+  <div class="scene-head rv"><div><h2>{{ regions[key] }}</h2><p class="lead" style="margin:10px 0 0">{{ region_txt[key] }}</p></div></div>
+  <div class="routes">
+    {% for t in tours %}{% for pr in t.programs %}{% if pr.region == key %}
+    <a class="rcard rv" href="{{ link(t.slug ~ '/' ~ pr.slug) }}">{{ p.img(pr.img, pr[lang].name) }}
+      <div class="rcard__body"><div class="rcard__days">{{ pr.days }}<small>{{ dword(pr.days) }}</small></div><span class="rcard__fmt">{{ t[lang].name }}</span><h3>{{ pr[lang].name }}</h3><div class="rcard__price">{{ from_price(pr) }}</div><span class="bar"></span></div>
+    </a>
+    {% endif %}{% endfor %}{% endfor %}
+  </div>
+</div></section>
+{% endfor %}
+<section class="block"><div class="wrap">
+  <div class="scene-head"><h2>{{ tl.formats_h }}</h2></div>
+  <div class="services">{% for b, s in tl.formats %}<div><b>{{ b }}</b><span>{{ s }}</span></div>{% endfor %}</div>
+</div></section>
+{{ p.contact_scene('contacts') }}
+{% endblock %}

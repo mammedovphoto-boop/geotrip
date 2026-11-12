@@ -1,0 +1,81 @@
+<section class="block" id="calc"><div class="wrap">
+  <div class="scene-head"><div><div class="kicker">{{ ui.calc_k }}</div><h2>{{ ui.calc_h if not custom else ui.cons_h }}</h2></div><p class="lead" style="margin:0">{{ ui.calc_lead if not custom else ui.cons_lead }}</p></div>
+  <form class="calc" data-kind="{{ ckind }}" data-calc data-wa="{{ c.wa }}" data-wz="{{ ui.wz_step }}|{{ ui.wz_of }}|{{ ui.wz_back }}|{{ ui.wz_next }}|{{ ui.wz_done }}">
+    <div class="calc__grid">
+      <fieldset class="span2"{% if custom %} hidden{% endif %}><legend>{{ ui.c_format }}</legend>
+        <div class="tabs2"><label><input type="radio" name="mode" value="group" id="m-group"{% if not custom %} checked{% endif %}><span>{{ ui.c_group }}</span></label><label><input type="radio" name="mode" value="private" id="m-private"{% if custom %} checked{% endif %}><span>{{ ui.c_private }}</span></label></div>
+        <p class="calc__hint" data-for="group">{{ ui.c_group_hint }}</p><p class="calc__hint" data-for="private" hidden>{{ ui.c_private_hint }}</p>
+      </fieldset>
+
+      <fieldset class="span2" data-for="private" hidden><legend>{{ ui.b_route }}</legend>
+        <div class="builder">
+          <div class="builder__map">{{ map_svg(t, None, True)|safe }}</div>
+          <div class="builder__side">
+            <div class="row2">
+              <label class="field">{{ ui.b_arrive }}<select id="b-arrive" name="arrive">{% for a in airports %}<option value="{{ a }}">{{ town_name(a) }}</option>{% endfor %}</select></label>
+              <label class="field">{{ ui.b_depart }}<select id="b-depart" name="depart">{% for a in airports %}<option value="{{ a }}">{{ town_name(a) }}</option>{% endfor %}</select></label>
+            </div>
+            <p class="calc__hint" style="margin:14px 0 8px">{{ ui.b_places }}</p>
+            <ul class="chips2" aria-live="polite"></ul>
+            <label class="field" style="margin-top:14px">{{ ui.b_add }}
+              <select id="b-add"><option value="">{{ ui.b_add_ph }}</option>
+                {% for g, names in places %}<optgroup label="{{ g[li] }}">{% for n in names %}<option value="{{ n }}">{{ town_name(n) }}</option>{% endfor %}</optgroup>{% endfor %}
+              </select>
+            </label>
+            {% if not custom %}<button type="button" class="linkbtn" data-reset>{{ ui.b_reset }}</button>{% endif %}
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset data-for="private" hidden><legend>{{ ui.b_days }}</legend>
+        <div class="stepper"><button type="button" data-days="-1" aria-label="{{ ui.prev }}">−</button><output id="b-days">{{ pr.days }}</output><button type="button" data-days="1" aria-label="{{ ui.next }}">+</button></div>
+        <p class="calc__hint" data-days-hint></p>
+      </fieldset>
+
+      <fieldset class="span2" data-for="group"{% if custom %} hidden{% endif %}><legend>{{ ui.c_dates_g }}</legend>
+        <div class="drum"><ul class="drum__list" role="radiogroup" aria-label="{{ ui.c_dates_g }}"></ul><div class="drum__ctl"><button type="button" data-up aria-label="{{ ui.prev }}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10l5-5 5 5"/></svg></button><button type="button" data-down aria-label="{{ ui.next }}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 6l5 5 5-5"/></svg></button></div></div>
+        <p class="drum__empty calc__hint" hidden>{{ ui.c_nogroup }}</p>
+      </fieldset>
+      <fieldset data-for="private" hidden><legend>{{ ui.c_dates_p }}</legend>
+        <div class="cal"><div class="cal__head"><button type="button" data-prev-m aria-label="{{ ui.prev }}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M10 3L5 8l5 5"/></svg></button><span class="cal__title"></span><button type="button" data-next-m aria-label="{{ ui.next }}"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 3l5 5-5 5"/></svg></button></div><div class="cal__grid"></div></div>
+      </fieldset>
+      <fieldset><legend>{{ ui.c_hotels }}</legend>
+        <div class="stars-pick">{% for s in t.stars %}<label><input type="radio" name="stars" value="{{ s }}" id="st-{{ s }}"{% if loop.first %} checked{% endif %}><span aria-label="{{ s }}★">{% for i in range(s) %}{{ p.star() }}{% endfor %}</span></label>{% endfor %}</div>
+      </fieldset>
+      <fieldset><legend>{{ ui.c_people }}</legend>
+        <div class="people">{% for n in range(1,17) %}<label><input type="radio" name="people" value="{{ n }}" id="pp-{{ n }}"{% if n==2 %} checked{% endif %}><span>{{ n }}</span></label>{% endfor %}</div>
+        <p class="calc__hint">{{ ui.c_people_hint }}</p>
+      </fieldset>
+      <fieldset class="span2"><legend>{{ ui.c_rooms }}</legend>
+        <div class="rooms">
+          {% for k in ['dbl','twn','sgl'] %}<div class="room"><div class="room__t"><b>{{ ui['c_' ~ k] }}</b><span>{{ ui['c_' ~ k ~ '_h'] }}</span></div>
+            <div class="stepper stepper--sm"><button type="button" data-room="{{ k }}" data-d="-1" aria-label="{{ ui['c_' ~ k] }} −">−</button><output id="r-{{ k }}">0</output><button type="button" data-room="{{ k }}" data-d="1" aria-label="{{ ui['c_' ~ k] }} +">+</button></div></div>{% endfor %}
+        </div>
+        <p class="calc__hint" data-rooms-hint aria-live="polite"></p>
+      </fieldset>
+      {% if ckind == 'custom' %}<fieldset class="span2"><legend>{{ ui.c_trans }}</legend>
+        <div class="acts acts--one">{% for k in ['minibus','jeep','mix'] %}<label><input type="radio" name="transport" value="{{ k }}" id="tr-{{ k }}"{% if loop.first %} checked{% endif %}><span>{{ ui['t_' ~ k] }}</span></label>{% endfor %}</div>
+      </fieldset>{% endif %}
+      {% if ckind != 'classic' %}<fieldset class="span2"><legend>{{ ui.c_acts }}</legend>
+        <div class="acts">{% for k in ['heli','jeep','buggy','yacht','jetski','snow'] %}<label><input type="checkbox" name="acts" value="{{ k }}" id="act-{{ k }}"><span>{{ ui['a_' ~ k] }}</span></label>{% endfor %}</div>
+        <p class="calc__hint">{{ ui.c_acts_hint2 }}</p>
+      </fieldset>
+      <fieldset class="span2"><legend>{{ ui.c_wish }}</legend>
+        <label class="field field--area"><span class="sr">{{ ui.c_wish }}</span><textarea id="c-wish" rows="3" placeholder="{{ ui.c_wish_ph }}"></textarea></label>
+      </fieldset>{% endif %}
+    </div>
+    <aside class="sum" aria-live="polite">
+      <p class="sum__route"></p>
+      <dl><dt>{{ ui.c_format }}</dt><dd data-s="mode"></dd><dt>{{ ui.c_dates }}</dt><dd data-s="dates"></dd><dt>{{ ui.c_hotels }}</dt><dd data-s="hotels"></dd><dt>{{ ui.c_people }}</dt><dd data-s="people"></dd><dt>{{ ui.c_rooms }}</dt><dd data-s="rooms"></dd>{% if ckind == 'custom' %}<dt>{{ ui.c_trans }}</dt><dd data-s="transport"></dd>{% endif %}{% if ckind != 'classic' %}<dt>{{ ui.c_acts_short }}</dt><dd data-s="acts"></dd>{% endif %}</dl>
+      <p class="sum__stops" data-s="stops" hidden></p>
+      <div class="sum__price"><small></small><div class="sum__pp"></div><p class="sum__total"></p><p class="sum__note"></p></div>
+      <button class="btn btn--wa" type="submit">{{ icons.wa|safe }}{{ ui.c_book }}</button>
+      <p class="notice" data-saved hidden></p>
+      <small class="muted">{{ ui.c_terms }}</small>
+      <div class="sum__docs"><a href="{{ root }}assets/docs/Contract-Offer.pdf" target="_blank" rel="noopener">{{ ui.offer }}</a><a href="{{ root }}assets/docs/Travel-services-agreement.pdf" target="_blank" rel="noopener">{{ ui.agreement }}</a></div>
+    </aside>
+  </form>
+  <div class="pricefix" data-pricefix aria-hidden="true"><small></small><b></b><span></span></div>
+  <script type="application/json" id="calc-data">{{ calc_json|safe }}</script>
+  <script type="application/json" id="calc-i18n">{{ {'dbl':ui.c_dbl,'twn':ui.c_twn,'sgl':ui.c_sgl,'rooms':ui.c_rooms,'acts':ui.c_acts_short,'r_ok':ui.r_ok,'r_lack':ui.r_lack,'r_more':ui.r_more,'none':ui.acts_none,'x_acts':ui.x_acts,'x_sgl':ui.x_sgl,'heli':ui.a_heli,'jeep':ui.a_jeep,'buggy':ui.a_buggy,'yacht':ui.a_yacht,'jetski':ui.a_jetski,'snow':ui.a_snow,'trans':ui.c_trans,'minibus':ui.t_minibus,'tjeep':ui.t_jeep,'mix':ui.t_mix,'wish':ui.c_wish}|tojson }}</script>
+</div></section>

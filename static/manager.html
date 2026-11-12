@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex">
+<title>Заявки GeoTrip</title>
+<style>
+:root{--bg:#000;--fg:#fff;--line:#2a2a2a;--red:#A81400;--muted:#8a8a8a;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--fg);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif;padding:24px max(16px,env(safe-area-inset-left,0px))}
+h1{font:700 32px Georgia,serif;margin:0 0 16px}
+input,select,button{font:inherit;background:#111;color:#fff;border:1px solid var(--line);padding:9px 12px}
+button{cursor:pointer;background:var(--red);border-color:var(--red)}
+.wrap{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:900px;margin-top:18px}
+th,td{border-bottom:1px solid var(--line);padding:10px 8px;text-align:left;vertical-align:top}th{color:var(--muted);font-weight:500}
+.new{color:#ff6b55}.confirmed{color:#3cc07b}.cancelled{color:var(--muted)}
+</style></head><body>
+<h1>Заявки из личного кабинета</h1>
+<form id="f"><input id="key" type="password" placeholder="Ключ менеджера (ADMIN_KEY)" autocomplete="current-password" required> <button>Показать заявки</button></form>
+<p id="msg" style="color:var(--muted)"></p>
+<div class="wrap"><table hidden id="t"><thead><tr><th>№</th><th>Дата заявки</th><th>Клиент</th><th>Тур</th><th>Формат и даты</th><th>Отели, люди</th><th>Цена</th><th>Статус</th></tr></thead><tbody></tbody></table></div>
+<script>
+var key='',msg=document.getElementById('msg'),t=document.getElementById('t');
+function api(p,b){return fetch('/api/admin/'+p,{method:b?'POST':'GET',headers:{'X-Admin-Key':key,'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined}).then(function(r){return r.json().then(function(j){j._ok=r.ok;return j})})}
+function load(){api('bookings').then(function(r){if(!r._ok){msg.textContent=r.error==='forbidden'?'Неверный ключ.':'Ошибка: '+r.error;return}
+ msg.textContent='Заявок: '+r.items.length;t.hidden=false;var tb=t.querySelector('tbody');tb.innerHTML='';
+ r.items.forEach(function(it){var tr=document.createElement('tr');
+  var cells=[it.id,it.created_at,(it.user_name||'')+'\n'+it.email+'\n'+(it.phone||''),it.title+' ('+it.days+' дн.)',(it.mode==='group'?'группа':'индивидуально')+'\n'+(it.start||'дата не выбрана'),(it.stars||'')+'★, '+it.persons+' чел.',it.price?it.price+' $':'по запросу'];
+  cells.forEach(function(c){var td=document.createElement('td');td.style.whiteSpace='pre-line';td.textContent=c;tr.appendChild(td)});
+  var td=document.createElement('td'),s=document.createElement('select');[['new','новая'],['confirmed','подтверждена'],['cancelled','отменена']].forEach(function(o){var op=document.createElement('option');op.value=o[0];op.textContent=o[1];if(o[0]===it.status)op.selected=true;s.appendChild(op)});
+  s.className=it.status;s.onchange=function(){api('status',{id:it.id,status:s.value}).then(function(x){s.className=s.value;msg.textContent=x._ok?'Статус заявки №'+it.id+' сохранён.':'Не сохранилось.'})};td.appendChild(s);tr.appendChild(td);tb.appendChild(tr)})})}
+document.getElementById('f').onsubmit=function(e){e.preventDefault();key=document.getElementById('key').value;load()};
+</script></body></html>

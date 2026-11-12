@@ -1,0 +1,39 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}{% from '_parts.html' import shape, svc_block, drift with context %}
+{% block main %}
+<section class="about-hero">
+  <div class="about-hero__map" aria-hidden="true">{{ svg('aboutus_screen1-georgia', 'geo', 'draw', reveal=True)|safe }}</div>
+  <div class="heli" aria-hidden="true">{{ svg('aboutus_screen1-helicopter', 'heli')|safe }}</div>
+  <div class="van" aria-hidden="true">{{ svg('aboutus_screen1-mercedes', 'van')|safe }}</div>
+  <div class="wrap">
+    <h1 style="max-width:8em">{{ a.h1 }}</h1>
+    <p class="lead">{{ a.sub }}</p>
+  </div>
+</section>
+
+<section class="paper">
+  {{ drift() }}
+  <div class="wrap">
+    <div class="who rv"><h2>{{ a.do_h }}</h2><i class="rule" aria-hidden="true"></i>
+      <ul class="plain">{% for b, s in a.do %}<li><b>{{ b }}</b> {{ s }}</li>{% endfor %}</ul></div>
+    <div class="who rv" style="margin-top:clamp(80px,9vw,140px)"><h2>{{ a.for_h }}</h2><i class="rule" aria-hidden="true"></i>
+      <ul class="plain">{% for s in a.for %}<li>{{ s }}</li>{% endfor %}</ul></div>
+    {{ svc_block(h) }}
+  </div>
+</section>
+
+<section class="cinema" aria-label="{{ a.film }}">
+  <video autoplay muted loop playsinline preload="metadata" poster="{{ root }}assets/video/poster.jpg" aria-hidden="true"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video>
+  <button class="hero__play" data-play aria-label="{{ a.film }}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></button>
+</section>
+
+<section class="paper">
+  <div class="wrap">
+    <h2 class="center rv" style="margin:0 0 clamp(40px,5vw,70px)">{{ a.why_h }}</h2>
+    <div class="why rv">{% for b, s in a.why %}<div><b>{{ b }}</b><span>{{ s }}</span></div>{% endfor %}</div>
+    <h2 class="center rv" style="margin:clamp(80px,9vw,130px) 0 clamp(30px,4vw,50px)">{{ a.also_h }}</h2>
+    <ul class="plain plain--center rv">{% for s in a.also %}<li>{{ s }}</li>{% endfor %}</ul>
+  </div>
+</section>
+{{ p.cta() }}
+<div class="video-modal" role="dialog" aria-modal="true" aria-label="{{ a.film }}"><button type="button" aria-label="{{ ui.close }}">×</button><video controls playsinline preload="none" poster="{{ root }}assets/video/poster.jpg"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video></div>
+{% endblock %}

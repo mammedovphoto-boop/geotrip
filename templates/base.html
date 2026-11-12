@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="{{ lang }}" dir="{{ dir }}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>{{ title }}</title>
+<meta name="description" content="{{ desc }}">
+<meta name="theme-color" content="#000000">
+<meta property="og:title" content="{{ title }}">
+<meta property="og:description" content="{{ desc }}">
+<meta property="og:image" content="https://geotrip.world/assets/og.jpg">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="{{ {'ru':'ru_RU','en':'en_US','ar':'ar_AR'}[lang] }}">
+<link rel="alternate" hreflang="ru" href="https://geotrip.world/{{ canon }}">
+<link rel="alternate" hreflang="en" href="https://geotrip.world/en/{{ canon }}">
+<link rel="alternate" hreflang="ar" href="https://geotrip.world/ar/{{ canon }}">
+<link rel="icon" href="{{ root }}assets/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@200;300;400;500;600{% if lang=='ar' %}&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600{% endif %}&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ root }}assets/style.css">{% if lux %}
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ root }}assets/lux.css">{% endif %}
+<style>.preload{position:fixed;inset:0;z-index:400;background:#000;display:grid;place-items:center;transition:opacity .8s cubic-bezier(.22,1,.36,1),visibility .8s}.preload svg{width:88px;height:88px;fill:#fff;animation:plPulse 1.5s ease-in-out infinite}@keyframes plPulse{0%,100%{opacity:.3;transform:scale(.95)}50%{opacity:1;transform:scale(1)}}html.ready .preload{opacity:0;visibility:hidden}html.ready.leaving .preload{opacity:1;visibility:visible;transition-duration:.45s}@media (prefers-reduced-motion:reduce){.preload svg{animation:none}}</style>
+<script>try{history.scrollRestoration='manual'}catch(e){}(function(){var d=document.documentElement,done=false,go=function(){if(done)return;done=true;if(!location.hash)scrollTo(0,0);d.classList.add('ready')};var wait=function(){var ps=[];if(document.fonts&&document.fonts.ready)ps.push(document.fonts.ready);var im=document.querySelector('.hero__poster,.phero img,.cat-hero img');if(im&&!im.complete)ps.push(new Promise(function(r){im.addEventListener('load',r);im.addEventListener('error',r)}));Promise.all(ps).then(function(){requestAnimationFrame(go)})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait);else wait();setTimeout(go,2500);addEventListener('pageshow',function(e){if(e.persisted){d.classList.remove('leaving');d.classList.add('ready')}})})();</script>
+</head>
+<body{% if lux %} class="lux"{% endif %}>
+<div class="preload" aria-hidden="true">{{ logo|safe }}</div>
+<header class="top">
+  <div class="wrap top__in">
+    <div class="top__start">
+      <a class="logo" href="{{ link('index') }}" aria-label="GeoTrip">{{ logo|safe }}</a>
+      {% if back %}<a class="back" href="{{ link(back) }}" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>{{ ui.back }}</span></a>{% endif %}
+    </div>
+    <div class="top__side">
+      <span class="top__lang">{% for l in langs if l != lang %}<a href="{{ {'ru':ru_href,'en':en_href,'ar':ar_href}[l] }}" lang="{{ l }}">{{ {'ru':'РУС','en':'ENG','ar':'عربي'}[l] }}</a>{% endfor %}</span>
+      <a class="btn btn--wa" href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener">{{ icons.wa|safe }}WhatsApp</a>
+      <button class="burger" aria-controls="menu" aria-expanded="false" aria-label="{{ ui.menu }}"><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="menu" id="menu">
+  <nav class="menu__list" aria-label="{{ ui.menu }}">
+    {% for href, label, art, sid in menu %}<a href="{{ href }}" data-i="{{ loop.index0 }}" style="--i:{{ loop.index0 }}"{% if active=='index' and sid=='start' %} aria-current="page"{% endif %}>{{ label }}</a>{% endfor %}
+    <div class="menu__contacts" style="--i:10">
+      <a href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener">WhatsApp <bdi dir="ltr">{{ c.phone }}</bdi></a>
+      <a href="mailto:{{ c.email }}">{{ c.email }}</a>
+      <span>{{ c.address[lang] }}</span>
+    </div>
+  </nav>
+  <div class="menu__art" aria-hidden="true">
+    {% for href, label, art, sid in menu %}<img src="{{ root }}assets/svg/{{ art }}.svg" alt="" loading="lazy">{% endfor %}
+  </div>
+</div>
+
+<div class="langs"><a href="{{ ru_href }}" lang="ru" {% if lang=='ru' %}aria-current="true"{% endif %}>РУС</a><i></i><a href="{{ en_href }}" lang="en" {% if lang=='en' %}aria-current="true"{% endif %}>ENG</a><i></i><a href="{{ ar_href }}" lang="ar" {% if lang=='ar' %}aria-current="true"{% endif %}>عربي</a></div>
+
+<main>
+{% block main %}{% endblock %}
+</main>
+
+<footer class="foot">{% if lux %}
+  <div class="wrap bigfoot">
+    <div class="bigfoot__cta"><span>{{ {'ru':'Грузия ждёт','en':'Georgia is waiting','ar':'جورجيا بانتظارك'}[lang] }}</span><a href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener">{{ {'ru':'Спланировать путешествие','en':'Plan your journey','ar':'خطِّط لرحلتك'}[lang] }} <i>→</i></a></div>
+    <div class="bigfoot__cols"><div><b>WhatsApp</b><a href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener"><bdi dir="ltr">{{ c.phone }}</bdi></a></div><div><b>Email</b><a href="mailto:{{ c.email }}">{{ c.email }}</a></div><div><b>{{ {'ru':'Адрес','en':'Address','ar':'العنوان'}[lang] }}</b><span>{{ c.address[lang] }}</span></div></div>
+    <div class="bigfoot__mark" aria-hidden="true">GEOTRIP</div>
+  </div>{% endif %}
+  <div class="wrap foot__in">
+    <span>© 2016–{{ year }} GeoTrip. {{ ui.rights }}</span>
+    <nav>{% for n in nav[1:] %}<a href="{{ link(n.slug) }}">{{ n[lang] }}</a>{% endfor %}<a href="{{ root }}assets/docs/Contract-Offer.pdf" target="_blank" rel="noopener">{{ ui.offer }}</a></nav>
+  </div>
+</footer>
+<a class="wa-float" href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener" aria-label="{{ ui.write_wa }}">{{ icons.wa|safe }}</a>
+<script src="{{ root }}assets/site.js"></script>
+</body>
+</html>

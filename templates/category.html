@@ -1,0 +1,20 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="block--coal mapfirst" id="map"><div class="wrap">
+  <div class="mapfirst__head">
+    <div><div class="crumbs"><a href="{{ link('travel-in-georgia') }}">{{ nav_name('travel-in-georgia') }}</a></div><h1 class="split">{{ d.name }}</h1></div>
+    <p class="lead">{{ d.short }}</p>
+  </div>
+  <div class="atlas atlas--first" data-atlas>
+    <div class="atlas__map">{{ map_svg(t)|safe }}</div>
+    <div class="atlas__col">
+      <div class="dirchips" role="group" aria-label="{{ ui.pick_dir }}"><button type="button" class="is-on" data-pick-all>{{ ui.all_dirs }}</button>{% for key in ['east', 'center', 'west', 'all'] %}{% if t.programs|selectattr('region', 'equalto', key)|list %}<button type="button" data-pick="{{ key }}">{{ regions[key] }}</button>{% endif %}{% endfor %}</div>
+      <ul class="atlas__list">
+        {% for pr in t.programs %}<li data-region="{{ pr.region }}"><a href="{{ link(t.slug ~ '/' ~ pr.slug) }}" data-layer="{{ pr.slug }}"><b>{{ pr.days }}</b><div><small>{{ dword(pr.days) }}</small><span>{{ pr[lang].name }}</span><em class="rg">{{ regions[pr.region] }}</em><em class="go">{{ ui.prog_open }} →</em></div></a></li>{% endfor %}
+      </ul>
+      <p class="atlas__tip"><span class="hv">{{ ui.map_lead }}</span><span class="tc">{{ ui.map_lead_t }}</span></p>
+    </div>
+  </div>
+</div></section>
+
+{% endblock %}

@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://geotrip.world/sitemap.xml

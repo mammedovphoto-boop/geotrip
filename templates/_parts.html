@@ -1,0 +1,101 @@
+{% macro img(name, alt='', cls='', eager=False, zoom=False) -%}
+<img src="{{ root }}assets/img/{{ name }}.webp" alt="{{ alt }}"{% if cls %} class="{{ cls }}"{% endif %} {% if eager %}fetchpriority="high"{% else %}loading="lazy"{% endif %} decoding="async"{% if zoom %} data-zoom="{{ root }}assets/img/{{ name }}.webp"{% endif %}>
+{%- endmacro %}
+
+{% macro arrow() -%}<svg class="arrow" viewBox="0 0 38 12" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><path d="M0 6h36M31 1l5 5-5 5"/></svg>{%- endmacro %}
+{% macro star() -%}<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 1.5l3.1 7.2 7.8.7-5.9 5.1 1.8 7.6L12 18.1 5.2 22.1 7 14.5 1.1 9.4l7.8-.7z"/></svg>{%- endmacro %}
+
+{% macro ridges() -%}
+<div class="ridge" aria-hidden="true">
+  <img class="r1" src="{{ root }}assets/svg/mountains_3.svg" alt="" style="position:absolute;bottom:40px;left:0;width:100%;height:auto">
+  <img class="r2" src="{{ root }}assets/svg/mountains_2.svg" alt="" style="position:absolute;bottom:14px;left:0;width:100%;height:auto">
+  <img src="{{ root }}assets/svg/mountains_1.svg" alt="" style="position:absolute;bottom:-2px;left:0;width:100%;height:auto">
+</div>
+{%- endmacro %}
+
+{% macro contact_scene(id='contacts', heading=None) -%}
+<section class="scene night" id="{{ id }}">
+  {{ ridges() }}
+  <div class="wrap contact" style="padding-bottom:clamp(60px,12vw,180px)">
+    <div>
+      <div class="kicker">{{ ui.contacts }}</div>
+      <h2>{{ heading or ui.form_title }}</h2>
+      <p class="lead">{{ ui.form_lead }}</p>
+      <ul class="contact__list">
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg><div><b>{{ c.address[lang] }}</b></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M5 3h4l2 5-2.5 1.5a11 11 0 0 0 6 6L16 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/></svg><div><b><a href="tel:{{ c.phone_raw }}"><bdi dir="ltr">{{ c.phone }}</bdi></a></b><small>{{ ui.phone_note }}</small></div></li>
+        <li>{{ icons.wa|safe }}<div><b><a href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener"><bdi dir="ltr">{{ c.phone }}</bdi></a></b><small>WhatsApp</small></div></li>
+        <li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><rect x="3" y="5" width="18" height="14"/><path d="M3 6l9 7 9-7"/></svg><div><b><a href="mailto:{{ c.email }}">{{ c.email }}</a></b></div></li>
+      </ul>
+      <div class="socials">{% for k, url in c.socials.items() %}<a href="{{ url }}" target="_blank" rel="noopener" aria-label="{{ k }}">{{ icons[k]|safe }}</a>{% endfor %}</div>
+    </div>
+    <form class="form" data-wa="{{ c.wa }}" data-mail="{{ c.email }}" data-title="{{ ui.req_title }}">
+      <h3>{{ ui.write_us }}</h3>
+      <div class="row">
+        <label class="field">{{ ui.f_name }}<input id="f-name-{{ id }}" name="name" data-label="{{ ui.f_name }}" required autocomplete="name"></label>
+        <label class="field">{{ ui.f_phone }}<input id="f-phone-{{ id }}" name="phone" data-label="{{ ui.f_phone }}" type="tel" required autocomplete="tel"></label>
+      </div>
+      <div class="row">
+        <label class="field">{{ ui.f_tour }}
+          <select id="f-tour-{{ id }}" name="tour" data-label="{{ ui.f_tour }}">
+            <option>{{ ui.f_any }}</option>
+            {% for o in tour_opts %}<option>{{ o }}</option>{% endfor %}
+            <option>{{ ui.f_individual }}</option><option>{{ ui.f_corporate }}</option>
+          </select>
+        </label>
+        <label class="field">{{ ui.f_dates }}<input id="f-dates-{{ id }}" name="dates" data-label="{{ ui.f_dates }}"></label>
+      </div>
+      <label class="field">{{ ui.f_msg }}<textarea id="f-msg-{{ id }}" name="msg" data-label="{{ ui.f_msg }}"></textarea></label>
+      <div class="form__actions">
+        <button class="btn btn--wa" type="submit" value="wa">{{ icons.wa|safe }}{{ ui.f_send_wa }}</button>
+        <button class="btn" type="submit" value="mail">{{ ui.f_send_mail }}</button>
+      </div>
+      <small>{{ ui.f_note }}</small>
+    </form>
+  </div>
+</section>
+{%- endmacro %}
+
+{% macro cta() -%}
+<section class="block night center" style="padding-bottom:clamp(160px,20vw,280px)">
+  {{ ridges() }}
+  <div class="wrap">
+    <h2>{{ ui.cta_title }}</h2>
+    <p class="lead" style="margin:0 auto 34px">{{ ui.cta_text }}</p>
+    <a class="btn btn--wa" href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener">{{ icons.wa|safe }}{{ ui.write_wa }}</a>
+  </div>
+</section>
+{%- endmacro %}
+
+{% set mratio = {'georgia':'1400/723','island-big1':'900/1344','island-big2':'900/1342','island-small1':'900/1605','island-small2':'900/1566','island-small3':'900/1650'} %}
+{% macro shape(mask, imgs, alt, cls='') -%}
+<div class="shape {{ cls }}" style="-webkit-mask-image:url({{ root }}assets/img/mask-{{ mask }}.png);mask-image:url({{ root }}assets/img/mask-{{ mask }}.png);aspect-ratio:{{ mratio[mask] }}" data-cycle>
+  {% for im in imgs %}<img src="{{ root }}assets/img/{{ im }}.webp" alt="{{ alt if loop.first else '' }}" loading="lazy" decoding="async"{% if loop.first %} class="is-on"{% endif %}>{% endfor %}
+</div>
+{%- endmacro %}
+
+
+{% macro svc_block(h) -%}
+    <h2 class="svc-h rv">{{ h.svc_h }}</h2>
+    <div class="svc" data-path>
+      <svg class="svc__path" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
+        <defs><mask id="svcMask" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><path class="svc__reveal" d="M30 6 C 30 22, 70 18, 70 34 S 30 50, 30 64 S 70 78, 70 94" pathLength="1"/></mask></defs>
+        <path class="svc__dots" mask="url(#svcMask)" d="M30 6 C 30 22, 70 18, 70 34 S 30 50, 30 64 S 70 78, 70 94"/>
+      </svg>
+      {% for mask, imgs, t, txt in h.svc_items %}
+      <div class="svc__item svc__item--{{ loop.index }} rv">
+        {{ shape(mask, imgs, t, 'shape--' ~ mask) }}
+        <div class="svc__txt"><i class="svc__dot" aria-hidden="true"></i><h3>{{ t }}</h3><p>{{ txt }}</p></div>
+      </div>
+      {% endfor %}
+    </div>
+{%- endmacro %}
+
+{% macro drift() -%}
+  <div class="drift" aria-hidden="true">
+    <img class="d1" src="{{ root }}assets/svg/island-small2.svg" alt="" data-par="-0.12">
+    <img class="d2" src="{{ root }}assets/svg/island-big1.svg" alt="" data-par="0.08">
+    <img class="d3" src="{{ root }}assets/svg/island-small3.svg" alt="" data-par="-0.06">
+    <img class="d4" src="{{ root }}assets/svg/island-small1.svg" alt="" data-par="0.14">
+  </div>
+{%- endmacro %}

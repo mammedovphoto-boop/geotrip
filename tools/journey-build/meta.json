@@ -1,0 +1,1 @@
+{"proj": "+proj=lcc +lat_1=41.5 +lat_2=43.0 +lat_0=42.2 +lon_0=43.4 +x_0=0 +y_0=0 +ellps=WGS84 +units=m", "xmin": -287000, "xmax": 278000, "ymin": -132000, "ymax": 166000, "mesh": {"nx": 566, "ny": 299, "step": 1000}, "tex": {"nx": 2261, "ny": 1193, "step": 250}}

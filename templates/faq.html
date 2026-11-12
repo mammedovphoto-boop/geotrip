@@ -1,0 +1,8 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="wrap plain-head"><div class="kicker">GeoTrip</div><h1>{{ f.h1 }}</h1><p class="lead">{{ f.sub }}</p></section>
+<section class="block" style="padding-top:20px"><div class="wrap faq">
+  {% for q, a in f['items'] %}<details{% if loop.first %} open{% endif %}><summary>{{ q }}<i aria-hidden="true"></i></summary><div class="ans"><p>{{ a }}</p></div></details>{% endfor %}
+</div></section>
+{{ p.contact_scene('contacts') }}
+{% endblock %}

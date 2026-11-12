@@ -1,0 +1,39 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="block night" style="min-height:100svh;padding-top:150px">
+  {{ p.ridges() }}
+  <div class="wrap">
+  {% if page=='profile' %}
+    <div data-account="profile" data-login="{{ link('account/login') }}">
+      <div class="kicker">{{ ui.cabinet }}</div>
+      <h1 style="font-size:clamp(40px,5vw,72px)" data-name>{{ ui.cabinet }}</h1>
+      <p class="lead" data-email></p>
+      <p class="notice" hidden></p>
+      <div class="prof mt">
+        <form class="form" data-settings>
+          <h3>{{ ui.acc_settings }}</h3>
+          <label class="field">{{ ui.f_name }}<input id="ps-name" name="name" autocomplete="name"></label>
+          <label class="field">{{ ui.f_phone }}<input id="ps-phone" name="phone" type="tel" autocomplete="tel"></label>
+          <div class="form__actions"><button class="btn" type="submit">{{ ui.acc_save }}</button><button class="btn" type="button" data-logout>{{ ui.acc_logout }}</button></div>
+        </form>
+        <div><h2 style="font-size:clamp(28px,3vw,40px)">{{ ui.acc_trips }}</h2><div class="bk"><div class="empty">{{ ui.acc_empty }} <a href="{{ link('travel-in-georgia') }}" style="color:#fff">{{ ui.choose }}</a></div></div></div>
+      </div>
+    </div>
+  {% else %}
+    <div class="acc" data-account="{{ page }}" data-next="{{ link('account/profile') }}">
+      <form class="form" data-api="{{ page }}">
+        <h1 style="font-size:clamp(34px,4vw,50px);margin:0">{{ ui.acc_login if page=='login' else ui.acc_register }}</h1>
+        <p class="notice" hidden></p>
+        {% if page=='register' %}<label class="field">{{ ui.f_name }}<input id="ac-name" name="name" required autocomplete="name"></label>
+        <label class="field">{{ ui.f_phone }}<input id="ac-phone" name="phone" type="tel" autocomplete="tel"></label>{% endif %}
+        <label class="field">{{ ui.f_email }}<input id="ac-email" name="email" type="email" required autocomplete="email"></label>
+        <label class="field">{{ ui.acc_pass }}<input id="ac-pass" name="password" type="password" required minlength="8" autocomplete="{{ 'current-password' if page=='login' else 'new-password' }}"></label>
+        <div class="form__actions"><button class="btn btn--red" type="submit">{{ ui.acc_login_btn if page=='login' else ui.acc_register_btn }}</button></div>
+        <small>{{ ui.acc_why }}</small>
+      </form>
+      <p class="acc__switch">{% if page=='login' %}{{ ui.acc_no }} <a href="{{ link('account/register') }}">{{ ui.acc_register }}</a>{% else %}{{ ui.acc_yes }} <a href="{{ link('account/login') }}">{{ ui.acc_login }}</a>{% endif %}</p>
+    </div>
+  {% endif %}
+  </div>
+</section>
+{% endblock %}

@@ -1,0 +1,112 @@
+[
+{
+"slug": "legend",
+"ru": "Легенда",
+"days": 5,
+"cat": "Классик",
+"cat_slug": "east-to-west",
+"km": 579,
+"places": 7,
+"top": 2402,
+"img": "g-ushguli-2"
+},
+{
+"slug": "mountains-to-sea",
+"ru": "С гор к морю",
+"days": 8,
+"cat": "Классик",
+"cat_slug": "east-to-west",
+"km": 616,
+"places": 7,
+"top": 2120,
+"img": "h-sea"
+},
+{
+"slug": "six-stories",
+"ru": "Шесть историй Грузии",
+"days": 8,
+"cat": "Классик",
+"cat_slug": "east-to-west",
+"km": 947,
+"places": 11,
+"top": 2402,
+"img": "h-vineyard"
+},
+{
+"slug": "colors-of-the-west",
+"ru": "Краски Запада",
+"days": 11,
+"cat": "Классик",
+"cat_slug": "east-to-west",
+"km": 1094,
+"places": 11,
+"top": 1417,
+"img": "h-bridge"
+},
+{
+"slug": "all-georgia",
+"ru": "Вся Грузия",
+"days": 14,
+"cat": "Классик",
+"cat_slug": "east-to-west",
+"km": 1569,
+"places": 15,
+"top": 2402,
+"img": "h-kazbegi"
+},
+{
+"slug": "flash",
+"ru": "Вспышка",
+"days": 5,
+"cat": "Приключение",
+"cat_slug": "full-immersion",
+"km": 393,
+"places": 5,
+"top": 755,
+"img": "h-vineyard"
+},
+{
+"slug": "wild-west",
+"ru": "Дикий Запад",
+"days": 10,
+"cat": "Приключение",
+"cat_slug": "full-immersion",
+"km": 798,
+"places": 12,
+"top": 1675,
+"img": "g-pass-1"
+},
+{
+"slug": "lost-world",
+"ru": "Затерянный мир",
+"days": 10,
+"cat": "Приключение",
+"cat_slug": "full-immersion",
+"km": 841,
+"places": 8,
+"top": 2682,
+"img": "g-mutso-2"
+},
+{
+"slug": "on-the-edge",
+"ru": "На грани",
+"days": 10,
+"cat": "Приключение",
+"cat_slug": "full-immersion",
+"km": 797,
+"places": 9,
+"top": 2861,
+"img": "n-heli"
+},
+{
+"slug": "reboot",
+"ru": "Перезагрузка",
+"days": 14,
+"cat": "Приключение",
+"cat_slug": "full-immersion",
+"km": 1366,
+"places": 14,
+"top": 2861,
+"img": "g-ushba-1"
+}
+]

@@ -1,0 +1,568 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Туры GeoTrip в 3D</title>
+<meta name="description" content="Выберите тур GeoTrip и проедьте его по настоящему 3D-рельефу Грузии: реальные дороги, перевалы и высоты.">
+<meta name="theme-color" content="#0b0e12">
+<link rel="icon" href="img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Raleway:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0b0e12; --ink:#ffffff; --mist:#cfd4da; --ash:#97a0a9;
+  --accent:#b81a06; --accent-hi:#d42a10; --wa:#1f8f55;
+  --card:rgba(11,14,18,.9); --sky-top:#8eaec4; --sky-low:#dde5ea;
+  --map-ink:#15191d; --halo:rgba(255,255,255,.92);
+  --serif:"Playfair Display", Georgia, serif; --sans:"Raleway", system-ui, sans-serif;
+  --gutter:clamp(16px,3.4vw,48px); --ease:cubic-bezier(.22,1,.36,1);
+}
+*{box-sizing:border-box}
+html{color-scheme:dark}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--sans);font-size:17px;line-height:1.6;-webkit-font-smoothing:antialiased}
+h1,h2{font-family:var(--serif);font-weight:900;line-height:1.04;letter-spacing:-.02em;margin:0;text-wrap:balance}
+h1{font-size:clamp(34px,4vw,60px)}
+h2{font-size:clamp(30px,3.2vw,48px)}
+p{margin:0}
+a{color:inherit}
+[hidden]{display:none!important}
+
+/* небо и сцена */
+.sky{position:fixed;inset:0;z-index:0;background:linear-gradient(var(--sky-top),var(--sky-low) 62%)}
+#map{position:fixed;inset:0;z-index:0;width:100%;height:100%}
+body:not(.explore) #map{pointer-events:none}
+.maplibregl-canvas{outline:none}
+body.explore #map{cursor:grab}
+
+/* подписи на карте: тёмный текст с белым ореолом, как на хорошей бумажной карте */
+.labels{position:fixed;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.lbl{position:absolute;left:0;top:0;white-space:nowrap;font-size:14px;font-weight:600;color:var(--map-ink);
+  text-shadow:0 0 2px var(--halo),0 0 3px var(--halo),0 0 6px var(--halo),0 0 10px rgba(255,255,255,.6);padding-bottom:11px;transition:opacity .3s}
+.lbl::after{content:"";position:absolute;left:50%;bottom:0;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:var(--map-ink);box-shadow:0 0 0 2px #fff}
+.lbl.peak{font-family:var(--serif);font-weight:700;font-size:15px}
+.lbl.peak::after{background:none;box-shadow:none;width:0;height:0;margin-left:-5px;border-radius:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:8px solid var(--map-ink)}
+.lbl.sea{font-family:var(--serif);font-weight:700;font-size:21px;color:#1d4a66;padding:0;text-shadow:0 0 4px rgba(255,255,255,.7)}
+.lbl.sea::after{display:none}
+.lbl.now{font-size:17px}
+.lbl.now::after{display:none}
+.lbl.now{padding-bottom:24px}
+.lbl.off{opacity:0}
+.tail{position:absolute;inset:0;width:100%;height:100%;overflow:visible}
+.tail path{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.tail .g{stroke:rgba(255,255,255,.42);stroke-width:7.5}
+.tail .r{stroke:#e2341c;stroke-width:3.4}
+/* метка «мы здесь»: белая точка с красным кольцом и мягкой волной */
+.pin{position:absolute;left:0;top:0;width:0;height:0;opacity:0;transition:opacity .5s;pointer-events:none}
+.maplibregl-marker .lbl{pointer-events:none}
+.pin.on{opacity:1}
+.pin b{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 0 0 4px #e2341c,0 4px 14px rgba(0,0,0,.35)}
+.pin i{position:absolute;left:-9px;top:-9px;width:18px;height:18px;border-radius:50%;background:rgba(226,52,28,.45);animation:pinwave 2.4s cubic-bezier(.2,.6,.3,1) infinite}
+@keyframes pinwave{from{transform:scale(1);opacity:.9}to{transform:scale(4.2);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pin i{animation:none;opacity:0}}
+.lbl.town{font-size:12px;font-weight:500;opacity:.92}
+.lbl.town::after{width:6px;height:6px;margin-left:-3px;box-shadow:0 0 0 1.5px #fff}
+.lbl.town.big{font-size:13px;font-weight:600}
+.lbl.town.off{opacity:0}
+
+/* шапка */
+.bar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px var(--gutter);background:var(--card)}
+.bar__l{display:flex;align-items:center;gap:18px;min-width:0}
+.logo{display:block;width:48px;height:48px;color:#fff;flex:none}
+.logo svg{width:100%;height:100%;display:block}
+.back{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:9px 16px 9px 12px;border:1px solid rgba(255,255,255,.45);color:#fff;text-decoration:none;font-size:14px;font-weight:600;transition:background .3s var(--ease),border-color .3s var(--ease)}
+.back:hover{background:var(--accent);border-color:var(--accent)}
+.back svg{width:18px;height:18px}
+.pick{display:flex;align-items:center;gap:10px;font-size:14px;color:var(--mist)}
+.pick select{appearance:none;background:rgba(255,255,255,.1) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E") no-repeat right 12px center/16px;border:0;color:#fff;font:600 15px/1.2 var(--sans);padding:12px 40px 12px 14px;min-height:44px;cursor:pointer;max-width:340px}
+.pick select:focus-visible{outline:2px solid #fff;outline-offset:2px}
+.pick option,.pick optgroup{color:#111;background:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:12px 22px;border:0;border-radius:0;background:var(--accent);color:#fff;font:600 15px/1.2 var(--sans);text-decoration:none;cursor:pointer;transition:background .3s var(--ease),transform .2s var(--ease)}
+.btn:hover{background:var(--accent-hi)}
+.btn:active{transform:translateY(1px)}
+.btn:focus-visible,.back:focus-visible,.tour:focus-visible{outline:2px solid #fff;outline-offset:3px}
+.btn--wa{background:var(--wa)}
+.btn--wa:hover{background:#24a463}
+.btn--ghost{background:rgba(255,255,255,.12)}
+.btn--ghost:hover{background:rgba(255,255,255,.22)}
+.btn svg{width:20px;height:20px;flex:none}
+
+/* приборы */
+.hud{position:fixed;left:0;right:0;bottom:0;z-index:5;display:grid;grid-template-columns:auto auto 1fr;align-items:center;gap:8px 40px;padding:14px var(--gutter) max(14px,env(safe-area-inset-bottom));background:var(--card);pointer-events:none;transition:transform .5s var(--ease)}
+.hud.off{transform:translateY(110%)}
+.hud__n{font-family:var(--serif);font-weight:700;font-size:clamp(24px,2.2vw,32px);line-height:1;font-variant-numeric:tabular-nums}
+.hud__k{display:block;font-size:13px;color:var(--mist);margin-top:5px}
+.track{position:relative;height:4px;background:rgba(255,255,255,.2)}
+.track i{position:absolute;left:0;top:0;bottom:0;background:var(--accent-hi);width:0}
+.track b{position:absolute;top:-4px;width:2px;height:12px;background:rgba(255,255,255,.65)}
+
+/* главы */
+main{position:relative;z-index:3;pointer-events:none}
+.ch{min-height:190vh;display:flex;align-items:center;padding:0 var(--gutter)}
+.ch--intro{min-height:115vh;align-items:flex-start;padding-top:108px}
+.ch--end{min-height:100vh;align-items:flex-start;padding-top:108px}
+.card{pointer-events:auto;width:min(440px,100%);background:var(--card);padding:28px 30px 30px;opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.card.in{opacity:1;transform:none}
+.card h2{margin-bottom:10px}
+.card .meta{font-size:15px;color:var(--mist);margin-bottom:14px;font-variant-numeric:tabular-nums}
+.card .meta b{color:#fff;font-weight:600}
+.card figure{margin:20px -30px -30px}
+.card img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
+.card figcaption{font-size:13px;color:var(--ash);padding:10px 30px 14px}
+.intro{pointer-events:auto;width:min(560px,100%);background:var(--card);padding:30px 32px 32px}
+.intro .lead{font-size:18px;line-height:1.55;color:var(--mist);margin:16px 0 0}
+.facts{display:flex;flex-wrap:wrap;gap:12px 32px;margin-top:22px}
+.facts div{font-size:14px;color:var(--mist)}
+.facts b{display:block;font-family:var(--serif);font-size:28px;line-height:1.1;color:#fff;font-variant-numeric:tabular-nums}
+.hint{display:inline-flex;align-items:center;gap:10px;margin-top:24px;font-size:15px;color:#fff;font-weight:500}
+.hint svg{width:18px;height:18px;animation:nudge 2.2s var(--ease) infinite}
+@keyframes nudge{50%{transform:translateY(6px)}}
+.tours{margin-top:26px;display:grid;gap:18px}
+.tours h3{font:600 14px/1.3 var(--sans);color:var(--mist);margin:0 0 10px}
+.tours ul{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.tour{display:inline-flex;align-items:baseline;gap:8px;padding:9px 13px;background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font-size:15px;font-weight:500;transition:background .3s var(--ease)}
+.tour small{font-size:13px;color:var(--ash)}
+.tour:hover{background:rgba(255,255,255,.18)}
+.tour[aria-current]{background:var(--accent)}
+.tour[aria-current] small{color:#fff}
+.end{pointer-events:auto;width:min(640px,100%);background:var(--card);padding:32px 34px 34px}
+.end p{color:var(--mist);margin:14px 0 24px}
+.end .acts{display:flex;flex-wrap:wrap;gap:12px}
+.credits{pointer-events:auto;position:relative;z-index:3;padding:28px var(--gutter) 110px;font-size:13px;color:var(--ash);background:var(--ground);line-height:1.6}
+.credits a{color:var(--mist)}
+.explore-bar{position:fixed;left:50%;bottom:max(24px,env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;display:flex;gap:12px;align-items:center;background:var(--card);padding:10px 10px 10px 20px;font-size:15px;color:var(--mist)}
+
+.loading{position:fixed;inset:0;z-index:20;display:grid;place-items:center;background:var(--ground);transition:opacity .8s var(--ease)}
+.loading.done{opacity:0;pointer-events:none}
+.loading p{font-size:15px;color:var(--mist)}
+.flat{display:none}
+body.no-gl .flat{display:block;position:fixed;inset:0;z-index:0;background:var(--sky-low)}
+body.no-gl .flat img,body.no-gl .flat svg{position:absolute;inset:0;width:100%;height:100%;object-fit:contain}
+body.no-gl #stage,body.no-gl .hud,body.no-gl .sky{display:none}
+
+@media (max-width:760px){
+  body{font-size:16px}
+  .bar{padding-top:max(10px,env(safe-area-inset-top));padding-bottom:10px;gap:10px}
+  .logo{width:40px;height:40px}
+  .bar__l{gap:10px}
+  .back span,.pick span{display:none}
+  .back{padding:8px 10px}
+  .pick select{max-width:170px;font-size:14px;padding:10px 34px 10px 12px}
+  .bar .btn{min-height:42px;padding:10px 12px;font-size:14px}
+  .bar .btn span{display:none}
+  .ch{align-items:flex-end;padding-bottom:calc(25vh + 120px);min-height:200vh}
+  .ch--intro{padding-top:84px;padding-bottom:0;align-items:flex-start}
+  .ch--end{padding-top:84px;padding-bottom:0}
+  .intro{padding:22px 20px 24px}
+  .intro .tours{display:none}
+  .intro .lead{font-size:16px}
+  .card{padding:22px 20px}
+  .card figure{margin:16px -20px -22px}
+  .card figcaption{padding:8px 20px 12px}
+  .card img{aspect-ratio:3/1}
+  .card figcaption{display:none}
+  .card figure{margin-bottom:-22px}
+  .card .txt{font-size:15px}
+  .hud{grid-template-columns:auto auto;gap:6px 24px;padding-top:10px}
+  .track{grid-column:1/-1;order:-1;margin-bottom:6px}
+  .lbl{font-size:12px}
+  .lbl.peak{font-size:13px}
+  .end{padding:24px 20px}
+}
+@media (prefers-reduced-motion:reduce){
+  .card{transition:none;opacity:1;transform:none}
+  .hint svg{animation:none}
+}
+</style>
+<link rel="stylesheet" href="maplibre-gl.css">
+<script src="https://cdn.jsdelivr.net/npm/maplibre-gl@5.24.0/dist/maplibre-gl.js"></script>
+</head>
+<body>
+<div class="sky" aria-hidden="true"></div>
+<div id="map" aria-label="Объёмная спутниковая карта Грузии с маршрутом тура"></div>
+<div class="labels" id="labels" aria-hidden="true"></div>
+<div class="flat" aria-hidden="true"><img src="data/terrain-sat-2k.jpg" alt=""><svg id="flatRoute" preserveAspectRatio="xMidYMid meet"></svg></div>
+
+<header class="bar">
+  <div class="bar__l">
+    <a class="logo" href="../index.html" aria-label="GeoTrip, на главную">LOGO</a>
+    <a class="back" href="../travel-in-georgia.html" data-back><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span>Назад</span></a>
+    <label class="pick"><span>Тур</span><select id="pick" aria-label="Выберите тур"></select></label>
+  </div>
+  <a class="btn btn--wa" id="waTop" href="https://wa.me/995579997733" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.3.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.7a2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3z"/></svg><span>Хочу этот тур</span></a>
+</header>
+
+<div class="hud off" id="hud">
+  <div><span class="hud__n" id="hudKm">0</span><span class="hud__k" id="hudKmK">км пути</span></div>
+  <div><span class="hud__n" id="hudH">0</span><span class="hud__k">метров над морем</span></div>
+  <div class="track" id="track"><i id="trackFill"></i></div>
+</div>
+
+<main id="story">
+  <section class="ch ch--intro" data-mode="over">
+    <div class="intro">
+      <h1 id="title">Туры GeoTrip в 3D</h1>
+      <p class="lead" id="lead">Выберите тур и прокручивайте страницу: вы проедете его по настоящему рельефу Грузии.</p>
+      <div class="facts" id="facts"></div>
+      <p class="hint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 4v16M5 13l7 7 7-7"/></svg>Листайте вниз, чтобы поехать</p>
+      <div class="tours" id="tours"></div>
+    </div>
+  </section>
+</main>
+
+<section class="credits">
+  GeoTrip. Спутниковые снимки: <a href="https://s2maps.eu" target="_blank" rel="noopener">Sentinel-2 cloudless 2016</a> by EOX IT Services GmbH (содержит изменённые данные Copernicus Sentinel 2016, CC BY 4.0). Рельеф: <a href="https://registry.opendata.aws/terrain-tiles/" target="_blank" rel="noopener">AWS Terrain Tiles</a> (SRTM и другие открытые данные), высоты увеличены в 1,2 раза. Дороги: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">участники OpenStreetMap</a>, маршрут построен сервисом OSRM. Границы: Natural Earth, международно признанные границы Грузии. Карта: MapLibre GL JS. Высоты вершин по официальным данным, высоты городов и перевалов измерены по рельефу.
+</section>
+
+<div class="explore-bar" id="exploreBar" hidden>Вращайте и приближайте карту<button class="btn" type="button" id="exploreExit">Вернуться к маршруту</button></div>
+<div class="loading" id="loading"><p>Загружаем объёмную карту Грузии…</p></div>
+
+<script type="module">
+
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const PHONE = matchMedia('(max-width: 760px)').matches || /Mobi|Android/i.test(navigator.userAgent);
+const fmt = n => Math.round(n).toLocaleString('ru-RU');
+const WA = 'https://wa.me/995579997733?text=';
+
+/* «Назад» — на предыдущую страницу сайта */
+document.querySelector('[data-back]').addEventListener('click', e => { try { const r = document.referrer; if (r && new URL(r).origin === location.origin && history.length > 1) { e.preventDefault(); history.back(); } } catch (x) {} });
+
+/* Факты о местах. Фото — только снятые именно там. */
+const PLACE = {
+  'Тбилиси': ['Столица Грузии на берегах Куры.'],
+  'Мцхета': ['Древняя столица Грузии. Светицховели и Джвари под охраной ЮНЕСКО.'],
+  'Ананури': ['Крепость XVII века над Жинвальским водохранилищем.'],
+  'Гудаури': ['Горнолыжный курорт на Военно-Грузинской дороге.'],
+  'Казбеги': ['Степанцминда у подножия Казбека (5 047 м) и Гергетская Троица над посёлком.', 'h-kazbegi', 'Казбеги'],
+  'Сигнахи': ['Город-крепость на хребте над Алазанской долиной.'],
+  'Телави': ['Центр Кахетии, винодельческого края Грузии.', 'h-vineyard', 'Виноградники Кахетии'],
+  'Кварели': ['Кахетинский городок у подножия Большого Кавказа.'],
+  'Давид-Гареджи': ['Пещерный монастырский комплекс VI века на границе полупустыни.'],
+  'Гори': ['Город в долине Куры, рядом пещерный город Уплисцихе.'],
+  'Уплисцихе': ['Пещерный город, высеченный в скале над Курой.'],
+  'Бакуриани': ['Горный курорт в сосновых лесах Боржомского ущелья.'],
+  'Боржоми': ['Курорт минеральных вод в лесистом ущелье Куры.'],
+  'Ахалцихе': ['Крепость Рабати в центре города.'],
+  'Вардзия': ['Пещерный город XII века, высеченный в скале.'],
+  'Кутаиси': ['Второй город Грузии: храм Баграти и Гелатский монастырь.'],
+  'Пещера Прометея': ['Карстовая пещера с подземной рекой.'],
+  'Цхалтубо': ['Бальнеологический курорт рядом с Кутаиси.'],
+  'Амбролаури': ['Центр Рачи, горного края с виноградниками на склонах.'],
+  'Мартвили': ['Каньон с водопадами в Самегрело.'],
+  'Зугдиди': ['Ворота в Сванетию: отсюда дорога уходит в горы вдоль Ингури.'],
+  'Местиа': ['Столица Сванетии со сванскими башнями.', 'h-mestia', 'Местиа'],
+  'Ушгули': ['Одно из самых высокогорных сёл Европы, у подножия Шхары.', 'h-ushguli', 'Ушгули'],
+  'Шатили': ['Средневековая крепость-село в Хевсурети.', 'g-shatili-1', 'Шатили'],
+  'Омало': ['Главное село Тушети. Сюда ведёт одна дорога, через перевал Абано.', 'g-omalo', 'Омало, Тушети'],
+  'Батуми': ['Город на берегу Чёрного моря.', 'h-sea', 'Черноморское побережье'],
+};
+const PASS = {
+  'Перевал Абано': ['Дорога в Тушети, одна из самых высоких в Грузии. Открыта обычно с июня по октябрь.', 'g-pass-1', 'Дорога через перевал Абано'],
+  'Крестовый перевал': ['Высшая точка Военно-Грузинской дороги.'],
+  'Перевал Датвисджвари': ['Дорога в Хевсурети и Шатили. Проезжая обычно в тёплый сезон.'],
+  'Высшая точка дороги': ['Самое высокое место на этом отрезке пути.'],
+};
+
+const loadingEl = document.getElementById('loading');
+const [base, TOURS, TOWNS] = await Promise.all([fetch('data/base.json').then(r => r.json()), fetch('data/tours.json').then(r => r.json()), fetch('data/towns.json').then(r => r.json()).catch(() => [])]);
+let slug = new URLSearchParams(location.search).get('t');
+if (!TOURS.some(t => t.slug === slug)) slug = 'reboot';
+const TOUR = TOURS.find(t => t.slug === slug);
+const R = await fetch(`data/ll-route-${slug}.json`).then(r => r.json());
+
+/* текст под выбранный тур */
+document.title = `${TOUR.ru} в 3D — GeoTrip`;
+document.getElementById('title').textContent = `${TOUR.ru}: ${fmt(R.total)} км по Грузии`;
+document.getElementById('lead').textContent = `${TOUR.cat}, ${TOUR.days} ${TOUR.days < 5 ? 'дня' : 'дней'}. Прокручивайте страницу, и вы проедете этот тур по настоящему рельефу: те же дороги, те же перевалы, та же высота.`;
+document.getElementById('facts').innerHTML = `<div><b>${TOUR.places}</b>мест на пути</div><div><b>${fmt(TOUR.top)} м</b>высшая точка</div><div><b>${fmt(R.total)}</b>км по дорогам</div>`;
+document.getElementById('hudKmK').textContent = `км пути из ${fmt(R.total)}`;
+const waText = `Здравствуйте! Хочу тур «${TOUR.ru}» (${TOUR.days} дней). Посмотрел маршрут в 3D.`;
+document.getElementById('waTop').href = WA + encodeURIComponent(waText);
+/* выбор тура: только туры из списка сайта */
+const pick = document.getElementById('pick'), toursBox = document.getElementById('tours');
+[...new Set(TOURS.map(t => t.cat))].forEach(cat => {
+  const og = document.createElement('optgroup'); og.label = cat; pick.appendChild(og);
+  const box = document.createElement('div'); box.innerHTML = `<h3></h3><ul></ul>`; box.querySelector('h3').textContent = cat; toursBox.appendChild(box);
+  TOURS.filter(t => t.cat === cat).forEach(t => {
+    const o = new Option(`${t.ru}, ${t.days} дн.`, t.slug, false, t.slug === slug); og.appendChild(o);
+    const li = document.createElement('li'), a = document.createElement('a'); a.className = 'tour'; a.href = `?t=${t.slug}`; a.innerHTML = `<span></span><small></small>`;
+    a.querySelector('span').textContent = t.ru; a.querySelector('small').textContent = `${t.days} дн. · ${fmt(t.km)} км`; if (t.slug === slug) a.setAttribute('aria-current', 'true');
+    li.appendChild(a); box.querySelector('ul').appendChild(li);
+  });
+});
+pick.addEventListener('change', () => { location.search = '?t=' + pick.value; });
+
+/* главы истории */
+const story = document.getElementById('story');
+const chapters = [{ mode: 'over', km: 0 }];
+const addCard = (km, h2, meta, text, img) => {
+  const s = document.createElement('section'); s.className = 'ch';
+  s.innerHTML = `<div class="card"><h2></h2><p class="meta"></p><p class="txt"></p></div>`;
+  s.querySelector('h2').textContent = h2; s.querySelector('.meta').innerHTML = meta; s.querySelector('.txt').textContent = text;
+  if (img) { const f = document.createElement('figure'); f.innerHTML = `<img loading="lazy" alt=""><figcaption></figcaption>`; f.querySelector('img').src = `img/${img[0]}.webp`; f.querySelector('img').alt = img[1]; f.querySelector('figcaption').textContent = img[1]; s.querySelector('.card').appendChild(f); }
+  story.appendChild(s); chapters.push({ mode: 'follow', km });
+};
+const seen = {}, passesLeft = [...R.passes];
+R.stops.forEach((st, i) => {
+  const again = !!seen[st.ru]; seen[st.ru] = true;
+  const t = PLACE[st.ru] || [''];
+  const last = i === R.stops.length - 1;
+  const meta = i === 0 ? `<b>${fmt(st.h)} м</b> над морем · старт` : `<b>${fmt(st.h)} м</b> над морем · <b>${fmt(st.km)} км</b> от старта`;
+  const title = i === 0 ? st.ru : again ? (last ? `${st.ru}, финиш` : `Обратно в ${st.ru}`) : (last ? `${st.ru}, финиш` : st.ru);
+  const text = again && !last ? 'Обратный путь по той же дороге.' : t[0];
+  addCard(st.km, title, meta, text, again && !last ? null : (t[1] ? [t[1], t[2]] : null));
+  const next = R.stops[i + 1]; if (!next) return;
+  for (let k = 0; k < passesLeft.length; k++) {
+    const p = passesLeft[k];
+    if (p.leg === st.ru + '→' + next.ru) { const pt = PASS[p.name] || PASS['Высшая точка дороги']; addCard(p.km, p.name, `<b>${fmt(p.h)} м</b> по рельефу · <b>${fmt(p.km)} км</b> от старта`, pt[0], pt[1] ? [pt[1], pt[2]] : null); passesLeft.splice(k, 1); break; }
+  }
+});
+{
+  const s = document.createElement('section'); s.className = 'ch ch--end';
+  const others = TOURS.filter(t => t.slug !== slug).slice(0, 4);
+  s.innerHTML = `<div class="end"><h2></h2><p></p><div class="acts">
+    <a class="btn btn--wa" target="_blank" rel="noopener">Обсудить тур в WhatsApp</a>
+    <a class="btn btn--ghost" id="progLink">Программа и цены</a>
+    <button class="btn btn--ghost" type="button" id="exploreBtn">Осмотреть карту самому</button></div>
+    <div class="tours" id="moreTours"><div><h3>Другие туры в 3D</h3><ul></ul></div></div></div>`;
+  s.querySelector('h2').textContent = `Весь маршрут: ${fmt(R.total)} км`;
+  s.querySelector('p').textContent = `${TOUR.places} мест за ${TOUR.days} дней. Тур можно пройти с группой или индивидуально, а маршрут изменить под себя.`;
+  s.querySelector('.btn--wa').href = WA + encodeURIComponent(waText);
+  s.querySelector('#progLink').href = `../${TOUR.cat_slug}/${slug}.html`;
+  others.forEach(t => { const li = document.createElement('li'); li.innerHTML = `<a class="tour" href="?t=${t.slug}"><span></span><small></small></a>`; li.querySelector('span').textContent = t.ru; li.querySelector('small').textContent = `${t.days} дн.`; s.querySelector('#moreTours ul').appendChild(li); });
+  story.appendChild(s); chapters.push({ mode: 'over', km: R.total });
+}
+const sections = [...story.querySelectorAll('.ch')];
+
+/* логотип с сайта */
+fetch('img/logo.svg').then(r => r.text()).then(t => { document.querySelector('.logo').innerHTML = t; }).catch(() => { document.querySelector('.logo').textContent = 'GeoTrip'; });
+
+/* без WebGL — плоская карта */
+const maplibregl = window.maplibregl;
+if (!maplibregl || (maplibregl.supported && !maplibregl.supported({ failIfMajorPerformanceCaveat: false }))) { flatFallback(); finishLoading(); throw new Error('no webgl'); }
+
+/* ───────── настоящая объёмная карта: MapLibre + свои тайлы (спутник Sentinel-2 и рельеф), всё лежит в паках на сайте ───────── */
+const TI = await fetch('tiles/index.json').then(r => r.json());
+const packCache = new Map();
+const pack = i => { if (!packCache.has(i)) packCache.set(i, fetch('tiles/' + TI.packs[i][0]).then(r => { if (!r.ok) throw new Error('pack'); return r.arrayBuffer(); })); return packCache.get(i); };
+const raw = async (kind, z, x, y) => { const e = TI.idx[kind][`${z}/${x}/${y}`]; if (!e) return null; const b = await pack(e[0]); return b.slice(e[1], e[1] + e[2]); };
+const MAXZ = { sat: 13, dem: 11 };
+const cnv = (w, h) => (typeof OffscreenCanvas !== 'undefined' ? new OffscreenCanvas(w, h) : Object.assign(document.createElement('canvas'), { width: w, height: h }));
+const toBuf = async c => { const b = c.convertToBlob ? await c.convertToBlob({ type: 'image/png' }) : await new Promise(r => c.toBlob(r, 'image/png')); return b.arrayBuffer(); };
+/* тайла нет (в стороне от маршрутов) — дорисовываем его из ближайшего крупного: снимок растягиваем, высоты интерполируем честно */
+async function synth(kind, z, x, y) {
+  for (let pz = z - 1, k = 1; pz >= 6; pz--, k++) {
+    const px = x >> k, py = y >> k, d = await raw(kind, pz, px, py); if (!d) continue;
+    const bmp = await createImageBitmap(new Blob([d])), n = 1 << k, sz = 256 / n, sx = (x - (px << k)) * sz, sy = (y - (py << k)) * sz;
+    const c = cnv(256, 256), g = c.getContext('2d');
+    if (kind === 'sat') { g.imageSmoothingQuality = 'high'; g.drawImage(bmp, sx, sy, sz, sz, 0, 0, 256, 256); return toBuf(c); }
+    const s = cnv(256, 256), sg = s.getContext('2d', { willReadFrequently: true }); sg.drawImage(bmp, 0, 0);
+    const src = sg.getImageData(0, 0, 256, 256).data, H = i => src[i * 4] * 256 + src[i * 4 + 1] + src[i * 4 + 2] / 256;
+    const out = g.createImageData(256, 256), o = out.data;
+    for (let j = 0; j < 256; j++) for (let i = 0; i < 256; i++) {
+      const fx = Math.min(sx + (i + 0.5) / n - 0.5, 254.999), fy = Math.min(sy + (j + 0.5) / n - 0.5, 254.999);
+      const x0 = Math.max(0, Math.floor(fx)), y0 = Math.max(0, Math.floor(fy)), ax = Math.max(0, fx - x0), ay = Math.max(0, fy - y0), q = y0 * 256 + x0;
+      const h = H(q) * (1 - ax) * (1 - ay) + H(q + 1) * ax * (1 - ay) + H(q + 256) * (1 - ax) * ay + H(q + 257) * ax * ay;
+      const p = (j * 256 + i) * 4, v = Math.round(h * 256); o[p] = (v >> 16) & 255; o[p + 1] = (v >> 8) & 255; o[p + 2] = v & 255; o[p + 3] = 255;
+    }
+    g.putImageData(out, 0, 0); return toBuf(c);
+  }
+  return null;
+}
+maplibregl.addProtocol('gt', async params => {
+  const [, kind, z, x, y] = params.url.match(/gt:\/\/(\w+)\/(\d+)\/(\d+)\/(\d+)/).map((v, i) => i > 1 ? +v : v);
+  let d = await raw(kind, z, x, y);
+  if (!d) d = await synth(kind, z, x, y);
+  if (!d) { const c = cnv(1, 1); const g = c.getContext('2d'); g.fillStyle = kind === 'dem' ? 'rgb(128,0,0)' : '#cfd8de'; g.fillRect(0, 0, 1, 1); d = await toBuf(c); }
+  return { data: d };
+});
+
+const LL = R, GB = await fetch('data/ll-base.json').then(r => r.json());
+const P = LL.pts; /* [lon, lat, h, km] */
+const kms = Float64Array.from(P, p => p[3]);
+const KX = 111.32 * Math.cos(42 * Math.PI / 180), KY = 110.57; /* км в градусе на широте Грузии */
+function at(s) {
+  s = Math.min(Math.max(s, 0), R.total);
+  let lo = 0, hi = kms.length - 1;
+  while (hi - lo > 1) { const m = (lo + hi) >> 1; if (kms[m] <= s) lo = m; else hi = m; }
+  const t = kms[hi] > kms[lo] ? (s - kms[lo]) / (kms[hi] - kms[lo]) : 0, a = P[lo], b = P[hi];
+  return { lon: a[0] + (b[0] - a[0]) * t, lat: a[1] + (b[1] - a[1]) * t, h: a[2] + (b[2] - a[2]) * t, i: lo, t };
+}
+/* доля пути для line-progress: по длине линии на карте (в Меркаторе), а не по км дороги — тогда красная линия кончается ровно у метки */
+const MC = new Float64Array(P.length); for (let k = 1; k < P.length; k++) { const a = P[k - 1], b = P[k], my = Math.log(Math.tan(Math.PI / 4 + (a[1] + b[1]) * Math.PI / 360)); const dx = (b[0] - a[0]) * Math.PI / 180, dy = Math.log(Math.tan(Math.PI / 4 + b[1] * Math.PI / 360)) - Math.log(Math.tan(Math.PI / 4 + a[1] * Math.PI / 360)); MC[k] = MC[k - 1] + Math.hypot(dx, dy); }
+const progOf = h => { const k = Math.min(h.i, P.length - 2); return (MC[k] + (MC[k + 1] - MC[k]) * h.t) / MC[P.length - 1]; };
+const bearingOf = (a, b) => Math.atan2((b.lon - a.lon) * KX, (b.lat - a.lat) * KY) * 180 / Math.PI;
+
+const BOUNDS = [36.0, 39.0, 50.5, 46.0];
+const EMPTY = { type: 'FeatureCollection', features: [] };
+const lineF = c => c.length > 1 ? { type: 'Feature', geometry: { type: 'LineString', coordinates: c } } : EMPTY;
+const map = new maplibregl.Map({
+  container: 'map', interactive: true, attributionControl: false, pixelRatio: Math.min(devicePixelRatio, PHONE ? 1.5 : 1.5),
+  center: [43.6, 42.15], zoom: 7, pitch: 45, bearing: 0, maxPitch: 78, fadeDuration: 250, maxTileCacheSize: PHONE ? 300 : 800,
+  style: {
+    version: 8,
+    sources: {
+      sat: { type: 'raster', tiles: ['gt://sat/{z}/{x}/{y}'], tileSize: 256, minzoom: 6, maxzoom: MAXZ.sat, bounds: BOUNDS },
+      dem: { type: 'raster-dem', tiles: ['gt://dem/{z}/{x}/{y}'], tileSize: 256, minzoom: 6, maxzoom: MAXZ.dem, encoding: 'terrarium', bounds: BOUNDS },
+      border: { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: GB.border.concat([GB.border[0]]) } } },
+      route: { type: 'geojson', data: { type: 'Feature', geometry: { type: 'LineString', coordinates: P.map(p => [p[0], p[1]]) } } },
+      trail: { type: 'geojson', data: EMPTY }
+    },
+    layers: [
+      { id: 'bg', type: 'background', paint: { 'background-color': '#cfd8de' } },
+      { id: 'sat', type: 'raster', source: 'sat', paint: { 'raster-saturation': -0.08, 'raster-contrast': 0.06, 'raster-brightness-max': 0.97, 'raster-fade-duration': 250, 'raster-resampling': 'linear' } },
+      { id: 'border', type: 'line', source: 'border', paint: { 'line-color': '#fffaf0', 'line-width': 1.2, 'line-opacity': 0.55 } },
+      { id: 'ghost', type: 'line', source: 'route', layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ffffff', 'line-width': 1.6, 'line-opacity': 0.4 } },
+      ...['trail'].flatMap(src => [
+        { id: src + '-glow', type: 'line', source: src, layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#ffffff', 'line-opacity': 0.55, 'line-width': PHONE ? 8 : 9, 'line-blur': 3 } },
+        { id: src + '-line', type: 'line', source: src, layout: { 'line-join': 'round', 'line-cap': 'round' }, paint: { 'line-color': '#e2341c', 'line-width': PHONE ? 3.2 : 3.6 } }])
+    ],
+    terrain: { source: 'dem', exaggeration: 1.2 },
+    sky: { 'sky-color': '#7fa3bf', 'horizon-color': '#dfe7ec', 'fog-color': '#dfe7ec', 'sky-horizon-blend': 0.55, 'horizon-fog-blend': 0.6, 'fog-ground-blend': 0.35, 'atmosphere-blend': ['interpolate', ['linear'], ['zoom'], 6, 1, 12, 0.6] }
+  }
+});
+['scrollZoom', 'boxZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate', 'touchPitch'].forEach(h => map[h].disable());
+map.on('error', e => console.warn('map', e && e.error && e.error.message));
+
+/* подписи (HTML поверх карты: чёткие, с тем же стилем, что на сайте) */
+const labelsEl = document.getElementById('labels'), labels = [];
+const PRI = { stop: 3, peak: 2, pass: 1, sea: 0, 'town big': 0.6, town: 0.4 };
+/* подписи и метка — маркеры карты: стоят точно на рельефе */
+const addLabel = (text, ll, cls) => { const el = document.createElement('div'); el.className = 'lbl ' + (cls === 'pass' ? 'peak' : cls); el.textContent = text; labelsEl.appendChild(el); labels.push({ el, ll, cls, text, pri: PRI[cls] }); };
+const uniq = {}; LL.stops.forEach(s => { if (!uniq[s.ru]) { uniq[s.ru] = s; addLabel(s.ru, s.ll, 'stop'); } });
+GB.peaks.forEach(p => addLabel(`${p.ru} ${fmt(p.h)}`, p.ll, 'peak'));
+LL.passes.forEach(p => addLabel(`${p.name} ${fmt(p.h)}`, p.ll, 'pass'));
+addLabel(GB.sea.ru, GB.sea.ll, 'sea');
+GB.towns.forEach(t => { if (!uniq[t.ru]) addLabel(t.ru, t.ll, t.big ? 'town big' : 'town'); });
+const pin = document.createElement('div'); pin.className = 'pin'; pin.innerHTML = '<i></i><b></b>'; labelsEl.appendChild(pin);
+let lblTick = 0;
+function placeLabels(w, h, here, z) {
+  const placed = [], list = [];
+  for (const L of labels) {
+    if (!L.w) { L.w = L.el.offsetWidth || L.text.length * 8; L.h = L.el.offsetHeight || 24; }
+    const p = map.project(L.ll);
+    let vis = p.x > -80 && p.x < w + 80 && p.y > 60 && p.y < h - 40;
+    if (L.cls.startsWith('town') && z < (L.cls === 'town big' ? 7.6 : 9.5)) vis = false;
+    if (L.cls === 'stop' && here && z > 9 && Math.hypot((L.ll[0] - here.lon) * KX, (L.ll[1] - here.lat) * KY) > 90) vis = false;
+    if (L.cls === 'sea' && z > 9) vis = false;
+    L.now = !!here && L.cls === 'stop' && Math.hypot((L.ll[0] - here.lon) * KX, (L.ll[1] - here.lat) * KY) < 1.5;
+    L.sx = p.x; L.sy = p.y; L.vis = vis; list.push(L);
+  }
+  list.sort((a, b) => (b.now - a.now) || (b.pri - a.pri));
+  for (const L of list) {
+    let vis = L.vis;
+    if (vis) { const x0 = L.sx - L.w / 2 - 6, x1 = L.sx + L.w / 2 + 6, y0 = L.sy - L.h - 2, y1 = L.sy + 4; if (placed.some(b => x0 < b[2] && x1 > b[0] && y0 < b[3] && y1 > b[1])) vis = false; else placed.push([x0, y0, x1, y1]); }
+    L.el.classList.toggle('off', !vis); L.el.classList.toggle('now', L.now);
+    if (vis) L.el.style.transform = `translate(${L.sx}px,${L.sy}px) translate(-50%,-100%)`;
+  }
+}
+
+/* камера: общий план всей Грузии и «дрон» над маршрутом */
+const lons = P.map(p => p[0]), lats = P.map(p => p[1]);
+const RB = [[Math.min(...lons), Math.min(...lats)], [Math.max(...lons), Math.max(...lats)]];
+function overview(w, h) {
+  const portrait = w < h, padL = w > 900 ? Math.min(620, w * 0.42) : 30;
+  const cam = map.cameraForBounds(RB, { padding: { top: portrait ? h * 0.42 : 110, bottom: portrait ? 90 : 90, left: padL, right: 50 }, pitch: 0, bearing: 0 }) || { center: { lng: 43.6, lat: 42.1 }, zoom: 7 };
+  const c = cam.center; return { lon: c.lng, lat: c.lat - 0.18 * (portrait ? 1.4 : 1), zoom: (cam.zoom || 7) + 0.15, pitch: 42, bearing: -8 };
+}
+let centers = [];
+function measure() { centers = sections.map(s => s.offsetTop + s.offsetHeight / 2 - innerHeight / 2); centers[0] = 0; }
+function progress() { const y = scrollY; if (y <= centers[0]) return 0; for (let i = 0; i < centers.length - 1; i++) if (y < centers[i + 1]) return i + (y - centers[i]) / (centers[i + 1] - centers[i]); return centers.length - 1; }
+const smooth = t => t * t * (3 - 2 * t);
+const hold = f => smooth(Math.min(Math.max((f - 0.08) / 0.84, 0), 1));
+const lerpA = (a, b, t) => { let d = ((b - a + 540) % 360) - 180; return a + d * t; };
+
+const hud = document.getElementById('hud'), hudKm = document.getElementById('hudKm'), hudH = document.getElementById('hudH'), fill = document.getElementById('trackFill'), track = document.getElementById('track');
+Object.values(uniq).forEach(s => { const b = document.createElement('b'); b.style.left = (s.km / R.total * 100) + '%'; track.appendChild(b); });
+const io = new IntersectionObserver(es => es.forEach(e => e.target.classList.toggle('in', e.isIntersecting)), { rootMargin: '-22% 0px -22% 0px' });
+document.querySelectorAll('.card').forEach(c => io.observe(c));
+
+let explore = false;
+const exploreBar = document.getElementById('exploreBar'), mapEl = document.getElementById('map');
+document.getElementById('exploreBtn').addEventListener('click', () => {
+  explore = true; ['scrollZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate', 'touchPitch'].forEach(h => map[h].enable());
+  document.body.classList.add('explore'); mapEl.style.zIndex = 4; exploreBar.hidden = false; hud.classList.add('off');
+});
+document.getElementById('exploreExit').addEventListener('click', () => {
+  explore = false; ['scrollZoom', 'dragRotate', 'dragPan', 'keyboard', 'doubleClickZoom', 'touchZoomRotate', 'touchPitch'].forEach(h => map[h].disable());
+  document.body.classList.remove('explore'); mapEl.style.zIndex = 0; exploreBar.hidden = true;
+});
+addEventListener('resize', () => { measure(); map.resize(); });
+measure();
+
+let lastSig = '';
+let trailK = -1, trailT = 0, pinState = null, tailState = null;
+const tailSvg = document.createElementNS('http://www.w3.org/2000/svg', 'svg'); tailSvg.setAttribute('class', 'tail'); tailSvg.innerHTML = '<path class="g"/><path class="r"/>'; document.getElementById('labels').prepend(tailSvg);
+const tailG = tailSvg.querySelector('.g'), tailR = tailSvg.querySelector('.r');
+/* метка и подписи ставятся после отрисовки кадра — по той же камере, что и карта */
+map.on('render', () => {
+  if (!pinState) return; const w = innerWidth, h = innerHeight;
+  if (tailState) { let d = ''; for (let i = tailState.from; i <= tailState.to; i++) { const q = map.project([P[i][0], P[i][1]]); d += (d ? 'L' : 'M') + q.x.toFixed(1) + ' ' + q.y.toFixed(1); } const e = map.project([pinState.lon, pinState.lat]); d += (d ? 'L' : 'M') + e.x.toFixed(1) + ' ' + e.y.toFixed(1); tailG.setAttribute('d', d); tailR.setAttribute('d', d); } else { tailG.setAttribute('d', ''); tailR.setAttribute('d', ''); }
+  const p = map.project([pinState.lon, pinState.lat]); pin.classList.toggle('on', pinState.on); if (pinState.on) pin.style.transform = `translate(${p.x}px,${p.y}px)`;
+  if (explore) placeLabels(w, h, null, map.getZoom()); else if ((lblTick++ & 1) === 0) placeLabels(w, h, pinState.here, pinState.z);
+});
+let uS = 0, last = performance.now(), first = true, bS = 0, cam = null, lastProg = -1, ready = false;
+map.on('load', () => { ready = true; prefetch(); map.once('idle', () => setTimeout(finishLoading, 200)); });
+/* снимки вдоль маршрута подгружаются заранее, по порядку пути — к нужному месту они уже на месте */
+async function prefetch() {
+  const tk = (lon, lat, z) => { const n = 2 ** z, r = lat * Math.PI / 180; return [Math.floor((lon + 180) / 360 * n), Math.floor((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2 * n)]; };
+  const order = [...new Set(Object.values(TI.idx.dem).map(e => e[0]))]; /* сначала весь рельеф — он лёгкий */
+  for (let km = 0; km <= R.total; km += 4) { const a = at(km); [['dem', 11], ['sat', 12], ['sat', 13]].forEach(([k, z]) => { const [x, y] = tk(a.lon, a.lat, z), e = TI.idx[k][`${z}/${x}/${y}`]; if (e && !order.includes(e[0])) order.push(e[0]); }); }
+  for (const i of order) { try { await pack(i); } catch (e) {} }
+}
+setTimeout(() => { if (document.getElementById('loading')) finishLoading(); }, 15000);
+function frame() {
+  requestAnimationFrame(frame);
+  const w = innerWidth, h = innerHeight, now = performance.now(), dt = Math.min((now - last) / 1000, 0.25); last = now;
+  if (explore) return;
+  const kU = 1 - Math.exp(-dt * 1.9), kC = 1 - Math.exp(-dt * 2.6), kB = 1 - Math.exp(-dt * 1.1);
+  const u = progress(); uS = REDUCED || first ? u : uS + (u - uS) * kU; if (Math.abs(u - uS) < 1e-4) uS = u;
+  const i = Math.min(Math.floor(uS), chapters.length - 2), f = uS - i, A = chapters[i], B = chapters[i + 1];
+  const s = A.km + (B.km - A.km) * hold(f);
+  let m = 1;
+  if (A.mode === 'over' && B.mode === 'follow') m = smooth(Math.min(f / 0.85, 1));
+  else if (A.mode === 'follow' && B.mode === 'over') m = 1 - smooth(Math.min(f / 0.85, 1));
+  if (uS >= chapters.length - 1) m = 0;
+  const here = at(s), br = bearingOf(at(s - 6), at(s + 6));
+  bS = first ? br : lerpA(bS, br, REDUCED ? 1 : kB);
+  const ov = overview(w, h), portrait = w < h;
+  /* дрон: смотрит вперёд по ходу, чуть сбоку, точка маршрута — в свободной части экрана */
+  const fz = portrait ? 11.9 : 12.25, fp = portrait ? 66 : 64;
+  const tgt = {
+    lon: ov.lon + (here.lon - ov.lon) * m, lat: ov.lat + (here.lat - ov.lat) * m,
+    zoom: ov.zoom + (fz - ov.zoom) * m - Math.sin(m * Math.PI) * 0.9,
+    pitch: ov.pitch + (fp - ov.pitch) * m, bearing: lerpA(ov.bearing, bS - 18, m)
+  };
+  if (w <= 900) { /* телефон: точка маршрута — в верхней части экрана, над карточкой: центр камеры чуть впереди по ходу */
+    const d = 2.3 * Math.pow(2, 12 - tgt.zoom) * m, rb = tgt.bearing * Math.PI / 180;
+    tgt.lon -= Math.sin(rb) * d / KX; tgt.lat -= Math.cos(rb) * d / KY; }
+  if (!cam || first || REDUCED) cam = { ...tgt };
+  else { cam.lon += (tgt.lon - cam.lon) * kC; cam.lat += (tgt.lat - cam.lat) * kC; cam.zoom += (tgt.zoom - cam.zoom) * kC; cam.pitch += (tgt.pitch - cam.pitch) * kC; cam.bearing = lerpA(cam.bearing, tgt.bearing, kC); }
+  const off = w > 900 ? [Math.round(w * 0.16 * m), 0] : [0, Math.round(-h * 0.2 * m)];
+  const sig = [cam.lon.toFixed(6), cam.lat.toFixed(6), cam.zoom.toFixed(4), cam.pitch.toFixed(3), cam.bearing.toFixed(3), off[0]].join();
+  if (sig !== lastSig || first) { lastSig = sig; map.jumpTo({ center: [cam.lon, cam.lat], zoom: cam.zoom, pitch: cam.pitch, bearing: cam.bearing, padding: { left: Math.max(0, off[0] * 2), top: 0, right: 0, bottom: 0 } }); }
+  /* пройденный путь — красный ровно до метки: длинная часть обновляется изредка, короткий «хвост» до метки — каждый кадр */
+  if (ready) {
+    const k = s <= 0 ? -1 : here.i;
+    /* длинная часть пути обновляется редко (это дорогая операция), короткий хвост до метки рисуется поверх каждый кадр */
+    if (k < trailK || k - trailK > 220) { trailK = Math.max(k - 20, 0); map.getSource('trail').setData(trailK < 1 ? EMPTY : lineF(P.slice(0, trailK + 1).filter((p, i) => i % 2 === 0 || i === trailK).map(p => [p[0], p[1]]))); }
+    tailState = k < 0 ? null : { from: Math.max(trailK - 1, 0), to: k };
+  }
+  pinState = { lon: here.lon, lat: here.lat, on: m > 0.55, here: m > 0.5 ? here : null, z: cam.zoom };
+  hud.classList.toggle('off', m < 0.5);
+  hudKm.textContent = fmt(s); hudH.textContent = fmt(here.h); fill.style.width = (s / R.total * 100) + '%';
+  first = false;
+}
+frame();
+
+frame();
+
+function finishLoading() { if (loadingEl.classList.contains('done')) return; loadingEl.classList.add('done'); setTimeout(() => loadingEl.remove(), 900); }
+function flatFallback() {
+  document.body.classList.add('no-gl');
+  document.querySelectorAll('.card').forEach(c => c.classList.add('in'));
+}
+</script>
+</body>
+</html>

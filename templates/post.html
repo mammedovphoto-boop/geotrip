@@ -1,0 +1,18 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+{% if kind=='news' %}
+<section class="phero">{{ p.img(item.img, d.title, eager=True) }}
+  <div class="wrap"><div class="crumbs"><a href="{{ link('news') }}">{{ ui.news_cat }}</a></div><h1>{{ d.title }}</h1><p>{{ d.short }}</p></div></section>
+{% else %}
+<section class="phero">{{ p.img(item.photos[0], d.title, eager=True) }}
+  <div class="wrap"><div class="crumbs"><a href="{{ link('starblogs') }}">{{ nav_name('starblogs') }}</a></div><h1>{{ d.title }}</h1><p>{{ d.name }}{{ comma }}{{ d.role }}</p></div></section>
+{% endif %}
+<section class="block"><div class="wrap"><article class="article">
+  {% if kind=='blog' %}<div class="author">{{ p.img(item.img, d.name) }}<div><b>{{ d.name }}</b><span>{{ d.role }}</span></div></div>{% endif %}
+  {% for para in d.body %}{% if kind=='blog' and para.startswith('«') %}<blockquote>{{ para }}</blockquote>{% else %}<p class="{{ 'lead' if loop.first }}">{{ para }}</p>{% endif %}{% endfor %}
+  {% if d.tours %}<div class="incl-box"><b>{{ ui.in_tours }}</b><ul class="ticks">{% for t in d.tours %}<li><a href="{{ link('full-immersion') }}">{{ t }}</a></li>{% endfor %}</ul></div>{% endif %}
+</article>
+<div class="pics mt" style="max-width:1100px;margin-left:auto;margin-right:auto">{% for ph in item.photos %}{{ p.img(ph, d.title, zoom=True) }}{% endfor %}</div>
+</div></section>
+{{ p.cta() }}
+{% endblock %}

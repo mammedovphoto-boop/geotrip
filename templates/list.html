@@ -1,0 +1,14 @@
+{% extends 'base.html' %}{% import '_parts.html' as p with context %}
+{% block main %}
+<section class="wrap plain-head"><div class="kicker">GeoTrip</div><h1>{{ h1 }}</h1><p class="lead">{{ sub }}</p></section>
+<section class="block" style="padding-top:30px"><div class="wrap">
+  {% if kind=='news' %}
+  <div class="ncards">{% for n in items %}<a class="ncard" href="{{ link('news/' ~ n.slug) }}">{{ p.img(n.img, n[lang].title) }}<div><h3>{{ n[lang].title }}</h3><p>{{ n[lang].short }}</p><span class="more">{{ ui.more }}{{ p.arrow() }}</span></div></a>{% endfor %}</div>
+  {% elif kind=='blogs' %}
+  <div class="stars">{% for b in items %}<a class="star" href="{{ link('starblogs/' ~ b.slug) }}"><div class="star__pic">{{ p.star() }}{{ p.img(b.img, b[lang].name) }}</div><h3>{{ b[lang].name }}</h3><p>{{ b[lang].role }}</p></a>{% endfor %}</div>
+  {% elif kind=='gallery' %}
+  <div class="masonry">{% for g in items %}<figure>{{ p.img(g[0], g[li+1], zoom=True) }}<figcaption>{{ g[li+1] }}</figcaption></figure>{% endfor %}</div>
+  {% endif %}
+</div></section>
+{{ p.cta() }}
+{% endblock %}
