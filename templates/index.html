@@ -53,26 +53,39 @@
   </div>
 </section>
 
-<section class="paper tr" id="transport">
+<section class="paper el" id="transport" data-el>
   <div class="wrap">
-    <div class="tr__head rv"><h2 class="split">{{ h.tr_h }}</h2><p class="lead">{{ h.tr_lead }}</p></div>
-    <div class="tr__body" data-tabs>
-      <ul class="tr__list" role="tablist">
-        {% for k, img, t, txt in h.tr_items %}
-        <li><button type="button" role="tab" id="tr-tab-{{ k }}" aria-controls="tr-pane-{{ k }}" aria-selected="{{ 'true' if loop.first else 'false' }}" data-i="{{ loop.index0 }}"><b>{{ t }}</b><span>{{ txt }}</span></button></li>
+    <div class="el__head rv"><h2>{{ h.el_h }} <em>{{ h.el_h2 }}</em></h2><p class="lead">{{ h.el_lead }}</p></div>
+    <div class="el__body" data-tabs>
+      <div class="el__nav" role="tablist">
+        {% for k, img, acts, n, tag, txt in h.el_items %}
+        <button type="button" role="tab" class="el__tab el--{{ k }}" id="el-tab-{{ k }}" aria-controls="el-pane-{{ k }}" aria-selected="{{ 'true' if loop.first else 'false' }}" data-el-k="{{ k }}">
+          <svg class="el__glyph" viewBox="0 0 48 48" aria-hidden="true">{% if k == 'fire' %}<path d="M24 7 42 39H6Z"/>{% elif k == 'air' %}<path d="M24 7 42 39H6Z"/><path d="M11 28h26"/>{% elif k == 'water' %}<path d="M24 41 42 9H6Z"/>{% elif k == 'earth' %}<path d="M24 41 42 9H6Z"/><path d="M11 20h26"/>{% else %}<circle cx="24" cy="24" r="17"/><circle class="dot" cx="24" cy="24" r="3.4"/>{% endif %}</svg>
+          <span class="el__tx"><small>{{ loop.index }}</small><b>{{ n }}</b><u>{{ tag if k == 'soul' else n }}</u><i>{{ tag }}</i></span>
+        </button>
         {% endfor %}
-      </ul>
-      <div class="tr__stage">
-        {% for k, img, t, txt in h.tr_items %}
-        <figure class="tr__pane{% if loop.first %} is-on{% endif %}" role="tabpanel" id="tr-pane-{{ k }}" aria-labelledby="tr-tab-{{ k }}">
-          {{ p.img(img, t) }}
-          <figcaption><b>{{ t }}</b><span>{{ txt }}</span>{% if k == 'bus' %}<a class="btn btn--red" href="{{ link('east-to-west') }}">{{ h.fmts[0][3] }}{{ p.arrow() }}</a>{% else %}<a class="btn btn--red" href="{{ link('constructor') }}?add={{ k }}">{{ h.tr_btn }}{{ p.arrow() }}</a>{% endif %}</figcaption>
+      </div>
+      <div class="el__stage">
+        {% for k, img, acts, n, tag, txt in h.el_items %}
+        <figure class="el__pane el--{{ k }}{% if loop.first %} is-on{% endif %}" role="tabpanel" id="el-pane-{{ k }}" aria-labelledby="el-tab-{{ k }}">
+          {{ p.img(img, n) }}
+          <figcaption>
+            <span class="el__kick">{{ h.el_num }} · 0{{ loop.index }}</span>
+            <b>{{ n }}</b>
+            <p>{{ txt }}</p>
+            {% if acts %}
+            <div class="el__acts">{% for a in acts %}<label><input type="checkbox" value="{{ a }}" data-el-act="{{ k }}"><span>{{ ui['a_' ~ a] }}</span></label>{% endfor %}</div>
+            <a class="btn btn--red" data-el-go href="{{ link('constructor') }}?add={{ acts|join(',') }}">{{ h.el_btn }}{{ p.arrow() }}</a>
+            {% else %}
+            <div class="el__count" data-el-count="{{ h.el_count }}">{{ h.el_count|replace('{n}', '0') }}</div>
+            <a class="btn btn--red" data-el-go data-all href="{{ link('constructor') }}">{{ h.el_soul_btn }}{{ p.arrow() }}</a>
+            {% endif %}
+          </figcaption>
         </figure>
         {% endfor %}
       </div>
     </div>
-    <p class="tr__note">{{ h.tr_note }} {{ h.tr_photo }}</p>
-    <p class="tr__credits">{{ h.tr_credits }}</p>
+    <p class="tr__note">{{ h.el_pick }} {{ h.el_note }}</p>
   </div>
 </section>
 

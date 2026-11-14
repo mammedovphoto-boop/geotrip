@@ -365,7 +365,7 @@ document.documentElement.classList.add('js');
   if(TOUCH){
     var ty0=0,tx0=0,tt0=0,tmode=0,tsc=null;
     window.addEventListener('touchstart',function(e){if(e.touches.length!==1||blocked())return;ty0=e.touches[0].clientY;tx0=e.touches[0].clientX;tt0=performance.now();tmode=0;
-      tsc=e.target.closest&&e.target.closest('.tr__list,.stars,.film,.acts,.chips2,input,textarea,select,.atlas__map,.drum__list,.cal');},{passive:true});
+      tsc=e.target.closest&&e.target.closest('.tr__list,.el__nav,.el__acts,.stars,.film,.acts,.chips2,input,textarea,select,.atlas__map,.drum__list,.cal');},{passive:true});
     window.addEventListener('touchmove',function(e){if(blocked()||tsc)return;var dy=e.touches[0].clientY-ty0,dx=e.touches[0].clientX-tx0;
       if(!tmode&&(Math.abs(dy)>6||Math.abs(dx)>6))tmode=Math.abs(dy)>Math.abs(dx)?1:2;
       if(tmode===1)e.preventDefault()},{passive:false});
@@ -724,4 +724,33 @@ document.documentElement.classList.add('js');
   bNext.addEventListener('click',function(){cur++;render();var y=form.getBoundingClientRect().top+scrollY-110;if(Math.abs(scrollY-y)>260&&innerWidth<981)window.scrollTo({top:y,behavior:'smooth'})});
   form.addEventListener('change',function(e){if(e.target.name==='mode'){cur=0;setTimeout(render,40)}else setTimeout(render,40)});
   render();
+})();
+
+/* 14.11 «Пять элементов»: выбор активностей по стихиям, пятая стихия загорается, когда собраны все четыре */
+(function(){
+  var box=document.querySelector('[data-el]');if(!box)return;
+  var KEY='gt_elements',saved=[];
+  try{saved=JSON.parse(localStorage.getItem(KEY)||'[]')}catch(e){}
+  var boxes=[].slice.call(box.querySelectorAll('[data-el-act]'));
+  boxes.forEach(function(c){if(saved.indexOf(c.value)>-1)c.checked=true});
+  var cnt=box.querySelector('[data-el-count]');
+  function base(a){return a.getAttribute('href').split('?')[0]}
+  function sync(){
+    var on=boxes.filter(function(c){return c.checked}),vals=on.map(function(c){return c.value});
+    try{localStorage.setItem(KEY,JSON.stringify(vals))}catch(e){}
+    var lit={};on.forEach(function(c){lit[c.dataset.elAct]=1});
+    var n=0;['earth','air','water','fire'].forEach(function(k){var t=box.querySelector('#el-tab-'+k);if(t)t.classList.toggle('is-lit',!!lit[k]);if(lit[k])n++});
+    var soul=box.querySelector('#el-tab-soul');if(soul)soul.classList.toggle('is-lit',n===4);
+    box.classList.toggle('is-whole',n===4);
+    if(cnt)cnt.textContent=cnt.dataset.elCount.replace('{n}',n);
+    box.querySelectorAll('[data-el-go]').forEach(function(a){
+      var mine;
+      if(a.hasAttribute('data-all'))mine=vals;
+      else{var pane=a.closest('.el__pane');mine=[].slice.call(pane.querySelectorAll('[data-el-act]')).filter(function(c){return c.checked}).map(function(c){return c.value});
+        if(!mine.length)mine=[].slice.call(pane.querySelectorAll('[data-el-act]')).map(function(c){return c.value})}
+      a.setAttribute('href',base(a)+(mine.length?'?add='+mine.join(','):''));
+    });
+  }
+  boxes.forEach(function(c){c.addEventListener('change',sync)});
+  sync();
 })();

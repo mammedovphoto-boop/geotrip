@@ -687,3 +687,46 @@ for _l, _d in _EXP.items():
     HOME[_l]["tr_items"] = [(k, img, t, s) for (k, img), (t, s) in zip(_TR, _d["tr"])]
     _seen = {q for q, _ in _d["faq_home"]}
     FAQ[_l]["items"] = list(_d["faq_home"]) + [x for x in FAQ[_l]["items"] if x[0] not in _seen]
+
+# ---------------- «Пять элементов»: стихии Грузии и пятая — сам путешественник ----------------
+_EL = [("earth", "n-jeep", ["jeep", "buggy"]), ("air", "n-heli", ["heli", "plane"]),
+       ("water", "service-yacht", ["yacht", "jetski", "snow"]), ("fire", "el-fire", ["sulfur", "springs"]),
+       ("soul", "el-soul", [])]
+_ELT = {
+"ru": dict(
+    el_h="Земля. Воздух. Вода. Огонь.", el_h2="И вы.",
+    el_lead="Четыре стихии Грузии мы соберём в ваш маршрут. Пятую привезёте вы сами.",
+    el=[("Земля", "Джипы и багги", "Перевалы, каньоны и дороги, куда не доезжают автобусы. Toyota Land Cruiser, Jetour и багги — по песку Вашлованы и серпантинам Тушети."),
+        ("Воздух", "Вертолёт и частный самолёт", "Кавказ с высоты птичьего полёта: вертолёт к ледникам или частный турбовинтовой самолёт Piper M700 Fury между Тбилиси, Батуми и Местиа."),
+        ("Вода", "Яхта, гидроцикл, снег", "Чёрное море, горные озёра и вода в самой твёрдой форме — снег Гудаури и Бакуриани."),
+        ("Огонь", "Серные бани и горячие источники", "Тепло из глубины земли: серные бани старого Тбилиси, горячие источники в горах, вечер у костра после долгого дня."),
+        ("Пятый элемент", "Вы", "Горы стоят здесь миллионы лет. Море шумит, даже когда на него никто не смотрит. Но путешествием всё это становится только тогда, когда приезжаете вы — с вашим любопытством, смехом и тишиной на вершине. Мы соберём четыре стихии. Пятая — ваша энергия.")],
+    el_num="Стихия", el_btn="Добавить в маршрут", el_soul_btn="Собрать мою экспедицию",
+    el_count="Вы выбрали стихий: {n} из 4", el_pick="Отметьте, что хочется, — выбор сохранится.",
+    el_note="Полёты, вода и снег зависят от погоды и сезона — ведущий экспедиции подберёт лучшее время. Фото показывают тип транспорта; модель подтвердим при бронировании."),
+"en": dict(
+    el_h="Earth. Air. Water. Fire.", el_h2="And you.",
+    el_lead="We bring the four elements of Georgia into your route. The fifth one you bring yourself.",
+    el=[("Earth", "Jeeps and buggies", "Mountain passes, canyons and roads no coach can reach. Toyota Land Cruiser, Jetour and buggies — across the sands of Vashlovani and the switchbacks of Tusheti."),
+        ("Air", "Helicopter and private plane", "The Caucasus from above: a helicopter to the glaciers, or a private Piper M700 Fury turboprop between Tbilisi, Batumi and Mestia."),
+        ("Water", "Yacht, jet ski, snow", "The Black Sea, mountain lakes and water in its hardest form — the snow of Gudauri and Bakuriani."),
+        ("Fire", "Sulphur baths and hot springs", "Heat from deep in the earth: the sulphur baths of old Tbilisi, hot springs in the mountains, an evening by the fire after a long day."),
+        ("The fifth element", "You", "The mountains have stood here for millions of years. The sea roars even when no one is watching. It only becomes a journey when you arrive — with your curiosity, your laughter and the silence at the summit. We bring the four elements. The fifth is your energy.")],
+    el_num="Element", el_btn="Add to my route", el_soul_btn="Build my expedition",
+    el_count="Elements chosen: {n} of 4", el_pick="Tick what you like — your choice is kept.",
+    el_note="Flights, water and snow depend on the weather and season — your expedition host will pick the best moment. Photos show the type of vehicle; the exact model is confirmed when you book."),
+"ar": dict(
+    el_h="الأرض. الهواء. الماء. النار.", el_h2="وأنت.",
+    el_lead="نجمع عناصر جورجيا الأربعة في مسارك. أما الخامس فتحمله أنت معك.",
+    el=[("الأرض", "سيارات الجيب والباجي", "ممرات جبلية ووديان وطرق لا تصلها الحافلات. تويوتا لاند كروزر وجيتور وعربات الباجي — عبر رمال فاشلوفاني ومنعطفات توشيتي."),
+        ("الهواء", "مروحية وطائرة خاصة", "القوقاز من الأعلى: مروحية إلى الأنهار الجليدية، أو طائرة خاصة Piper M700 Fury بين تبليسي وباتومي وميستيا."),
+        ("الماء", "يخت، دراجة مائية، ثلج", "البحر الأسود والبحيرات الجبلية والماء في أصلب حالاته — ثلوج غوداوري وباكورياني."),
+        ("النار", "الحمامات الكبريتية والينابيع الحارة", "دفء من أعماق الأرض: حمامات تبليسي القديمة الكبريتية، والينابيع الحارة في الجبال، وأمسية حول النار بعد يوم طويل."),
+        ("العنصر الخامس", "أنت", "تقف هذه الجبال منذ ملايين السنين، ويهدر البحر حتى حين لا يراه أحد. لكن كل ذلك لا يصبح رحلة إلا حين تصل أنت — بفضولك وضحكتك وصمت القمة. نحن نجمع العناصر الأربعة، والخامس هو طاقتك.")],
+    el_num="العنصر", el_btn="أضف إلى مساري", el_soul_btn="صمّم رحلتي",
+    el_count="العناصر المختارة: {n} من 4", el_pick="اختر ما تحب — سنحفظ اختيارك.",
+    el_note="تعتمد الرحلات الجوية والبحرية والثلجية على الطقس والموسم — وسيختار مضيف الرحلة أفضل وقت. الصور توضّح نوع المركبة؛ ونؤكد الطراز عند الحجز."),
+}
+for _l, _d in _ELT.items():
+    HOME[_l].update(_d)
+    HOME[_l]["el_items"] = [(k, img, acts, n, tag, txt) for (k, img, acts), (n, tag, txt) in zip(_EL, _d["el"])]

@@ -260,3 +260,7 @@ UI['ar'].update({"prog_open": "افتح البرنامج", "map_lead_t": "اضغ
 UI['ru'].update({"pick_dir": "Куда едем?", "all_dirs": "Все направления"})
 UI['en'].update({"pick_dir": "Where to?", "all_dirs": "All directions"})
 UI['ar'].update({"pick_dir": "إلى أين؟", "all_dirs": "كل الاتجاهات"})
+
+UI['ru'].update({"a_plane": "Частный самолёт", "a_sulfur": "Серные бани", "a_springs": "Горячие источники"})
+UI['en'].update({"a_plane": "Private plane", "a_sulfur": "Sulphur baths", "a_springs": "Hot springs"})
+UI['ar'].update({"a_plane": "طائرة خاصة", "a_sulfur": "حمامات كبريتية", "a_springs": "ينابيع حارة"})

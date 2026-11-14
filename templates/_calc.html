@@ -57,7 +57,7 @@
         <div class="acts acts--one">{% for k in ['minibus','jeep','mix'] %}<label><input type="radio" name="transport" value="{{ k }}" id="tr-{{ k }}"{% if loop.first %} checked{% endif %}><span>{{ ui['t_' ~ k] }}</span></label>{% endfor %}</div>
       </fieldset>{% endif %}
       {% if ckind == 'custom' %}<fieldset class="span2"><legend>{{ ui.c_acts }}</legend>
-        <div class="acts">{% for k in ['heli','jeep','buggy','yacht','jetski','snow'] %}<label><input type="checkbox" name="acts" value="{{ k }}" id="act-{{ k }}"><span>{{ ui['a_' ~ k] }}</span></label>{% endfor %}</div>
+        <div class="acts">{% for k in ['jeep','buggy','heli','plane','yacht','jetski','snow','sulfur','springs'] %}<label><input type="checkbox" name="acts" value="{{ k }}" id="act-{{ k }}"><span>{{ ui['a_' ~ k] }}</span></label>{% endfor %}</div>
         <p class="calc__hint">{{ ui.c_acts_hint2 }}</p>
       </fieldset>
       <fieldset class="span2"><legend>{{ ui.c_wish }}</legend>
@@ -77,5 +77,5 @@
   </form>
   <div class="pricefix" data-pricefix aria-hidden="true"><small></small><b></b><span></span></div>
   <script type="application/json" id="calc-data">{{ calc_json|safe }}</script>
-  <script type="application/json" id="calc-i18n">{{ {'dbl':ui.c_dbl,'twn':ui.c_twn,'sgl':ui.c_sgl,'rooms':ui.c_rooms,'acts':ui.c_acts_short,'r_ok':ui.r_ok,'r_lack':ui.r_lack,'r_more':ui.r_more,'none':ui.acts_none,'x_acts':ui.x_acts,'x_sgl':ui.x_sgl,'heli':ui.a_heli,'jeep':ui.a_jeep,'buggy':ui.a_buggy,'yacht':ui.a_yacht,'jetski':ui.a_jetski,'snow':ui.a_snow,'trans':ui.c_trans,'minibus':ui.t_minibus,'tjeep':ui.t_jeep,'mix':ui.t_mix,'wish':ui.c_wish}|tojson }}</script>
+  <script type="application/json" id="calc-i18n">{{ {'dbl':ui.c_dbl,'twn':ui.c_twn,'sgl':ui.c_sgl,'rooms':ui.c_rooms,'acts':ui.c_acts_short,'r_ok':ui.r_ok,'r_lack':ui.r_lack,'r_more':ui.r_more,'none':ui.acts_none,'x_acts':ui.x_acts,'x_sgl':ui.x_sgl,'heli':ui.a_heli,'jeep':ui.a_jeep,'buggy':ui.a_buggy,'yacht':ui.a_yacht,'jetski':ui.a_jetski,'snow':ui.a_snow,'plane':ui.a_plane,'sulfur':ui.a_sulfur,'springs':ui.a_springs,'trans':ui.c_trans,'minibus':ui.t_minibus,'tjeep':ui.t_jeep,'mix':ui.t_mix,'wish':ui.c_wish}|tojson }}</script>
 </div></section>
