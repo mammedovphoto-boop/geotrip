@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<title>GeoTrip · Калькулятор тура</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Внутренний калькулятор тура для основателей GeoTrip: пошаговый опрос вместо таблицы, расчёт в реальном времени, PDF-предложение для клиента */
+:root{
+  --bg:#0d0c0b; --panel:#171513; --panel-2:#201d1a; --line:#2e2a26;
+  --ink:#f3efe8; --mist:#aca59a; --ash:#7b746a;
+  --red:#b8180a; --red-hi:#e0381c; --ok:#3f9a63; --warn:#d9a12b;
+  --serif:"Playfair Display", Georgia, "Times New Roman", serif;
+  --sans:"Raleway", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --ease:cubic-bezier(.22,1,.36,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{background:var(--bg)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);font-weight:400;font-size:16px;line-height:1.55;-webkit-font-smoothing:antialiased;
+  padding-left:max(16px, env(safe-area-inset-left, 0px));padding-right:max(16px, env(safe-area-inset-right, 0px));padding-block:0}
+.wrap{max-width:860px;margin:0 auto;padding-block:clamp(20px,4vh,44px) 170px}
+h1,h2,h3{font-family:var(--serif);font-weight:900;letter-spacing:-.01em;margin:0;text-wrap:balance}
+h1{font-size:clamp(32px,5.4vw,50px);line-height:1.05}
+h2{font-size:clamp(25px,4vw,34px);line-height:1.1}
+h3{font-size:20px;font-weight:700}
+.top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:12px;font:600 12px/1 var(--sans);letter-spacing:.32em;text-transform:uppercase;color:var(--mist)}
+.brand i{width:28px;height:1px;background:var(--red-hi)}
+.files{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.files select{width:auto;max-width:230px;padding:9px 12px;font-size:14px}
+.intro{display:grid;gap:10px;margin:22px 0 26px}
+.intro p{margin:0;color:var(--mist);max-width:40em}
+.steps{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin:0 0 26px}
+.steps button{background:none;border:0;padding:12px 0 0;cursor:pointer;position:relative;color:var(--ash);font:600 11px/1.2 var(--sans);letter-spacing:.06em;text-align:start}
+.steps button::before{content:"";position:absolute;inset:0 0 auto;height:2px;background:var(--line);transition:background .4s var(--ease)}
+.steps button.done::before{background:rgba(224,56,28,.45)}
+.steps button.on{color:var(--ink)}
+.steps button.on::before{background:var(--red-hi)}
+.steps button:focus-visible{outline:2px solid var(--red-hi);outline-offset:3px}
+@media (max-width:640px){.steps button span{display:none}.steps button{padding-top:10px}}
+.kick{font:600 11px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--red-hi);margin:0 0 10px}
+.step{display:none}
+.step.on{display:grid;gap:24px;animation:in .5s var(--ease)}
+@keyframes in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.lead{margin:-10px 0 0;color:var(--mist);max-width:44em}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px 14px}
+.grid--2{grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.f{display:grid;gap:6px;min-width:0}
+.f>span{font-weight:600;font-size:14px}
+.f small,.hint{color:var(--ash);font-size:13px}
+.hint{margin:0}
+input[type=text],input[type=number],input[type=date],textarea,select{width:100%;background:var(--panel);border:1px solid var(--line);color:var(--ink);font:400 16px/1.4 var(--sans);padding:12px 14px;border-radius:0;transition:border-color .3s;min-width:0}
+input[type=number]{font-variant-numeric:tabular-nums}
+textarea{resize:vertical;min-height:84px}
+input:focus,textarea:focus,select:focus{outline:none;border-color:var(--red-hi)}
+.unit{position:relative}
+.unit input{padding-right:44px}
+.unit b{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--ash);font-weight:500;font-size:14px;pointer-events:none}
+.box{display:grid;gap:16px;padding:18px;background:var(--panel);border:1px solid var(--line)}
+.box h3{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.box .grid input,.box .grid select,.box textarea{background:var(--panel-2)}
+.seg{display:flex;flex-wrap:wrap;gap:6px}
+.seg label{position:relative}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg span{display:inline-block;padding:10px 16px;border:1px solid var(--line);background:var(--panel);cursor:pointer;font-weight:500;font-size:14px;transition:border-color .3s,background .3s}
+.seg input:checked+span{border-color:var(--red-hi);background:#2a1410}
+.seg input:focus-visible+span{outline:2px solid var(--red-hi);outline-offset:2px}
+.tog{display:flex;align-items:center;gap:10px;cursor:pointer;font-weight:500;font-size:14px}
+.tog input{width:20px;height:20px;accent-color:var(--red-hi);margin:0}
+.ctr{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:12px 14px 12px 16px;background:var(--panel);border:1px solid var(--line)}
+.ctr b{display:block;font-weight:600}
+.ctr em{display:block;font-style:normal;font-size:13px;color:var(--mist)}
+.num{display:flex;align-items:center;gap:4px}
+.num button{width:40px;height:40px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:400 20px/1 var(--sans);cursor:pointer}
+.num button:hover{border-color:var(--red-hi)}
+.num output{min-width:44px;text-align:center;font-family:var(--serif);font-weight:700;font-size:24px;font-variant-numeric:tabular-nums}
+.msg{padding:10px 14px;font-size:14px;border-left:2px solid var(--ok);background:rgba(63,154,99,.1)}
+.msg.bad{border-color:var(--warn);background:rgba(217,161,43,.1)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:48px;padding:0 22px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink);font:600 13px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .3s,border-color .3s}
+.btn:hover{border-color:var(--red-hi)}
+.btn--red{background:var(--red);border-color:var(--red)}
+.btn--red:hover{background:var(--red-hi);border-color:var(--red-hi)}
+.btn--sm{min-height:38px;padding:0 14px;font-size:11px}
+.btn:disabled{opacity:.5;cursor:wait}
+.nav{display:flex;justify-content:space-between;gap:12px;margin-top:8px}
+.day{display:grid;gap:14px;padding:18px;background:var(--panel);border:1px solid var(--line);border-left:2px solid var(--red-hi)}
+.day__h{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.day__h b{font:600 11px/1 var(--sans);letter-spacing:.26em;text-transform:uppercase;color:var(--red-hi)}
+.day input,.day textarea{background:var(--panel-2)}
+.day details{border-top:1px solid var(--line);padding-top:12px}
+.day summary{cursor:pointer;color:var(--mist);font-size:14px;font-weight:600}
+.day summary em{font-style:normal;color:var(--ash);font-weight:400}
+.day details .grid{margin-top:12px}
+.x{background:none;border:0;color:var(--ash);cursor:pointer;font-size:13px;text-decoration:underline;padding:6px}
+.x:hover{color:var(--red-hi)}
+.items{display:grid;gap:8px}
+.item{display:grid;grid-template-columns:minmax(0,2fr) minmax(90px,1fr) minmax(130px,1fr) auto;gap:8px;align-items:center}
+@media (max-width:640px){.item{grid-template-columns:1fr 1fr}.item input[type=text]{grid-column:1/-1}}
+/* итоги */
+.tbl{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums;font-size:15px}
+.tbl th,.tbl td{padding:9px 10px;border-bottom:1px solid var(--line);text-align:right;white-space:nowrap}
+.tbl th:first-child,.tbl td:first-child{text-align:left;white-space:normal}
+.tbl thead th{font:600 11px/1.2 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:var(--mist)}
+.tbl tr.sum td{font-weight:700;color:var(--ink);border-bottom:0}
+.tbl tr.big td{font-family:var(--serif);font-size:20px}
+.tbl .c3{color:#8fb5d9}.tbl .c4{color:#e8c776}.tbl .c5{color:#e19ab0}
+.scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.tile{padding:16px;background:var(--panel);border:1px solid var(--line);display:grid;gap:4px}
+.tile small{color:var(--mist);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.tile b{font-family:var(--serif);font-size:28px;font-variant-numeric:tabular-nums;line-height:1.1}
+.tile em{font-style:normal;color:var(--ash);font-size:13px}
+.tile.on{border-color:var(--red-hi)}
+/* нижняя панель */
+.bar{position:fixed;left:0;right:0;bottom:0;z-index:20;background:rgba(13,12,11,.94);backdrop-filter:blur(10px);border-top:1px solid var(--line);
+  padding:12px max(16px,env(safe-area-inset-right,0px)) calc(12px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.bar__in{max-width:860px;margin:0 auto;display:flex;align-items:center;gap:10px 22px;flex-wrap:wrap}
+.bar__k{display:grid;gap:1px}
+.bar__k small{color:var(--ash);font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600}
+.bar__k b{font-family:var(--serif);font-size:20px;font-variant-numeric:tabular-nums;line-height:1.1}
+.bar__k.p b{color:#7fd19c}
+.bar__k.neg b{color:#ff8a70}
+.bar .btn{margin-left:auto}
+@media (max-width:560px){.bar__in{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.bar__k small{font-size:9px;letter-spacing:.08em}.bar__k b{font-size:16px}.bar .btn{display:none}.bar__k .lg{display:none}}
+.saved{color:var(--ash);font-size:12px}
+/* документ для клиента (PDF) */
+.prev{background:#e9e5de;padding:clamp(10px,2vw,22px);overflow:auto;border:1px solid var(--line)}
+.prev__in{width:794px;transform-origin:top left}
+.doc{width:794px;background:#fff;color:#1b1a18;font-family:var(--sans);font-size:13px;line-height:1.55;-webkit-font-smoothing:antialiased;color-scheme:light}
+.doc .pg{padding:52px 58px}
+.doc h1,.doc h2,.doc h3{color:#141312}
+.doc__hero{position:relative;padding:54px 58px 40px;background:#141312;color:#fff}
+.doc__hero .logo{width:62px;height:62px;color:#fff}
+.doc__hero .logo svg{width:100%;height:100%;fill:currentColor}
+.doc__hero .kk{margin-top:30px;font:600 10px/1 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:#e0381c}
+.doc__hero h1{color:#fff;font-size:44px;line-height:1.05;margin-top:12px}
+.doc__hero p{color:#cfc9bf;margin:14px 0 0;font-size:14px;max-width:34em}
+.doc__facts{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #34302b;margin-top:30px;padding-top:18px;gap:14px}
+.doc__facts small{display:block;color:#9a948a;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;font-weight:600}
+.doc__facts b{display:block;color:#fff;font-family:var(--serif);font-size:16px;margin-top:4px}
+.doc .sec{margin-top:34px}
+.doc .sec:first-child{margin-top:0}
+.doc .lbl{font:600 10px/1 var(--sans);letter-spacing:.28em;text-transform:uppercase;color:#a81400;margin:0 0 10px}
+.doc h2{font-size:26px}
+.doc .dd{display:grid;grid-template-columns:86px 1fr;gap:18px;padding:16px 0;border-bottom:1px solid #e3ded5;break-inside:avoid;page-break-inside:avoid}
+.doc .dd__n{font-family:var(--serif);font-weight:700;font-size:13px;color:#a81400}
+.doc .dd__n small{display:block;font-family:var(--sans);font-weight:500;color:#8a847a;font-size:11px;margin-top:3px}
+.doc .dd h3{font-size:17px;margin:0 0 4px}
+.doc .dd p{margin:0;color:#3d3a35;white-space:pre-line}
+.doc .dd__night{margin-top:6px;font-size:11.5px;color:#8a847a}
+.doc .price{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:6px}
+.doc .pc{border:1px solid #e3ded5;background:#fff;padding:18px 18px 16px;break-inside:avoid;page-break-inside:avoid}
+.doc .pc.main{border-color:#a81400;box-shadow:inset 0 3px 0 #a81400}
+.doc .pc h3{font-size:18px}
+.doc .pc .st{color:#c8961e;letter-spacing:2px;font-size:13px}
+.doc .pc dl{margin:12px 0 0;display:grid;grid-template-columns:1fr auto;gap:6px 10px}
+.doc .pc dt{color:#5d5850}
+.doc .pc dd{margin:0;text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.doc .pc .tot{grid-column:1/-1;border-top:1px solid #e3ded5;padding-top:10px;margin-top:4px;display:flex;justify-content:space-between;align-items:baseline}
+.doc .pc .tot b{font-family:var(--serif);font-size:24px}
+.doc .two{display:grid;grid-template-columns:1fr 1fr;gap:28px;break-inside:avoid;page-break-inside:avoid}
+.doc ul{margin:0;padding:0;list-style:none;display:grid;gap:6px}
+.doc li{position:relative;padding-left:20px;color:#3d3a35}
+.doc .yes li::before{content:"";position:absolute;left:2px;top:7px;width:9px;height:5px;border-left:1.5px solid #3f8a5a;border-bottom:1.5px solid #3f8a5a;transform:rotate(-45deg)}
+.doc .no li::before{content:"";position:absolute;left:3px;top:9px;width:9px;height:1.5px;background:#a81400}
+.doc .note{margin-top:12px;color:#6b665e;font-size:11.5px}
+.doc .foot{margin-top:38px;padding-top:20px;border-top:1px solid #e3ded5;display:flex;justify-content:space-between;gap:20px;align-items:flex-end;break-inside:avoid;page-break-inside:avoid}
+.doc .foot b{font-family:var(--serif);font-size:18px;display:block}
+.doc .foot span{color:#6b665e;font-size:12px}
+.doc .hello{font-family:var(--serif);font-size:16px;font-style:italic;color:#3d3a35;margin:0 0 6px}
+@media print{body{background:#fff;padding:0}.wrap>*:not(#printDoc),.bar{display:none!important}#printDoc{display:block!important}.doc{width:auto}}
+#printDoc{display:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div class="brand"><i></i>GeoTrip · для своих</div>
+    <div class="files">
+      <select id="fileSel" aria-label="Сохранённые расчёты"></select>
+      <button class="btn btn--sm" type="button" id="fileSave">Сохранить</button>
+      <button class="btn btn--sm" type="button" id="fileNew">Новый</button>
+    </div>
+  </div>
+  <div class="intro">
+    <h1>Калькулятор тура</h1>
+    <p>Пройдите шаги сверху вниз. Цены считаются сразу, внизу экрана — себестоимость, цена и прибыль. На последнем шаге — готовое предложение для клиента в PDF, без себестоимости и наценки. Расчёт сохраняется в этом браузере автоматически. <span class="saved" id="savedAt"></span></p>
+  </div>
+
+  <nav class="steps" id="steps" aria-label="Шаги"></nav>
+
+  <!-- 1. Тур -->
+  <section class="step" data-step="Тур">
+    <div><p class="kick">Шаг 1 из 7</p><h2>Какой тур считаем?</h2></div>
+    <div class="grid grid--2">
+      <label class="f"><span>Название тура</span><input type="text" data-k="tour.name" placeholder="Например, Легенда"></label>
+      <label class="f"><span>Клиент</span><input type="text" data-k="tour.client" placeholder="Имя или компания"><small>Появится в шапке предложения.</small></label>
+      <label class="f"><span>Дата начала</span><input type="date" data-k="tour.start"></label>
+      <div class="f"><span>Сколько дней</span>
+        <div class="ctr"><div><b data-out="daysTxt"></b><em data-out="nightsTxt"></em></div><div class="num"><button type="button" data-days="-1" aria-label="Меньше">−</button><output data-out="days"></output><button type="button" data-days="1" aria-label="Больше">+</button></div></div>
+      </div>
+    </div>
+    <div class="box">
+      <h3>Готовая программа</h3>
+      <p class="hint">Подставит дни, километры, гида и транспорт из вашей таблицы. Потом всё можно поправить.</p>
+      <div class="files"><select id="tplSel"><option value="legend">Легенда · 5 дней (по вашей таблице)</option><option value="blank">Пустая программа</option></select><button class="btn btn--sm" type="button" id="tplGo">Подставить</button></div>
+    </div>
+    <div class="nav"><span></span><button class="btn btn--red" type="button" data-next>Дальше</button></div>
+  </section>
+
+  <!-- 2. Группа -->
+  <section class="step" data-step="Группа">
+    <div><p class="kick">Шаг 2 из 7</p><h2>Сколько человек и как живут?</h2></div>
+    <div class="ctr"><div><b>Туристов</b><em>Без гида и водителя</em></div><div class="num"><button type="button" data-inc="group.n" data-d="-1" aria-label="Меньше">−</button><output data-out="group.n"></output><button type="button" data-inc="group.n" data-d="1" aria-label="Больше">+</button></div></div>
+    <div class="ctr"><div><b>Номера Double / Twin</b><em>на двоих</em></div><div class="num"><button type="button" data-inc="group.dbl" data-d="-1" aria-label="Меньше">−</button><output data-out="group.dbl"></output><button type="button" data-inc="group.dbl" data-d="1" aria-label="Больше">+</button></div></div>
+    <div class="ctr"><div><b>Номера Single</b><em>на одного</em></div><div class="num"><button type="button" data-inc="group.sng" data-d="-1" aria-label="Меньше">−</button><output data-out="group.sng"></output><button type="button" data-inc="group.sng" data-d="1" aria-label="Больше">+</button></div></div>
+    <div class="msg" id="roomMsg"></div>
+    <div><button class="btn btn--sm" type="button" id="roomsAuto">Расселить по двое автоматически</button></div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><button class="btn btn--red" type="button" data-next>Дальше</button></div>
+  </section>
+
+  <!-- 3. Программа -->
+  <section class="step" data-step="Программа">
+    <div><p class="kick">Шаг 3 из 7</p><h2>Программа по дням</h2></div>
+    <p class="lead">Название и описание дня уйдут в предложение клиенту. Расходы дня (гид, билеты, транспорт) — только для вас, они спрятаны под «Расходы дня».</p>
+    <div id="days" class="items" style="gap:14px"></div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><button class="btn btn--red" type="button" data-next>Дальше</button></div>
+  </section>
+
+  <!-- 4. Отели -->
+  <section class="step" data-step="Отели">
+    <div><p class="kick">Шаг 4 из 7</p><h2>Отели</h2></div>
+    <p class="lead">Цена за номер за ночь в лари. Single — со скидкой от цены Double.</p>
+    <div class="grid">
+      <label class="f"><span>3★ · номер за ночь</span><span class="unit"><input type="number" min="0" step="10" data-k="hotel.p3"><b>₾</b></span></label>
+      <label class="f"><span>4★ · номер за ночь</span><span class="unit"><input type="number" min="0" step="10" data-k="hotel.p4"><b>₾</b></span></label>
+      <label class="f"><span>5★ · номер за ночь</span><span class="unit"><input type="number" min="0" step="10" data-k="hotel.p5"><b>₾</b></span></label>
+      <label class="f"><span>Скидка на Single</span><span class="unit"><input type="number" min="0" max="100" step="1" data-k="hotel.sngDisc"><b>%</b></span><small>В таблице было −15%.</small></label>
+    </div>
+    <div class="f"><span>Какие категории показать клиенту</span>
+      <div class="seg"><label><input type="checkbox" data-k="hotel.show3"><span>3★</span></label><label><input type="checkbox" data-k="hotel.show4"><span>4★</span></label><label><input type="checkbox" data-k="hotel.show5"><span>5★</span></label></div>
+    </div>
+    <div class="f"><span>Основная категория</span><small>По ней считаются цифры внизу экрана; в PDF она выделена.</small>
+      <div class="seg"><label><input type="radio" name="main" value="3" data-k="hotel.main"><span>3★</span></label><label><input type="radio" name="main" value="4" data-k="hotel.main"><span>4★</span></label><label><input type="radio" name="main" value="5" data-k="hotel.main"><span>5★</span></label></div>
+    </div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><button class="btn btn--red" type="button" data-next>Дальше</button></div>
+  </section>
+
+  <!-- 5. Команда и расходы -->
+  <section class="step" data-step="Расходы">
+    <div><p class="kick">Шаг 5 из 7</p><h2>Команда, машины и мелочи</h2></div>
+    <div class="box"><h3>Команда</h3>
+      <div class="grid">
+        <label class="f"><span>Водителей</span><input type="number" min="0" step="1" data-k="staff.driver"></label>
+        <label class="f"><span>Гидов</span><input type="number" min="0" step="1" data-k="staff.guide"></label>
+        <label class="f"><span>Менеджеров</span><input type="number" min="0" step="1" data-k="staff.manager"></label>
+        <label class="f"><span>Проживание и питание на 1 сотрудника</span><span class="unit"><input type="number" min="0" step="5" data-k="staff.meal"><b>₾</b></span><small>за каждую ночь тура</small></label>
+      </div>
+      <p class="hint">Гонорар гида за день вводится в программе, в «Расходах дня», и умножается на число гидов.</p>
+    </div>
+    <div class="box"><h3>Машины</h3>
+      <p class="hint">Сколько машин каждого типа. Цена машины за день — в программе, в «Расходах дня».</p>
+      <div class="grid">
+        <label class="f"><span>Sprinter</span><input type="number" min="0" step="1" data-k="veh.sprinter"></label>
+        <label class="f"><span>Viano / Vito</span><input type="number" min="0" step="1" data-k="veh.viano"></label>
+        <label class="f"><span>Доп. авто</span><input type="number" min="0" step="1" data-k="veh.extra"></label>
+        <label class="f"><span>Такси</span><input type="number" min="0" step="0.5" data-k="veh.taxi"><small>в таблице было 2,5</small></label>
+      </div>
+      <div class="grid">
+        <label class="f"><span>Расход топлива</span><span class="unit"><input type="number" min="0" step="0.5" data-k="fuel.per100"><b>л</b></span><small>на 100 км</small></label>
+        <label class="f"><span>Цена топлива</span><span class="unit"><input type="number" min="0" step="0.05" data-k="fuel.price"><b>₾</b></span><small>за литр</small></label>
+      </div>
+    </div>
+    <div class="box"><h3>На каждого туриста</h3>
+      <div class="grid">
+        <label class="f"><span>Страховка в день</span><span class="unit"><input type="number" min="0" step="1" data-k="pp.ins"><b>₾</b></span></label>
+        <label class="f"><span>SIM / интернет</span><span class="unit"><input type="number" min="0" step="1" data-k="pp.sim"><b>₾</b></span><small>за весь тур</small></label>
+        <label class="f"><span>Бутылок воды в день</span><input type="number" min="0" step="1" data-k="pp.water"><small>кроме дня вылета</small></label>
+        <label class="f"><span>Цена бутылки</span><span class="unit"><input type="number" min="0" step="0.1" data-k="pp.waterPrice"><b>₾</b></span></label>
+        <label class="f"><span>Дождевик</span><span class="unit"><input type="number" min="0" step="1" data-k="pp.rain"><b>₾</b></span></label>
+        <label class="f"><span>Подарок</span><span class="unit"><input type="number" min="0" step="1" data-k="pp.gift"><b>₾</b></span></label>
+      </div>
+    </div>
+    <div class="box"><h3>Прочее <button class="btn btn--sm" type="button" id="addItem">+ Добавить</button></h3>
+      <div class="grid"><label class="f"><span>Аптечка на группу</span><span class="unit"><input type="number" min="0" step="1" data-k="other.med"><b>₾</b></span></label></div>
+      <div class="items" id="items"></div>
+    </div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><button class="btn btn--red" type="button" data-next>Дальше</button></div>
+  </section>
+
+  <!-- 6. Цена -->
+  <section class="step" data-step="Цена">
+    <div><p class="kick">Шаг 6 из 7</p><h2>Цена и прибыль</h2></div>
+    <div class="grid">
+      <label class="f"><span>Наценка</span><span class="unit"><input type="number" min="0" step="1" data-k="price.markup"><b>%</b></span></label>
+      <label class="f"><span>НДС на проживание</span><span class="unit"><input type="number" min="0" step="1" data-k="price.vat"><b>%</b></span></label>
+      <label class="f"><span>Курс USD</span><span class="unit"><input type="number" min="0" step="0.01" data-k="price.usd"><b>₾</b></span></label>
+      <label class="f"><span>Курс EUR</span><span class="unit"><input type="number" min="0" step="0.01" data-k="price.eur"><b>₾</b></span></label>
+    </div>
+    <div class="grid grid--2">
+      <div class="f"><span>Валюта для клиента</span><div class="seg"><label><input type="radio" name="cur" value="USD" data-k="price.cur"><span>USD $</span></label><label><input type="radio" name="cur" value="EUR" data-k="price.cur"><span>EUR €</span></label><label><input type="radio" name="cur" value="GEL" data-k="price.cur"><span>GEL ₾</span></label></div></div>
+      <div class="f"><span>Округлять цену вверх до</span><div class="seg"><label><input type="radio" name="rnd" value="1" data-k="price.round"><span>1</span></label><label><input type="radio" name="rnd" value="5" data-k="price.round"><span>5</span></label><label><input type="radio" name="rnd" value="10" data-k="price.round"><span>10</span></label><label><input type="radio" name="rnd" value="50" data-k="price.round"><span>50</span></label></div></div>
+    </div>
+    <label class="tog"><input type="checkbox" data-k="price.vatIn"> Включить НДС в цену для клиента</label>
+    <div class="tiles" id="tiles"></div>
+    <div class="box"><h3>Из чего складывается себестоимость, ₾</h3><div class="scroll"><table class="tbl" id="costTbl"></table></div></div>
+    <div class="box"><h3>Цена клиенту и прибыль</h3><div class="scroll"><table class="tbl" id="priceTbl"></table></div></div>
+    <div class="box"><h3>Если группа будет другой</h3><p class="hint">Цена на человека, если расселять по двое (нечётный — один Single). Та же программа и наценка.</p><div class="scroll"><table class="tbl" id="sizeTbl"></table></div></div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><button class="btn btn--red" type="button" data-next>К предложению</button></div>
+  </section>
+
+  <!-- 7. PDF -->
+  <section class="step" data-step="PDF">
+    <div><p class="kick">Шаг 7 из 7</p><h2>Предложение для клиента</h2></div>
+    <div class="grid grid--2">
+      <div class="f"><span>Язык документа</span><div class="seg"><label><input type="radio" name="lang" value="ru" data-k="doc.lang"><span>Русский</span></label><label><input type="radio" name="lang" value="en" data-k="doc.lang"><span>English</span></label></div><small>Программу дней пишете сами — на нужном языке.</small></div>
+      <label class="f"><span>Предложение действует, дней</span><input type="number" min="1" step="1" data-k="doc.valid"></label>
+    </div>
+    <label class="f"><span>Обращение к клиенту</span><textarea data-k="doc.intro" rows="2"></textarea><small>Пусто — подставится стандартный текст.</small></label>
+    <div class="grid grid--2">
+      <label class="f"><span>Входит в стоимость</span><textarea data-k="doc.yes" rows="7"></textarea><small>по пункту на строку</small></label>
+      <label class="f"><span>Не входит</span><textarea data-k="doc.no" rows="7"></textarea><small>по пункту на строку</small></label>
+    </div>
+    <label class="f"><span>Контакты в конце</span><input type="text" data-k="doc.contact"></label>
+    <div class="files"><button class="btn btn--red" type="button" id="pdfBtn">Скачать PDF</button><button class="btn" type="button" id="printBtn">Печать</button><button class="btn" type="button" id="langTxt">Тексты «входит» на языке документа</button></div>
+    <p class="hint">Ниже — как документ увидит клиент. Себестоимости, наценки и НДС в нём нет.</p>
+    <div class="prev"><div class="prev__in" id="prevIn"></div></div>
+    <div class="nav"><button class="btn" type="button" data-prev>Назад</button><span></span></div>
+  </section>
+  <div id="printDoc"></div>
+</div>
+
+<div class="bar" role="status" aria-live="polite">
+  <div class="bar__in">
+    <div class="bar__k"><small data-out="barCat"></small><b data-out="barCost"></b></div>
+    <div class="bar__k"><small>Цена клиенту</small><b data-out="barPrice"></b></div>
+    <div class="bar__k p" id="barProfitK"><small>Прибыль<span class="lg"> после НДС</span></small><b data-out="barProfit"></b></div>
+    <button class="btn btn--red btn--sm" type="button" id="barPdf">PDF</button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+<script>
+(function(){
+'use strict';
+var $=function(s,r){return (r||document).querySelector(s)},$$=function(s,r){return [].slice.call((r||document).querySelectorAll(s))};
+var store={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){return false}}};
+
+/* ---------- шаблоны программ ---------- */
+var TPL={
+ legend:{name:'Легенда',days:{
+  ru:[['Прилёт в Тбилиси','Встреча в аэропорту и трансфер в отель. Вечером — прогулка с гидом по старому Тбилиси: Нарикала, серные бани, мост Мира.','Тбилиси'],
+      ['Мцхета и Джвари','Монастырь Джвари над слиянием Арагви и Куры и древняя столица Мцхета с собором Светицховели. Вечером — серные бани.','Тбилиси'],
+      ['Кахетия: Сигнахи и вино','Город любви Сигнахи, винодельня с дегустацией и дом-музей Чавчавадзе в Цинандали.','Тбилиси'],
+      ['Военно-Грузинская дорога и Казбеги','Крепость Ананури, Пасанаури, арка Дружбы народов и подъём к храму Гергети у подножия Казбека.','Тбилиси'],
+      ['Вылет','Трансфер в аэропорт. До новых встреч в Грузии!','']],
+  en:[['Arrival in Tbilisi','Airport welcome and transfer to your hotel. In the evening, a guided walk through Old Tbilisi: Narikala, the sulphur baths and the Bridge of Peace.','Tbilisi'],
+      ['Mtskheta and Jvari','Jvari Monastery above the meeting of two rivers, and the ancient capital Mtskheta with Svetitskhoveli Cathedral. Sulphur baths in the evening.','Tbilisi'],
+      ['Kakheti: Sighnaghi and wine','Sighnaghi, the city of love, a winery with tasting and the Chavchavadze house museum in Tsinandali.','Tbilisi'],
+      ['Georgian Military Road and Kazbegi','Ananuri fortress, Pasanauri, the Friendship Monument and the climb to Gergeti church beneath Mount Kazbek.','Tbilisi'],
+      ['Departure','Transfer to the airport. See you again in Georgia!','']]},
+  cost:[{km:120,guide:200,tix:0,sprinter:600,viano:300,extra:0,taxi:0,night:1},{km:80,guide:150,tix:10,sprinter:600,viano:700,extra:0,taxi:0,night:1},
+        {km:250,guide:150,tix:10,sprinter:600,viano:700,extra:0,taxi:0,night:1},{km:350,guide:150,tix:0,sprinter:600,viano:700,extra:300,taxi:0,night:1},
+        {km:0,guide:0,tix:0,sprinter:600,viano:0,extra:0,taxi:100,night:0}]}
+};
+var YES={ru:'Отели с завтраками\nТрансферы и весь транспорт по маршруту\nГид на всём маршруте\nЭкскурсии и активности по программе\nВходные билеты по программе\nСтраховка\nВода и дождевики в дороге\nSIM-карта с интернетом\nПодарок от GeoTrip',
+         en:'Hotels with breakfast\nAirport transfers and all transport on the route\nA guide throughout the trip\nExcursions and activities in the itinerary\nEntrance tickets in the itinerary\nTravel insurance\nDrinking water and rain ponchos\nA local SIM card with internet\nA gift from GeoTrip'};
+var NO={ru:'Авиабилеты\nОбеды и ужины\nСувениры и личные расходы',en:'International flights\nLunches and dinners\nSouvenirs and personal expenses'};
+
+function blankDay(i,n){return {title:'',text:'',city:'Тбилиси',km:0,guide:0,tix:0,sprinter:0,viano:0,extra:0,taxi:0,night:i<n-1?1:0}}
+function fresh(){
+  var s={tour:{name:'Легенда',client:'',start:''},
+    group:{n:10,dbl:5,sng:0},
+    days:[],
+    hotel:{p3:180,p4:320,p5:600,sngDisc:15,show3:true,show4:true,show5:true,main:'4'},
+    staff:{driver:1,guide:1,manager:0,meal:20},
+    veh:{sprinter:1,viano:0,extra:2,taxi:2.5},
+    fuel:{per100:15,price:2.7},
+    pp:{ins:10,sim:30,water:4,waterPrice:0.5,rain:5,gift:40},
+    other:{med:15,items:[]},
+    price:{markup:30,vat:18,vatIn:false,usd:2.63,eur:2.8,cur:'USD',round:'10'},
+    doc:{lang:'ru',valid:14,intro:'',yes:YES.ru,no:NO.ru,contact:'WhatsApp +995 579 99 77 33 · geotrip.world'}};
+  applyTpl(s,'legend');return s;
+}
+function applyTpl(s,key){
+  var lang=(s.doc&&s.doc.lang)||'ru';
+  if(key==='blank'){var n=s.days.length||5;s.days=[];for(var i=0;i<n;i++)s.days.push(blankDay(i,n));return}
+  var t=TPL[key];s.tour.name=t.name;
+  s.days=t.cost.map(function(c,i){var d=t.days[lang][i];return Object.assign({},c,{title:d[0],text:d[1],city:d[2]})});
+}
+
+/* ---------- состояние ---------- */
+var CUR_KEY='gt_office_current',LIST_KEY='gt_office_files';
+var S=store.get(CUR_KEY)||fresh();
+var fileId=null;
+function save(){store.set(CUR_KEY,S);var t=new Date();$('#savedAt').textContent='Сохранено '+t.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})+'.'}
+function getK(k){return k.split('.').reduce(function(o,p){return o==null?o:o[p]},S)}
+function setK(k,v){var p=k.split('.'),o=S;for(var i=0;i<p.length-1;i++)o=o[p[i]];o[p[p.length-1]]=v}
+function n(v){v=parseFloat(String(v).replace(',','.'));return isFinite(v)?v:0}
+
+/* ---------- расчёт ---------- */
+function calc(st,N,DBL,SNG){
+  N=N==null?st.group.n:N;DBL=DBL==null?st.group.dbl:DBL;SNG=SNG==null?st.group.sng:SNG;
+  var D=st.days,nights=D.filter(function(d){return d.night}).length,days=D.length;
+  var km=D.reduce(function(a,d){return a+n(d.km)},0);
+  var staffN=n(st.staff.driver)+n(st.staff.guide)+n(st.staff.manager);
+  var c={};
+  c.meals=staffN*n(st.staff.meal)*nights;
+  c.guide=D.reduce(function(a,d){return a+n(d.guide)},0)*n(st.staff.guide);
+  c.sprinter=D.reduce(function(a,d){return a+n(d.sprinter)},0)*n(st.veh.sprinter);
+  c.viano=D.reduce(function(a,d){return a+n(d.viano)},0)*n(st.veh.viano);
+  c.extra=D.reduce(function(a,d){return a+n(d.extra)},0)*n(st.veh.extra);
+  c.taxi=D.reduce(function(a,d){return a+n(d.taxi)},0)*n(st.veh.taxi);
+  c.fuel=km*n(st.fuel.per100)/100*n(st.fuel.price);
+  var tix=D.reduce(function(a,d){return a+n(d.tix)},0);
+  var ppRate=tix+n(st.pp.ins)*days+n(st.pp.sim)+n(st.pp.water)*n(st.pp.waterPrice)*Math.max(days-1,0)+n(st.pp.rain)+n(st.pp.gift);
+  var itemsPP=0,itemsG=0;(st.other.items||[]).forEach(function(it){if(it.per==='person')itemsPP+=n(it.sum);else itemsG+=n(it.sum)});
+  c.tix=tix*N;c.ins=n(st.pp.ins)*days*N;c.sim=n(st.pp.sim)*N;c.water=n(st.pp.water)*n(st.pp.waterPrice)*Math.max(days-1,0)*N;c.rain=n(st.pp.rain)*N;c.gift=n(st.pp.gift)*N;
+  c.med=n(st.other.med);c.items=itemsG+itemsPP*N;
+  var shared=0;for(var k in c)shared+=c[k];
+  var m=1+n(st.price.markup)/100,vat=n(st.price.vat)/100,disc=1-n(st.hotel.sngDisc)/100;
+  var cats={};
+  [3,4,5].forEach(function(s){
+    var p=n(st.hotel['p'+s]);
+    var room=nights*(DBL*p+SNG*p*disc);
+    var r={rooms:room,cost:shared+room,vat:room*vat};
+    var base=N?shared/N:0;
+    r.ppDblCost=base+nights*p/2;r.ppSngCost=base+nights*p*disc;
+    var vIn=st.price.vatIn?1:0;
+    r.ppDbl=(r.ppDblCost*m)+vIn*nights*p/2*vat;
+    r.ppSng=(r.ppSngCost*m)+vIn*nights*p*disc*vat;
+    cats[s]=r;
+  });
+  return {c:c,shared:shared,nights:nights,days:days,km:km,cats:cats,ppRate:ppRate+itemsPP};
+}
+var CUR={USD:{s:'$',k:'usd'},EUR:{s:'€',k:'eur'},GEL:{s:'₾',k:null}};
+function toCur(gel,cur){cur=cur||S.price.cur;var k=CUR[cur].k;return k?gel/n(S.price[k]):gel}
+function roundUp(v){var r=n(S.price.round)||1;return Math.ceil(v/r-1e-9)*r}
+function fmt(v,d){return (Math.round(v*Math.pow(10,d||0))/Math.pow(10,d||0)).toLocaleString('ru-RU',{maximumFractionDigits:d||0})}
+function money(v,cur){cur=cur||S.price.cur;var s=CUR[cur].s;return cur==='USD'?s+fmt(v):fmt(v)+' '+s}
+function gel(v){return fmt(v)+' ₾'}
+/* клиентские цены: на человека округляем вверх в валюте клиента; итог группы = сумма */
+function clientPrices(r){
+  var dbl=roundUp(toCur(r.ppDbl)),sng=roundUp(toCur(r.ppSng));
+  var tot=dbl*S.group.dbl*2+sng*S.group.sng;
+  // в лари, чтобы сравнить с себестоимостью
+  var k=CUR[S.price.cur].k,rate=k?n(S.price[k]):1;
+  return {dbl:dbl,sng:sng,tot:tot,totGel:tot*rate};
+}
+
+/* ---------- шаги ---------- */
+var steps=$$('.step'),cur=0;
+$('#steps').innerHTML=steps.map(function(s,i){return '<button type="button" data-go="'+i+'">'+(i+1)+'<span> · '+s.dataset.step+'</span></button>'}).join('');
+function go(i){cur=Math.max(0,Math.min(steps.length-1,i));steps.forEach(function(s,j){s.classList.toggle('on',j===cur)});
+  $$('#steps button').forEach(function(b,j){b.classList.toggle('on',j===cur);b.classList.toggle('done',j<cur)});
+  window.scrollTo({top:0,behavior:'smooth'});if(cur===steps.length-1)renderDoc();store.set('gt_office_step',cur)}
+document.addEventListener('click',function(e){var t=e.target.closest('[data-go],[data-next],[data-prev]');if(!t)return;
+  if(t.dataset.go!=null)go(+t.dataset.go);else if(t.hasAttribute('data-next'))go(cur+1);else go(cur-1)});
+
+/* ---------- привязка полей ---------- */
+function fillFields(){
+  $$('[data-k]').forEach(function(el){var v=getK(el.dataset.k);
+    if(el.type==='checkbox')el.checked=!!v;else if(el.type==='radio')el.checked=String(v)===el.value;else el.value=v==null?'':v});
+}
+document.addEventListener('input',function(e){var el=e.target;
+  if(el.dataset.k){var v=el.type==='checkbox'?el.checked:el.type==='number'?n(el.value):el.value;if(el.type==='radio'&&!el.checked)return;setK(el.dataset.k,v);update();return}
+  if(el.dataset.day!=null){var d=S.days[+el.dataset.day],f=el.dataset.f;d[f]=el.type==='checkbox'?(el.checked?1:0):el.type==='number'?n(el.value):el.value;update();return}
+  if(el.dataset.item!=null){var it=S.other.items[+el.dataset.item];it[el.dataset.f]=el.type==='number'?n(el.value):el.value;update()}
+});
+document.addEventListener('change',function(e){var el=e.target;if(el.type==='radio'&&el.dataset.k&&el.checked){setK(el.dataset.k,el.value);update()}
+  if(el.dataset.item!=null&&el.tagName==='SELECT'){S.other.items[+el.dataset.item].per=el.value;update()}});
+
+/* счётчики */
+document.addEventListener('click',function(e){var b=e.target.closest('[data-inc]');if(!b)return;var k=b.dataset.inc,v=Math.max(0,getK(k)+ +b.dataset.d);
+  if(k==='group.n'){v=Math.max(1,Math.min(60,v));var auto=S.group.dbl*2+S.group.sng===S.group.n;setK(k,v);if(auto)autoRooms()}else setK(k,v);update()});
+function autoRooms(){S.group.dbl=Math.floor(S.group.n/2);S.group.sng=S.group.n%2}
+$('#roomsAuto').addEventListener('click',function(){autoRooms();update()});
+$$('[data-days]').forEach(function(b){b.addEventListener('click',function(){var d=+b.dataset.days;
+  if(d>0&&S.days.length<30){var last=S.days[S.days.length-1];if(last)last.night=1;var nd=blankDay(S.days.length,S.days.length+1);nd.night=0;S.days.push(nd)}
+  if(d<0&&S.days.length>1){S.days.pop();S.days[S.days.length-1].night=0}
+  renderDays();update()})});
+
+/* шаблон */
+$('#tplGo').addEventListener('click',function(){applyTpl(S,$('#tplSel').value);renderDays();fillFields();update()});
+
+/* ---------- дни ---------- */
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function dateOf(i,lang){if(!S.tour.start)return '';var d=new Date(S.tour.start+'T12:00:00');d.setDate(d.getDate()+i);
+  return d.toLocaleDateString(lang==='en'?'en-GB':'ru-RU',{day:'numeric',month:'long',weekday:'short'})}
+function renderDays(){
+  $('#days').innerHTML=S.days.map(function(d,i){
+    var num=function(f,lbl,u,step){return '<label class="f"><span>'+lbl+'</span><span class="unit"><input type="number" min="0" step="'+(step||10)+'" data-day="'+i+'" data-f="'+f+'" value="'+esc(d[f])+'"><b>'+u+'</b></span></label>'};
+    return '<div class="day"><div class="day__h"><b>День '+(i+1)+(S.tour.start?' · '+dateOf(i,'ru'):'')+'</b></div>'+
+      '<label class="f"><span>Название дня</span><input type="text" data-day="'+i+'" data-f="title" value="'+esc(d.title)+'" placeholder="Например, Мцхета и Джвари"></label>'+
+      '<label class="f"><span>Что делаем</span><textarea rows="3" data-day="'+i+'" data-f="text" placeholder="Коротко и вкусно — это прочтёт клиент">'+esc(d.text)+'</textarea></label>'+
+      '<div class="grid"><label class="tog"><input type="checkbox" data-day="'+i+'" data-f="night"'+(d.night?' checked':'')+'> Ночёвка в отеле</label>'+
+      '<label class="f"><span>Город ночёвки</span><input type="text" data-day="'+i+'" data-f="city" value="'+esc(d.city)+'"></label></div>'+
+      '<details><summary>Расходы дня <em data-dsum="'+i+'"></em></summary><div class="grid">'+
+        num('km','Километраж','км',10)+num('guide','Гонорар гида','₾')+num('tix','Билеты на человека','₾',1)+
+        num('sprinter','Sprinter, за машину','₾')+num('viano','Viano / Vito, за машину','₾')+num('extra','Доп. авто, за машину','₾')+num('taxi','Такси','₾')+
+      '</div></details></div>';
+  }).join('');
+}
+
+/* ---------- прочие статьи ---------- */
+function renderItems(){
+  $('#items').innerHTML=(S.other.items||[]).map(function(it,i){
+    return '<div class="item"><input type="text" placeholder="Статья, например вертолёт" data-item="'+i+'" data-f="name" value="'+esc(it.name)+'">'+
+      '<span class="unit"><input type="number" min="0" step="10" data-item="'+i+'" data-f="sum" value="'+esc(it.sum)+'"><b>₾</b></span>'+
+      '<select data-item="'+i+'"><option value="group"'+(it.per!=='person'?' selected':'')+'>на группу</option><option value="person"'+(it.per==='person'?' selected':'')+'>на человека</option></select>'+
+      '<button type="button" class="x" data-del="'+i+'">убрать</button></div>'}).join('');
+}
+$('#addItem').addEventListener('click',function(){S.other.items.push({name:'',sum:0,per:'group'});renderItems();update()});
+$('#items').addEventListener('click',function(e){var b=e.target.closest('[data-del]');if(!b)return;S.other.items.splice(+b.dataset.del,1);renderItems();update()});
+
+/* ---------- вывод ---------- */
+var LBL={meals:'Проживание и питание команды',guide:'Гонорар гида',sprinter:'Sprinter',viano:'Viano / Vito',extra:'Доп. авто',taxi:'Такси',fuel:'Топливо',
+  tix:'Входные билеты',ins:'Страховка',sim:'SIM / интернет',water:'Вода',rain:'Дождевики',gift:'Подарки',med:'Аптечка',items:'Прочее'};
+function update(){
+  var R=calc(S),g=S.group,main=String(S.hotel.main);
+  $$('[data-out]').forEach(function(o){var k=o.dataset.out,v;
+    if(k==='days')v=S.days.length;else if(k==='daysTxt')v=S.days.length+' '+plural(S.days.length,'день','дня','дней');
+    else if(k==='nightsTxt')v=R.nights+' '+plural(R.nights,'ночь','ночи','ночей')+' в отелях';
+    else if(k.indexOf('group.')===0)v=getK(k);else return;o.textContent=v});
+  var places=g.dbl*2+g.sng,msg=$('#roomMsg');
+  msg.className='msg'+(places===g.n?'':' bad');
+  msg.textContent=places===g.n?('Все расселены: '+g.dbl+' DBL/TWN и '+g.sng+' SNG — '+places+' мест.'):(places<g.n?'Не хватает мест: '+(g.n-places)+'. Добавьте номера.':'Мест больше, чем туристов, на '+(places-g.n)+'. Проверьте номера.');
+  // суммы по дням
+  S.days.forEach(function(d,i){var el=$('[data-dsum="'+i+'"]');if(!el)return;
+    var s=n(d.guide)*n(S.staff.guide)+n(d.sprinter)*n(S.veh.sprinter)+n(d.viano)*n(S.veh.viano)+n(d.extra)*n(S.veh.extra)+n(d.taxi)*n(S.veh.taxi)+n(d.tix)*g.n;
+    el.textContent='· '+n(d.km)+' км · '+gel(s)});
+  // плитки
+  $('#tiles').innerHTML=[3,4,5].map(function(s){var r=R.cats[s],cp=clientPrices(r),profit=cp.totGel-r.cost-r.vat;
+    return '<div class="tile'+(String(s)===main?' on':'')+'"><small>'+s+'★ · цена клиенту</small><b>'+money(cp.tot)+'</b><em>DBL '+money(cp.dbl)+' / чел · SNG '+money(cp.sng)+'</em><em>прибыль после НДС '+gel(profit)+'</em></div>'}).join('');
+  // себестоимость
+  var rows='';for(var k in R.c){if(Math.round(R.c[k])===0)continue;rows+='<tr><td>'+LBL[k]+'</td><td>'+gel(R.c[k])+'</td></tr>'}
+  rows+='<tr class="sum"><td>Без проживания, на группу</td><td>'+gel(R.shared)+'</td></tr><tr><td>Без проживания, на человека</td><td>'+gel(g.n?R.shared/g.n:0)+'</td></tr>';
+  $('#costTbl').innerHTML='<tbody>'+rows+'</tbody>';
+  // цена
+  var ph='<thead><tr><th></th><th class="c3">3★</th><th class="c4">4★</th><th class="c5">5★</th></tr></thead><tbody>';
+  var line=function(lbl,f,cls){return '<tr'+(cls?' class="'+cls+'"':'')+'><td>'+lbl+'</td>'+[3,4,5].map(function(s){return '<td>'+f(R.cats[s],clientPrices(R.cats[s]))+'</td>'}).join('')+'</tr>'};
+  ph+=line('Проживание, на группу',function(r){return gel(r.rooms)});
+  ph+=line('Себестоимость, на группу',function(r){return gel(r.cost)},'sum');
+  ph+=line('Себестоимость на чел. в DBL',function(r){return gel(r.ppDblCost)});
+  ph+=line('Себестоимость на чел. в SNG',function(r){return gel(r.ppSngCost)});
+  ph+=line('Цена на чел. в DBL',function(r,c){return money(c.dbl)});
+  ph+=line('Цена на чел. в SNG',function(r,c){return money(c.sng)});
+  ph+=line('Цена на группу',function(r,c){return money(c.tot)},'sum big');
+  ph+=line('То же в лари',function(r,c){return gel(c.totGel)});
+  ph+=line('НДС '+fmt(n(S.price.vat))+'% на проживание',function(r){return gel(r.vat)});
+  ph+=line('Прибыль после НДС',function(r,c){return gel(c.totGel-r.cost-r.vat)},'sum');
+  ph+=line('Прибыль на человека',function(r,c){return gel(g.n?(c.totGel-r.cost-r.vat)/g.n:0)});
+  $('#priceTbl').innerHTML=ph+'</tbody>';
+  // таблица по размеру группы
+  var sh='<thead><tr><th>Чел.</th><th>Номера</th><th class="c3">3★ / чел</th><th class="c4">4★ / чел</th><th class="c5">5★ / чел</th><th>Прибыль '+main+'★</th></tr></thead><tbody>';
+  for(var p=1;p<=16;p++){var d=Math.floor(p/2),s1=p%2,RR=calc(S,p,d,s1);
+    sh+='<tr'+(p===g.n?' class="sum"':'')+'><td>'+p+'</td><td>'+(d?d+' DBL':'')+(d&&s1?' + ':'')+(s1?'1 SNG':'')+'</td>'+[3,4,5].map(function(s){var r=RR.cats[s],avg=(r.ppDbl*d*2+r.ppSng*s1)/p;return '<td>'+money(roundUp(toCur(avg)))+'</td>'}).join('')+
+      '<td>'+(function(){var r=RR.cats[main];var tot=(r.ppDbl*d*2+r.ppSng*s1);return gel(tot-r.cost-r.vat)})()+'</td></tr>'}
+  $('#sizeTbl').innerHTML=sh+'</tbody>';
+  // нижняя панель
+  var rm=R.cats[main],cm=clientPrices(rm),pr=cm.totGel-rm.cost-rm.vat;
+  $('[data-out=barCat]').textContent=(innerWidth<560?'Себест. ':'Себестоимость · ')+main+'★';
+  $('[data-out=barCost]').textContent=gel(rm.cost);
+  $('[data-out=barPrice]').textContent=money(cm.tot);
+  $('[data-out=barProfit]').textContent=gel(pr);
+  $('#barProfitK').classList.toggle('neg',pr<0);$('#barProfitK').classList.toggle('p',pr>=0);
+  if(cur===steps.length-1)renderDoc();
+  save();
+}
+function plural(x,a,b,c){x=Math.abs(x)%100;var y=x%10;if(x>10&&x<20)return c;if(y>1&&y<5)return b;if(y===1)return a;return c}
+
+/* ---------- документ ---------- */
+var T={ru:{kk:'Индивидуальное предложение',for:'для',dates:'Даты',days:'Дней',group:'Гостей',stay:'Размещение',prog:'Программа',day:'День',night:'Ночь',price:'Стоимость',pp_dbl:'на человека в DBL/TWN',pp_sng:'на человека в Single',total:'Итого за группу',yes:'Входит в стоимость',no:'Не входит',valid:'Предложение действует до',hello:'Здравствуйте',intro:'Мы собрали для вас путешествие по Грузии: маршрут, отели и всё, что входит в стоимость. Если захотите что-то поменять — напишите нам, мы подстроим программу под вас.',
+  rooms:function(d,s){var a=[];if(d)a.push(d+' DBL/TWN');if(s)a.push(s+' Single');return a.join(' + ')},guests:function(x){return x+' '+plural(x,'гость','гостя','гостей')},nd:function(d,nn){return d+' '+plural(d,'день','дня','дней')+' / '+nn+' '+plural(nn,'ночь','ночи','ночей')},hotels:'Отели',stars:'звезды',noDates:'по согласованию',vat:'НДС включён',main:'Рекомендуем',sign:'Команда GeoTrip',tag:'Частные экспедиции по Грузии с 2016 года'},
+ en:{kk:'Private proposal',for:'for',dates:'Dates',days:'Duration',group:'Guests',stay:'Rooms',prog:'Itinerary',day:'Day',night:'Overnight',price:'Price',pp_dbl:'per person in DBL/TWN',pp_sng:'per person in Single',total:'Total for the group',yes:'Included',no:'Not included',valid:'This proposal is valid until',hello:'Dear',intro:'We have put together a journey through Georgia for you: the route, the hotels and everything included in the price. If you would like to change anything, just write to us and we will tailor the itinerary.',
+  rooms:function(d,s){var a=[];if(d)a.push(d+' DBL/TWN');if(s)a.push(s+' Single');return a.join(' + ')},guests:function(x){return x+(x===1?' guest':' guests')},nd:function(d,nn){return d+(d===1?' day':' days')+' / '+nn+(nn===1?' night':' nights')},hotels:'Hotels',stars:'stars',noDates:'to be agreed',vat:'VAT included',main:'Recommended',sign:'The GeoTrip team',tag:'Private expeditions in Georgia since 2016'}};
+var LOGO='';
+fetch('../assets/logo.svg').then(function(r){return r.ok?r.text():''}).then(function(t){LOGO=t.replace('<svg','<svg fill="#ffffff" width="62" height="62"');if(cur===steps.length-1)renderDoc()}).catch(function(){});
+function buildDoc(){
+  var L=S.doc.lang==='en'?'en':'ru',t=T[L],R=calc(S),g=S.group,main=String(S.hotel.main);
+  var lines=function(s){return String(s||'').split('\n').map(function(x){return x.trim()}).filter(Boolean)};
+  var dates=t.noDates;
+  if(S.tour.start){var a=new Date(S.tour.start+'T12:00:00'),b=new Date(a);b.setDate(b.getDate()+S.days.length-1);
+    var loc=L==='en'?'en-GB':'ru-RU';
+    if(a.getMonth()===b.getMonth()&&a.getFullYear()===b.getFullYear()){var ml=b.toLocaleDateString(loc,{day:'numeric',month:'long',year:'numeric'}).replace(/^\d+\s*/,'').replace(/\s*г\.$/,'');dates=a.getDate()+'–'+b.getDate()+' '+ml}
+    else dates=a.toLocaleDateString(loc,{day:'numeric',month:'short'})+' – '+b.toLocaleDateString(loc,{day:'numeric',month:'short',year:'numeric'}).replace(/\s*г\.$/,'')}
+  var valid=new Date();valid.setDate(valid.getDate()+n(S.doc.valid));
+  var cats=[3,4,5].filter(function(s){return S.hotel['show'+s]});if(!cats.length)cats=[+main];
+  var h='<div class="doc">';
+  h+='<div class="doc__hero"><div class="logo">'+LOGO+'</div><div class="kk">'+t.kk+(S.tour.client?' '+t.for+' '+esc(S.tour.client):'')+'</div><h1>'+esc(S.tour.name||'GeoTrip')+'</h1><p>'+t.tag+'</p>'+
+     '<div class="doc__facts"><div><small>'+t.dates+'</small><b>'+dates+'</b></div><div><small>'+t.days+'</small><b>'+t.nd(S.days.length,R.nights)+'</b></div><div><small>'+t.group+'</small><b>'+t.guests(g.n)+'</b></div><div><small>'+t.stay+'</small><b>'+t.rooms(g.dbl,g.sng)+'</b></div></div></div>';
+  h+='<div class="pg">';
+  h+='<div class="sec">'+(S.tour.client?'<p class="hello">'+t.hello+', '+esc(S.tour.client)+'!</p>':'')+'<p style="margin:0;color:#3d3a35;font-size:14px;max-width:44em">'+esc(S.doc.intro||t.intro)+'</p></div>';
+  h+='<div class="sec"><p class="lbl">'+t.prog+'</p>';
+  S.days.forEach(function(d,i){h+='<div class="dd"><div class="dd__n">'+t.day+' '+(i+1)+(S.tour.start?'<small>'+dateOf(i,L)+'</small>':'')+'</div><div><h3>'+esc(d.title||'—')+'</h3>'+(d.text?'<p>'+esc(d.text)+'</p>':'')+
+    (d.night&&d.city?'<div class="dd__night">'+t.night+': '+esc(d.city)+'</div>':'')+'</div></div>'});
+  h+='</div>';
+  h+='<div class="sec" style="break-inside:avoid;page-break-inside:avoid"><p class="lbl">'+t.price+'</p><div class="price">';
+  cats.forEach(function(s){var cp=clientPrices(R.cats[s]);
+    h+='<div class="pc'+(cats.length>1&&String(s)===main?' main':'')+'"><div class="st">'+'★★★★★'.slice(0,s)+'</div><h3>'+t.hotels+' '+s+'★</h3>'+(cats.length>1&&String(s)===main?'<div style="font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:#a81400;font-weight:600;margin-top:4px">'+t.main+'</div>':'')+
+      '<dl>'+(g.dbl?'<dt>'+t.pp_dbl+'</dt><dd>'+money(cp.dbl)+'</dd>':'')+(g.sng?'<dt>'+t.pp_sng+'</dt><dd>'+money(cp.sng)+'</dd>':'')+
+      '<div class="tot"><span>'+t.total+'</span><b>'+money(cp.tot)+'</b></div></dl></div>'});
+  h+='</div>'+(S.price.vatIn?'<p class="note">'+t.vat+'.</p>':'')+'</div>';
+  h+='<div class="sec two"><div class="yes"><p class="lbl">'+t.yes+'</p><ul>'+lines(S.doc.yes).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div>'+
+     '<div class="no"><p class="lbl">'+t.no+'</p><ul>'+lines(S.doc.no).map(function(x){return '<li>'+esc(x)+'</li>'}).join('')+'</ul></div></div>';
+  h+='<div class="foot"><div><b>'+t.sign+'</b><span>'+esc(S.doc.contact)+'</span></div><span>'+t.valid+' '+valid.toLocaleDateString(L==='en'?'en-GB':'ru-RU',{day:'numeric',month:'long',year:'numeric'})+'</span></div>';
+  h+='</div></div>';
+  return h;
+}
+function renderDoc(){var box=$('#prevIn');box.innerHTML=buildDoc();
+  var w=box.parentNode.clientWidth-parseFloat(getComputedStyle(box.parentNode).paddingLeft)*2,k=Math.min(1,w/794);
+  box.style.transform='scale('+k+')';box.style.height=(box.firstChild.offsetHeight*k)+'px';box.style.width='794px';box.parentNode.style.height='';}
+window.addEventListener('resize',function(){if(cur===steps.length-1)renderDoc()});
+$('#langTxt').addEventListener('click',function(){var L=S.doc.lang==='en'?'en':'ru';S.doc.yes=YES[L];S.doc.no=NO[L];fillFields();update()});
+
+function fileName(){var nm=(S.tour.name||'GeoTrip').replace(/[\\/:*?"<>|]+/g,'').trim();return 'GeoTrip - '+nm+(S.tour.client?' - '+S.tour.client.replace(/[\\/:*?"<>|]+/g,''):'')+'.pdf'}
+function pdf(){
+  if(!window.html2pdf){alert('Модуль PDF ещё загружается, попробуйте через пару секунд.');return}
+  var b=$('#pdfBtn'),bb=$('#barPdf');b.disabled=bb.disabled=true;var old=b.textContent;b.textContent='Готовим…';
+  var shell=document.createElement('div');shell.style.cssText='position:fixed;left:0;top:0;width:0;height:0;overflow:hidden;z-index:-1';
+  var holder=document.createElement('div');holder.style.cssText='position:absolute;left:0;top:0;width:794px';holder.innerHTML=buildDoc();shell.appendChild(holder);document.body.appendChild(shell);
+  html2pdf().set({margin:[28,0,28,0],filename:fileName(),image:{type:'jpeg',quality:0.95},html2canvas:{scale:2,useCORS:true,backgroundColor:'#ffffff',windowWidth:794,scrollX:0,scrollY:0,x:0,y:0},
+    jsPDF:{unit:'px',format:[794,1123],hotfixes:['px_scaling']},pagebreak:{mode:['css','legacy'],avoid:['.dd','.pc','.two','.foot']}})
+   .from(holder.firstChild).save().then(done,done);
+  function done(){shell.remove();b.disabled=bb.disabled=false;b.textContent=old}
+}
+$('#pdfBtn').addEventListener('click',pdf);
+$('#barPdf').addEventListener('click',function(){if(cur!==steps.length-1)go(steps.length-1);else pdf()});
+$('#printBtn').addEventListener('click',function(){$('#printDoc').innerHTML=buildDoc();window.print()});
+
+/* ---------- сохранённые расчёты ---------- */
+function files(){return store.get(LIST_KEY)||[]}
+function renderFiles(){var f=files();$('#fileSel').innerHTML='<option value="">Сохранённые расчёты'+(f.length?' ('+f.length+')':'')+'</option>'+
+  f.map(function(x){return '<option value="'+x.id+'"'+(x.id===fileId?' selected':'')+'>'+esc(x.title)+' · '+new Date(x.at).toLocaleDateString('ru-RU')+'</option>'}).join('')}
+$('#fileSave').addEventListener('click',function(){var f=files(),title=(S.tour.name||'Тур')+(S.tour.client?' — '+S.tour.client:'')+' · '+S.group.n+' чел.';
+  var ex=fileId&&f.find(function(x){return x.id===fileId});
+  if(ex){ex.title=title;ex.at=Date.now();ex.s=JSON.parse(JSON.stringify(S))}else{fileId='f'+Date.now();f.unshift({id:fileId,title:title,at:Date.now(),s:JSON.parse(JSON.stringify(S))})}
+  store.set(LIST_KEY,f);renderFiles();var b=$('#fileSave');b.textContent='Сохранено ✓';setTimeout(function(){b.textContent='Сохранить'},1500)});
+$('#fileSel').addEventListener('change',function(){var id=this.value;if(!id)return;var x=files().find(function(f){return f.id===id});if(!x)return;
+  S=JSON.parse(JSON.stringify(x.s));fileId=id;init()});
+$('#fileNew').addEventListener('click',function(){S=fresh();fileId=null;init();go(0)});
+
+function init(){S=Object.assign(fresh(),S);['hotel','staff','veh','fuel','pp','other','price','doc','tour','group'].forEach(function(k){S[k]=Object.assign(fresh()[k],S[k])});
+  renderDays();renderItems();fillFields();renderFiles();update()}
+init();go(store.get('gt_office_step')||0);
+})();
+</script>
+</body>
+</html>

@@ -178,6 +178,8 @@ def build():
         shutil.copytree(os.path.join(HERE, "journey"), os.path.join(DIST, "journey"))
     if os.path.isdir(os.path.join(HERE, "anketa")):
         shutil.copytree(os.path.join(HERE, "anketa"), os.path.join(DIST, "anketa"))
+    if os.path.isdir(os.path.join(HERE, "office")):
+        shutil.copytree(os.path.join(HERE, "office"), os.path.join(DIST, "office"))
     for extra in os.listdir(os.path.join(HERE, "static")):
         shutil.copy(os.path.join(HERE, "static", extra), DIST)
     if os.path.exists(os.path.join(HERE, "functions")):
