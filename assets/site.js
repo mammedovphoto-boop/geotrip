@@ -705,10 +705,12 @@ document.documentElement.classList.add('js');
   bar.innerHTML='<div class="wz__top"><span class="wz__n"></span><div class="wz__dots"></div></div>';
   grid.parentNode.insertBefore(bar,grid);
   var nav=document.createElement('div');nav.className='wz__nav';
-  nav.innerHTML='<button type="button" class="wz__back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg><span></span></button><p class="wz__done" hidden></p><button type="button" class="btn btn--red wz__next"><span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg></button>';
+  nav.innerHTML='<button type="button" class="wz__back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M15 5l-7 7 7 7"/></svg><span></span></button><p class="wz__done" hidden></p><button type="submit" class="btn btn--wa wz__book" hidden></button><button type="button" class="btn btn--red wz__next"><span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 5l7 7-7 7"/></svg></button>';
   grid.parentNode.insertBefore(nav,grid.nextSibling);
   var bBack=$('.wz__back',nav),bNext=$('.wz__next',nav),done=$('.wz__done',nav),nEl=$('.wz__n',bar),dots=$('.wz__dots',bar);
   $('span',bBack).textContent=T[2];$('span',bNext).textContent=T[3];done.textContent=T[4];
+  /* на последнем шаге на месте «Далее» — та же кнопка «Забронировать», что и в итоге: не нужно искать, куда нажать */
+  var bBook=$('.wz__book',nav),sumBtn=$('.sum button[type=submit]',form);if(sumBtn)bBook.innerHTML=sumBtn.innerHTML;
   var render=function(){
     steps=$$(':scope > fieldset',grid).filter(function(f){return !f.hidden&&!f.classList.contains('skip')});
     if(cur>steps.length-1)cur=steps.length-1;if(cur<0)cur=0;
@@ -717,7 +719,7 @@ document.documentElement.classList.add('js');
     if(dots.children.length!==steps.length){dots.innerHTML='';steps.forEach(function(_,i){var b=document.createElement('button');b.type='button';b.setAttribute('aria-label',T[0]+' '+(i+1));b.addEventListener('click',function(){cur=i;render()});dots.appendChild(b)})}
     [].forEach.call(dots.children,function(b,i){b.className=i===cur?'is-on':i<cur?'is-done':''});
     bBack.style.visibility=cur===0?'hidden':'visible';
-    var last=cur===steps.length-1;bNext.hidden=last;done.hidden=!last;form.classList.toggle('wiz-last',last);
+    var last=cur===steps.length-1;bNext.hidden=last;done.hidden=true;bBook.hidden=!last;form.classList.toggle('wiz-last',last);
     window.dispatchEvent(new Event('resize'));
   };
   bBack.addEventListener('click',function(){cur--;render()});

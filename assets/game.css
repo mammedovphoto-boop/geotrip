@@ -351,3 +351,5 @@ html[lang=ar] .game .atlas--first .atlas__list a small::before{content:"المه
 @media (prefers-reduced-motion:reduce){.g-intro.play .g-intro__sc,.g-intro.play .g-intro__logo{animation:none}.game .hero h1 .ch{animation:none;opacity:1;transform:none}}
 
 .g-pass{background:radial-gradient(ellipse at center,rgba(9,10,20,.92),rgba(9,10,20,.55) 75%)}
+.game .wz__book{background:linear-gradient(100deg,#1f8f55,#00e5ff);color:#04110b;font-size:14px}.game .wz__book:not([hidden]){animation:bookIn .6s,gPulse 2.2s ease-in-out .8s infinite}
+@media (min-width:761px){body:has(.calc-solo) .g-player{left:auto;right:max(16px,env(safe-area-inset-right,0px));bottom:96px}}
