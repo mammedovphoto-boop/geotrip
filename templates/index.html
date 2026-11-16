@@ -11,10 +11,10 @@
   <video autoplay muted loop playsinline preload="metadata" poster="{{ root }}assets/video/poster.jpg" aria-hidden="true"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video>
   <div class="wrap">
     <button class="hero__play" data-play aria-label="{{ h.play }}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></button>
-    {% if game %}<p class="g-kick">{{ {'ru':'Открытый мир · с 2016 года','en':'Open world · since 2016','ar':'عالم مفتوح · منذ 2016'}[lang] }}</p>
-    <h1 class="g-title"><span class="ln"><span>{{ {'ru':'Грузия','en':'Georgia','ar':'جورجيا'}[lang] }}</span></span><span class="ln"><span>{{ {'ru':'без границ','en':'unlocked','ar':'بلا حدود'}[lang] }}</span></span></h1>
-    <p class="hero__sub">{{ {'ru':'Выбери миссию. Собери команду. Каждый день — новый уровень.','en':'Pick a mission. Gather your crew. Every day is a new level.','ar':'اختر مهمتك. اجمع فريقك. كل يوم مستوى جديد.'}[lang] }}</p>
-    <p class="g-start"><a class="btn btn--red" href="#routes">{{ {'ru':'Начать игру','en':'Start game','ar':'ابدأ اللعبة'}[lang] }}{{ p.arrow() }}</a><button type="button" class="g-radio" data-g-radio>{{ {'ru':'Радио · Batumi FM','en':'Radio · Batumi FM','ar':'راديو · Batumi FM'}[lang] }}</button></p>
+    {% if game %}<p class="g-kick">GeoTrip · Georgia Stories</p>
+    <h1 class="g-title" data-g-split><span class="ln"><span>{{ {'ru':'Это не просто тур.','en':'Not just a tour.','ar':'ليست مجرد رحلة.'}[lang] }}</span></span><span class="ln"><span>{{ {'ru':'Это твоя история.','en':'It’s your story.','ar':'إنها قصتك.'}[lang] }}</span></span></h1>
+    <p class="hero__sub">{{ {'ru':'Выбирай маршрут. Собирай команду. Открывай Грузию без границ.','en':'Choose your route. Gather your crew. Unlock Georgia without limits.','ar':'اختر مسارك. اجمع فريقك. اكتشف جورجيا بلا حدود.'}[lang] }}</p>
+    <p class="g-start"><a class="btn btn--red" href="#routes">{{ {'ru':'Начать приключение','en':'Start the adventure','ar':'ابدأ المغامرة'}[lang] }}{{ p.arrow() }}</a><a class="btn" href="{{ link('full-immersion') }}">{{ {'ru':'Выбрать миссию','en':'Choose a mission','ar':'اختر مهمة'}[lang] }}</a><a class="btn" href="{{ link('constructor') }}">{{ {'ru':'Создать свой маршрут','en':'Build your own route','ar':'صمّم مسارك'}[lang] }}</a></p>
     {% else %}    <h1><span class="ln"><span>{{ h.h1a }}</span></span><span class="ln"><span>{{ h.h1b }}</span></span></h1>
     <p class="hero__sub">{{ h.sub }}</p>
     {% endif %}

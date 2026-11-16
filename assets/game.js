@@ -95,7 +95,7 @@
 
   // звуки интерфейса — только когда включено «радио»
   var ac=null,eq=d.querySelector('.eq[data-music]');
-  function blip(f,t){if(!eq||eq.getAttribute('aria-pressed')!=='true')return;
+  function blip(f,t){if(!window.gtSound)return;
     try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();var o=ac.createOscillator(),g=ac.createGain();o.type='square';o.frequency.setValueAtTime(f,ac.currentTime);
       o.frequency.exponentialRampToValueAtTime(f*1.6,ac.currentTime+(t||.08));g.gain.setValueAtTime(.05,ac.currentTime);g.gain.exponentialRampToValueAtTime(.0001,ac.currentTime+(t||.08)+.05);
       o.connect(g);g.connect(ac.destination);o.start();o.stop(ac.currentTime+(t||.08)+.06)}catch(e){}}
@@ -115,4 +115,81 @@
       if(n===4&&!was){setTimeout(function(){pass.classList.add('is-on');blip(880,.3);clearTimeout(pt);pt=setTimeout(function(){pass.classList.remove('is-on')},2600)},700)}}
     lit=s;was=n===4;first=false}
   box.addEventListener('change',check);check();
+})();
+
+
+/* --- GEORGIA STORIES: побуквенный заголовок, плеер, заставка, «миссия выбрана», «экспедиция собрана» --- */
+(function(){
+  'use strict';
+  var d=document,lang=d.documentElement.lang||'ru',calm=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var me=d.querySelector('script[src*="game.js"]'),base=me?me.src.replace(/game\.js.*$/,''):'assets/';
+  var L=function(o){return o[lang]||o.ru};
+  var ls={get:function(k){try{return JSON.parse(localStorage.getItem(k))}catch(e){return null}},set:function(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+
+  // заголовок первого экрана по буквам (арабский не делим — буквы там соединяются)
+  var h=d.querySelector('[data-g-split]');
+  if(h&&lang!=='ar'){var i=0;[].forEach.call(h.querySelectorAll('.ln>span'),function(sp){var t=sp.textContent;sp.setAttribute('aria-label',t);
+    sp.innerHTML=t.split(' ').map(function(w){return '<span style="white-space:nowrap">'+w.split('').map(function(c){return '<span class="ch" aria-hidden="true" style="--i:'+(i++)+'">'+c+'</span>'}).join('')+'</span>'}).join('<span class="sp"> </span>')})}
+
+  // плеер: три своих трека, громкость, память между страницами
+  var TR=[['drive','Batumi Drive'],['night','Tbilisi Night'],['run','Caucasus Run']];
+  var st=ls.get('gt_g_music')||{on:false,vol:.55,tr:0,t:0};
+  var au=new Audio();au.preload='none';au.volume=st.vol;
+  var pl=d.createElement('div');pl.className='g-player';
+  pl.innerHTML='<button type="button" data-a="toggle" aria-pressed="false" aria-label="'+L({ru:'Музыка',en:'Music',ar:'الموسيقى'})+'"><span class="g-player__bars"><i></i><i></i><i></i><i></i></span></button>'+
+    '<div class="g-player__t"><small>'+L({ru:'Радио GeoTrip',en:'GeoTrip Radio',ar:'راديو GeoTrip'})+'</small><b></b></div>'+
+    '<button type="button" data-a="next" aria-label="'+L({ru:'Следующий трек',en:'Next track',ar:'المقطع التالي'})+'"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8zM17 4h3v16h-3z"/></svg></button>'+
+    '<input type="range" min="0" max="1" step="0.05" value="'+st.vol+'" aria-label="'+L({ru:'Громкость',en:'Volume',ar:'مستوى الصوت'})+'">';
+  d.body.appendChild(pl);
+  var nameEl=pl.querySelector('b'),tog=pl.querySelector('[data-a=toggle]');
+  function load(keepTime){var t=TR[st.tr%TR.length];au.src=base+'audio/'+t[0]+'.mp3';nameEl.textContent=t[1];if(keepTime&&st.t)au.addEventListener('loadedmetadata',function f(){au.removeEventListener('loadedmetadata',f);try{au.currentTime=st.t}catch(e){}})}
+  function ui(){pl.classList.toggle('is-on',st.on);tog.setAttribute('aria-pressed',st.on);window.gtSound=st.on}
+  function save(){st.t=au.currentTime||0;ls.set('gt_g_music',st)}
+  function play(){st.on=true;ui();var p=au.play();if(p&&p.catch)p.catch(function(){var once=function(){d.removeEventListener('pointerdown',once);if(st.on)au.play().catch(function(){})};d.addEventListener('pointerdown',once)});save()}
+  function stop(){st.on=false;au.pause();ui();save()}
+  window.gtMusic={play:play,stop:stop};
+  load(true);ui();if(st.on)play();
+  au.addEventListener('ended',function(){st.tr=(st.tr+1)%TR.length;st.t=0;load();play()});
+  pl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
+    if(b.dataset.a==='toggle'){if(innerWidth<=760&&!pl.classList.contains('open')&&st.on){pl.classList.add('open');return}st.on?stop():play();pl.classList.toggle('open',st.on&&innerWidth<=760)}
+    else{st.tr=(st.tr+1)%TR.length;st.t=0;load();play()}});
+  pl.querySelector('input').addEventListener('input',function(){st.vol=+this.value;au.volume=st.vol;save()});
+  addEventListener('pagehide',save);
+
+  // общий экран-баннер
+  var pass=d.createElement('div');pass.className='g-pass';pass.setAttribute('aria-hidden','true');d.body.appendChild(pass);
+  function banner(small,title,sub,solid,ms,cb){pass.className='g-pass'+(solid?' solid':'');pass.innerHTML='<small>'+small+'</small><b>'+title+'</b>'+(sub?'<span>'+sub+'</span>':'');
+    void pass.offsetWidth;pass.classList.add('is-on');setTimeout(function(){if(cb)cb();else pass.classList.remove('is-on')},ms)}
+
+  // «миссия выбрана» перед переходом к программе
+  d.addEventListener('click',function(e){var a=e.target.closest('.atlas--first .atlas__list a');
+    if(!a||e.defaultPrevented||e.metaKey||e.ctrlKey||e.shiftKey||e.button)return;
+    var name=(a.querySelector('span')||a).textContent,days=a.querySelector('b'),href=a.href;e.preventDefault();
+    banner(L({ru:'Миссия выбрана',en:'Mission selected',ar:'تم اختيار المهمة'}),name,days?days.textContent+' '+L({ru:'дней в Грузии',en:'days in Georgia',ar:'أيام في جورجيا'}):'',true,calm?300:1150,function(){location.href=href})});
+  addEventListener('pageshow',function(e){if(e.persisted)pass.classList.remove('is-on')});
+
+  // «экспедиция собрана» на последнем шаге опросника
+  var form=d.querySelector('form.calc');
+  if(form){var shown=false;new MutationObserver(function(){if(!shown&&form.classList.contains('wiz-last')){shown=true;
+      banner('Mission ready',L({ru:'Твоя экспедиция собрана',en:'Your expedition is ready',ar:'رحلتك جاهزة'}),L({ru:'Проверь итог и отправь заявку',en:'Check the summary and send your request',ar:'راجع الملخص وأرسل طلبك'}),false,2200)}})
+    .observe(form,{attributes:true,attributeFilter:['class']})}
+
+  // заставка — только на главной и не чаще раза в 12 часов
+  var hero=d.querySelector('.hero');
+  if(hero&&!location.hash){var seen=ls.get('gt_g_intro')||0;
+    if(Date.now()-seen>12*3600e3){
+      var IM=['gm-fire','gm-earth','gm-air','gm-water','gm-hero'],logo=d.querySelector('.preload svg');
+      var x=d.createElement('div');x.className='g-intro';x.style.setProperty('--n',IM.length);x.setAttribute('role','dialog');x.setAttribute('aria-label','GeoTrip');
+      x.innerHTML=IM.map(function(n,i){return '<div class="g-intro__sc'+(i===IM.length-1?' last':'')+'" style="--i:'+i+'"><img src="'+base+'img/'+n+'.webp" alt=""></div>'}).join('')+
+        '<div class="g-intro__logo">'+(logo?logo.outerHTML:'')+'</div>'+
+        '<div class="g-intro__end"><small>GeoTrip · Georgia Stories</small><b>'+L({ru:'Грузия — твоя история начинается здесь',en:'Georgia — your story starts here',ar:'جورجيا — قصتك تبدأ هنا'})+'</b>'+
+        '<button type="button" class="btn btn--red" data-go="1">'+L({ru:'Начать приключение',en:'Start the adventure',ar:'ابدأ المغامرة'})+'</button>'+
+        '<button type="button" class="g-intro__mute" data-go="0">'+L({ru:'Войти без музыки',en:'Enter without music',ar:'ادخل بلا موسيقى'})+'</button></div>'+
+        '<button type="button" class="g-intro__skip" data-go="0">'+L({ru:'Пропустить',en:'Skip',ar:'تخطٍّ'})+'</button>';
+      d.body.appendChild(x);d.documentElement.classList.add('g-lock');
+      if(calm)x.classList.add('done');else{requestAnimationFrame(function(){x.classList.add('play')});setTimeout(function(){x.classList.add('done')},1700+IM.length*520+800)}
+      x.addEventListener('click',function(e){var b=e.target.closest('[data-go]');if(!b)return;ls.set('gt_g_intro',Date.now());
+        if(b.dataset.go==='1')play();x.classList.add('is-out');d.documentElement.classList.remove('g-lock');setTimeout(function(){x.remove()},950)});
+      var first=x.querySelector('.btn');if(first)setTimeout(function(){first.focus({preventScroll:true})},calm?0:4800);
+    }}
 })();
