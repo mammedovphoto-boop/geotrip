@@ -121,7 +121,7 @@
 </section>
 
 {{ p.contact_scene('contacts') }}
-<button type="button" class="eq" data-music="{{ root }}assets/audio/ambient.mp3" aria-pressed="false" aria-label="{{ h.music_on }}" data-on="{{ h.music_on }}" data-off="{{ h.music_off }}"><i></i><i></i><i></i><i></i><i></i></button>
+{% if not game %}<button type="button" class="eq" data-music="{{ root }}assets/audio/ambient.mp3" aria-pressed="false" aria-label="{{ h.music_on }}" data-on="{{ h.music_on }}" data-off="{{ h.music_off }}"><i></i><i></i><i></i><i></i><i></i></button>{% endif %}
 
 <div class="video-modal" role="dialog" aria-modal="true" aria-label="{{ h.play }}">
   <button type="button" aria-label="{{ ui.close }}">×</button>
