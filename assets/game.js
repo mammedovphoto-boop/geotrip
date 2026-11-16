@@ -136,14 +136,17 @@
   var st=ls.get('gt_g_music')||{on:false,vol:.55,tr:0,t:0};
   var au=new Audio();au.preload='none';au.volume=st.vol;
   var pl=d.createElement('div');pl.className='g-player';
-  pl.innerHTML='<button type="button" data-a="toggle" aria-pressed="false" aria-label="'+L({ru:'Музыка',en:'Music',ar:'الموسيقى'})+'"><span class="g-player__bars"><i></i><i></i><i></i><i></i></span></button>'+
+  pl.innerHTML='<button type="button" data-a="toggle" aria-pressed="false" aria-label="'+L({ru:'Музыка',en:'Music',ar:'الموسيقى'})+'"><svg class="g-player__note" viewBox="0 0 24 24"><path d="M9 4v11.2A3.5 3.5 0 1 0 11 18V8h7V4z"/><path class="off" d="M3 3l18 18" fill="none" stroke="currentColor" stroke-width="2"/></svg><span class="g-player__bars"><i></i><i></i><i></i><i></i></span></button>'+
     '<div class="g-player__t"><small>'+L({ru:'Радио GeoTrip',en:'GeoTrip Radio',ar:'راديو GeoTrip'})+'</small><b></b></div>'+
     '<button type="button" data-a="next" aria-label="'+L({ru:'Следующий трек',en:'Next track',ar:'المقطع التالي'})+'"><svg viewBox="0 0 24 24"><path d="M5 4l10 8-10 8zM17 4h3v16h-3z"/></svg></button>'+
     '<input type="range" min="0" max="1" step="0.05" value="'+st.vol+'" aria-label="'+L({ru:'Громкость',en:'Volume',ar:'مستوى الصوت'})+'">';
   d.body.appendChild(pl);
   var nameEl=pl.querySelector('b'),tog=pl.querySelector('[data-a=toggle]');
-  function load(keepTime){var t=TR[st.tr%TR.length];au.src=base+'audio/'+t[0]+'.mp3';nameEl.textContent=t[1];if(keepTime&&st.t)au.addEventListener('loadedmetadata',function f(){au.removeEventListener('loadedmetadata',f);try{au.currentTime=st.t}catch(e){}})}
-  function ui(){pl.classList.toggle('is-on',st.on);tog.setAttribute('aria-pressed',st.on);window.gtSound=st.on}
+  function load(keepTime){var t=TR[st.tr%TR.length];au.src=base+'audio/'+t[0]+'.mp3';if(keepTime&&st.t)au.addEventListener('loadedmetadata',function f(){au.removeEventListener('loadedmetadata',f);try{au.currentTime=st.t}catch(e){}})}
+  var MT={off:L({ru:'Музыка',en:'Music',ar:'موسيقى'}),load:L({ru:'Загрузка…',en:'Loading…',ar:'تحميل…'})};
+  function label(){var small=innerWidth<=900;nameEl.textContent=!small?TR[st.tr%TR.length][1]:!st.on?MT.off:(au.readyState<3&&au.paused!==false&&!au.currentTime?MT.load:TR[st.tr%TR.length][1])}
+  ['playing','waiting','canplay','pause'].forEach(function(ev){au.addEventListener(ev,function(){if(ev==='waiting'&&innerWidth<=900&&st.on)nameEl.textContent=MT.load;else label()})});
+  function ui(){pl.classList.toggle('is-on',st.on);tog.setAttribute('aria-pressed',st.on);window.gtSound=st.on;label()}
   function save(){st.t=au.currentTime||0;ls.set('gt_g_music',st)}
   function play(){st.on=true;ui();var p=au.play();if(p&&p.catch)p.catch(function(){var once=function(){d.removeEventListener('pointerdown',once);if(st.on)au.play().catch(function(){})};d.addEventListener('pointerdown',once)});save()}
   function stop(){st.on=false;au.pause();ui();save()}
@@ -151,8 +154,9 @@
   load(true);ui();if(st.on)play();
   au.addEventListener('ended',function(){st.tr=(st.tr+1)%TR.length;st.t=0;load();play()});
   pl.addEventListener('click',function(e){var b=e.target.closest('button');if(!b)return;
-    if(b.dataset.a==='toggle'){if(innerWidth<=760&&!pl.classList.contains('open')&&st.on){pl.classList.add('open');return}st.on?stop():play();pl.classList.toggle('open',st.on&&innerWidth<=760)}
+    if(b.dataset.a==='toggle'){st.on?stop():play()}
     else{st.tr=(st.tr+1)%TR.length;st.t=0;load();play()}});
+  pl.querySelector('.g-player__t').addEventListener('click',function(){st.on?stop():play()});
   pl.querySelector('input').addEventListener('input',function(){st.vol=+this.value;au.volume=st.vol;save()});
   addEventListener('pagehide',save);
 
