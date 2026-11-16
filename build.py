@@ -10,11 +10,12 @@ from tours import TOURS, TOURS_PAGE, INCLUDED, PLACES, AIRPORTS, REGIONS, REGION
 sys.path.insert(0, HERE)
 from mapgen import map_svg, sat_map, sat_map_custom
 
+GAME = False
 LUX = os.environ.get("LUX") == "1"   # LUX=1 python build.py — новая версия оформления, собирается в dist_lux
 DIST = os.path.join(HERE, "dist_lux" if LUX else "dist")
 import hashlib
 # версия стилей и скриптов: меняется при каждой правке, чтобы телефоны не показывали старую копию из кэша
-ASSET_V = hashlib.md5(b"".join(open(os.path.join(HERE, "assets", f), "rb").read() for f in ("style.css", "site.js", "lux.css") if os.path.exists(os.path.join(HERE, "assets", f)))).hexdigest()[:10]
+ASSET_V = hashlib.md5(b"".join(open(os.path.join(HERE, "assets", f), "rb").read() for f in ("style.css", "site.js", "lux.css", "game.css", "game.js") if os.path.exists(os.path.join(HERE, "assets", f)))).hexdigest()[:10]
 env = Environment(loader=FileSystemLoader(os.path.join(HERE, "templates")), autoescape=True)
 SVG_DIR = os.path.join(HERE, "assets", "svg")
 TERRAIN = "map-terrain.webp" if os.path.exists(os.path.join(HERE, "assets", "img", "map-terrain.webp")) else None
@@ -128,6 +129,10 @@ def dword(n, lang):
         return "يوم"
     return "day" if n == 1 else "days"
 
+GAME_IMG = {"assets/video/poster.jpg": "assets/img/gm-hero.webp", "img/n-jeep.webp": "img/gm-earth.webp", "img/n-heli.webp": "img/gm-air.webp",
+            "img/service-yacht.webp": "img/gm-water.webp", "img/el-fire.webp": "img/gm-fire.webp", "img/el-soul.webp": "img/gm-soul.webp",
+            "img/service-bus.webp": "img/gm-bus.webp", "audio/ambient.mp3": "audio/drive.mp3"}
+
 def render(tpl, path, lang, ctx):
     depth = path.count("/") + (0 if lang == "ru" else 1)
     root = "../" * depth
@@ -162,13 +167,18 @@ def render(tpl, path, lang, ctx):
     data["menu"] = [(link("index") if sid == "start" else ("#" + sid if slug == "index" else link("index") + "#" + sid), label, _arts.get(sid, "menu_index"), sid)
                     for sid, label in HOME[lang]["trail"]]
     data.update(ctx)
-    out = os.path.join(DIST, "" if lang == "ru" else lang, path)
+    data["game"] = GAME
+    out = os.path.join(DIST, "play" if GAME else "", "" if lang == "ru" else lang, path)
     os.makedirs(os.path.dirname(out), exist_ok=True)
     with open(out, "w", encoding="utf-8") as f:
         html = terms(env.get_template(tpl).render(**data), lang)
+        if GAME:
+            html = re.sub(r'(?<=["\'(= ,])((?:\.\./)*)(assets|journey|anketa)/', r'\1../\2/', html)
+            for old, new in GAME_IMG.items():
+                html = html.replace(old, new)
         f.write(re.sub(r"\n\s*\n", "\n", html))
 
-def build():
+def setup():
     if os.path.exists(DIST):
         shutil.rmtree(DIST)
     os.makedirs(DIST)
@@ -184,6 +194,10 @@ def build():
         shutil.copy(os.path.join(HERE, "static", extra), DIST)
     if os.path.exists(os.path.join(HERE, "functions")):
         pass  # папка functions/ публикуется на Cloudflare вместе с dist (см. README)
+
+def build():
+    if not GAME:
+        setup()
     for lang in LANGS:
         L = lambda *v: v[LIDX[lang]]
         render("index.html", "index.html", lang, dict(title=HOME[lang]["title"], desc=HOME[lang]["desc"], active="index",
@@ -232,10 +246,12 @@ def build():
                    desc=d["body"][0][:150], active="starblogs", kind="blog", item=b, d=d))
         for page in ("login", "register", "profile"):
             render("account.html", "account/" + page + ".html", lang, dict(title=UI[lang]["cabinet"] + " — GeoTrip", desc=UI[lang]["acc_why"], active="account", page=page))
+    if GAME:
+        return
     urls = []
     for dp, _, fs in os.walk(DIST):
         for f in fs:
-            if f.endswith(".html") and "/account" not in dp.replace(os.sep, "/"):
+            if f.endswith(".html") and not any(x in dp.replace(os.sep, "/") + "/" for x in ("/account", "/office/", "/play/", "/anketa/")) and f != "manager.html":
                 rel = os.path.relpath(os.path.join(dp, f), DIST).replace(os.sep, "/")[:-5]
                 urls.append("https://geotrip.world/" + ("" if rel == "index" else rel[:-5] if rel.endswith("/index") else rel))
     with open(os.path.join(DIST, "sitemap.xml"), "w", encoding="utf-8") as f:
@@ -245,4 +261,6 @@ def build():
     print("Готово:", DIST)
 
 if __name__ == "__main__":
+    build()
+    GAME = True   # вторая версия оформления — «игра в Грузии»: те же страницы в папке play/, картинки и скрипты общие с основным сайтом
     build()

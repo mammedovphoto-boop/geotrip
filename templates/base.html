@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="claude:viewport-fit-sides" content="cover">
-<title>{{ title }}</title>
+<title>{{ title }}</title>{% if game %}
+<meta name="robots" content="noindex">{% endif %}
 <meta name="description" content="{{ desc }}">
 <meta name="theme-color" content="#000000">
 <meta property="og:title" content="{{ title }}">
@@ -21,12 +22,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Raleway:wght@200;300;400;500;600{% if lang=='ar' %}&family=Amiri:wght@400;700&family=IBM+Plex+Sans+Arabic:wght@300;400;500;600{% endif %}&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{{ root }}assets/style.css?v={{ av }}">{% if lux %}
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Manrope:wght@300;400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{{ root }}assets/lux.css?v={{ av }}">{% endif %}
+<link rel="stylesheet" href="{{ root }}assets/lux.css?v={{ av }}">{% endif %}{% if game %}
+<link href="https://fonts.googleapis.com/css2?family=Dela+Gothic+One&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ root }}assets/game.css?v={{ av }}">{% endif %}
 <style>.preload{position:fixed;inset:0;z-index:400;background:#000;display:grid;place-items:center;transition:opacity .8s cubic-bezier(.22,1,.36,1),visibility .8s}.preload svg{width:88px;height:88px;fill:#fff;animation:plPulse 1.5s ease-in-out infinite}@keyframes plPulse{0%,100%{opacity:.3;transform:scale(.95)}50%{opacity:1;transform:scale(1)}}html.ready .preload{opacity:0;visibility:hidden}html.ready.leaving .preload{opacity:1;visibility:visible;transition-duration:.45s}@media (prefers-reduced-motion:reduce){.preload svg{animation:none}}</style>
 <script>try{history.scrollRestoration='manual'}catch(e){}(function(){var d=document.documentElement,done=false,go=function(){if(done)return;done=true;if(!location.hash)scrollTo(0,0);d.classList.add('ready')};var wait=function(){var ps=[];if(document.fonts&&document.fonts.ready)ps.push(document.fonts.ready);var im=document.querySelector('.hero__poster,.phero img,.cat-hero img');if(im&&!im.complete)ps.push(new Promise(function(r){im.addEventListener('load',r);im.addEventListener('error',r)}));Promise.all(ps).then(function(){requestAnimationFrame(go)})};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',wait);else wait();setTimeout(go,2500);addEventListener('pageshow',function(e){if(e.persisted){d.classList.remove('leaving');d.classList.add('ready')}})})();</script>
 </head>
-<body{% if lux %} class="lux"{% endif %}>
-<div class="preload" aria-hidden="true">{{ logo|safe }}</div>
+<body{% if lux %} class="lux"{% endif %}{% if game %} class="game"{% endif %}>
+<div class="preload" aria-hidden="true">{{ logo|safe }}{% if game %}<div class="gload"><b>{{ {'ru':'Загрузка Грузии','en':'Loading Georgia','ar':'جارٍ تحميل جورجيا'}[lang] }}</b><i><u></u></i><span data-tips="{{ {'ru':'Совет: в Грузии тост — это маленькая речь. Готовьтесь.|Совет: хачапури по-аджарски едят руками, от краёв к центру.|Совет: закат в Батуми лучше встречать на яхте.|Совет: в горах связь ловит наш Starlink.|Совет: вино здесь делают в глиняных квеври уже 8000 лет.','en':'Tip: a Georgian toast is a short speech. Be ready.|Tip: eat Adjarian khachapuri with your hands, from the edges in.|Tip: the Batumi sunset is best seen from a yacht.|Tip: in the mountains, our Starlink keeps you online.|Tip: wine has been made here in clay qvevri for 8,000 years.','ar':'نصيحة: النخب في جورجيا خطاب قصير، فاستعد.|نصيحة: غروب باتومي أجمل من على اليخت.|نصيحة: في الجبال يبقيك Starlink على اتصال.'}[lang] }}"></span></div>{% endif %}</div>
 <header class="top">
   <div class="wrap top__in">
     <div class="top__start">
@@ -73,6 +76,7 @@
   </div>
 </footer>
 <a class="wa-float" href="https://wa.me/{{ c.wa }}" target="_blank" rel="noopener" aria-label="{{ ui.write_wa }}">{{ icons.wa|safe }}</a>
-<script src="{{ root }}assets/site.js?v={{ av }}"></script>
+<script src="{{ root }}assets/site.js?v={{ av }}"></script>{% if game %}
+<script src="{{ root }}assets/game.js?v={{ av }}"></script>{% endif %}
 </body>
 </html>

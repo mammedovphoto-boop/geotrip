@@ -1,0 +1,213 @@
+/* Вторая версия оформления GeoTrip — «игра с открытым миром в Грузии»: закатный неон, рисованные постеры, игровой интерфейс.
+   Подключается только на страницах в папке play/. Основной сайт не меняет. */
+body.game{
+  --red:#ff2e88; --red-hi:#ff5fa6; --red-deep:#7a0f52;
+  --sun:#ffb23e; --teal:#2fe6d0; --violet:#7b3cff;
+  --night:#0d0620; --coal:#170b33; --line:#3a2466;
+  --paper:#150a30; --ink:#fff; --ink-2:#d6c8f2; --mist:#cfc3ea; --ash:#9c8ec0;
+  --serif:"Dela Gothic One","Rubik","IBM Plex Sans Arabic",system-ui,sans-serif;
+  --sans:"Rubik","IBM Plex Sans Arabic",system-ui,-apple-system,"Segoe UI",sans-serif;
+  background:#0d0620;font-weight:400;
+}
+body.game ::selection{background:var(--red);color:#fff}
+
+/* плёнка: сканлинии и зерно поверх всего */
+body.game::before{content:"";position:fixed;inset:0;z-index:300;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 3px);mix-blend-mode:overlay}
+body.game::after{content:"";position:fixed;inset:0;z-index:299;pointer-events:none;background:radial-gradient(ellipse at center,transparent 55%,rgba(13,6,32,.55))}
+
+/* заголовки — постерный шрифт с цветной тенью */
+.game h1,.game h2,.game h3{font-weight:400;letter-spacing:.005em;line-height:1.04;text-transform:uppercase}
+.game h2{font-size:clamp(30px,4.2vw,62px);text-shadow:.045em .045em 0 var(--red),.09em .09em 0 rgba(47,230,208,.55)}
+.game h3{text-shadow:.05em .05em 0 rgba(255,46,136,.7)}
+.game[dir=rtl] h1,.game[dir=rtl] h2,.game[dir=rtl] h3,[dir=rtl] .game h1,[dir=rtl] .game h2,[dir=rtl] .game h3{text-transform:none;font-family:"IBM Plex Sans Arabic",sans-serif;font-weight:600}
+.game .lead{color:var(--mist);font-weight:400}
+
+/* шапка */
+.game .top.is-solid{background:linear-gradient(90deg,rgba(13,6,32,.96),rgba(60,14,84,.94))!important;box-shadow:0 1px 0 var(--red),0 0 24px rgba(255,46,136,.35)}
+.game .logo svg{filter:drop-shadow(0 0 10px rgba(255,46,136,.8))}
+
+/* кнопки — скошенные, с градиентом и свечением */
+.game .btn{position:relative;border:0;font-family:var(--serif);font-size:13px;letter-spacing:.06em;padding:17px 30px;clip-path:polygon(12px 0,100% 0,calc(100% - 12px) 100%,0 100%);background:rgba(255,255,255,.1);color:#fff;transition:transform .25s cubic-bezier(.2,.8,.2,1),filter .25s,background .25s}
+.game .btn--red,.game .btn.btn--red{background:linear-gradient(100deg,var(--red),var(--sun))}
+.game .btn:hover{transform:translateY(-3px) skewX(-3deg);filter:drop-shadow(0 0 14px rgba(255,95,166,.9)) brightness(1.1)}
+.game .btn:active{transform:translateY(0) scale(.97)}
+.game .btn::after{content:"";position:absolute;inset:0;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);pointer-events:none}
+.game .btn:hover::after{transform:translateX(120%);transition:transform .7s}
+.game .link-ink,.game .link-light,.game .more{color:var(--teal)}
+
+/* экран загрузки */
+.game .preload{background:radial-gradient(ellipse at 50% 120%,#ff2e88 0,#7b3cff 30%,#0d0620 70%);align-content:center;gap:28px}
+.game .preload svg{filter:drop-shadow(0 0 18px #ff2e88)}
+.gload{display:grid;gap:12px;justify-items:center;width:min(420px,80vw);text-align:center;color:#fff}
+.gload b{font-family:var(--serif);font-weight:400;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
+.gload i{display:block;width:100%;height:8px;background:rgba(255,255,255,.14);transform:skewX(-20deg);overflow:hidden}
+.gload u{display:block;height:100%;width:100%;background:linear-gradient(90deg,var(--teal),var(--red),var(--sun));transform-origin:left;animation:gLoad 1.6s cubic-bezier(.3,.6,.2,1) both}
+[dir=rtl] .gload u{transform-origin:right}
+@keyframes gLoad{from{transform:scaleX(0)}60%{transform:scaleX(.8)}to{transform:scaleX(1)}}
+.gload span{font-size:14px;color:#e9dcff;min-height:3em}
+
+/* первый экран */
+.game .hero{background:#0d0620}
+.game .hero video,.game .hero__slides{display:none!important}
+.game .hero__poster{display:block!important;opacity:1!important;animation:gKen 26s ease-in-out infinite alternate;transform-origin:70% 60%}
+@keyframes gKen{from{transform:scale(1.04) translate3d(0,0,0)}to{transform:scale(1.16) translate3d(-1.5%,-1%,0)}}
+.game .hero::after{background:linear-gradient(90deg,rgba(13,6,32,.82),rgba(13,6,32,.25) 55%,transparent),linear-gradient(180deg,rgba(13,6,32,.55),transparent 30%,transparent 65%,#0d0620)}
+.game .hero__play{display:none}
+.g-kick{font-family:var(--serif);font-size:clamp(11px,1.1vw,14px);letter-spacing:.3em;text-transform:uppercase;color:var(--teal);margin:0 0 18px;text-shadow:0 0 14px rgba(47,230,208,.8);animation:gFade .8s .2s both}
+.game .hero h1{font-size:clamp(46px,9.4vw,150px);line-height:.94;max-width:none;margin-bottom:.25em}
+.game .hero h1 .ln>span{background:linear-gradient(180deg,#fff 20%,#ffd9a0 55%,#ff8fbd 100%);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(.04em .04em 0 var(--red)) drop-shadow(.04em .04em 0 var(--violet));animation:gSlam .9s cubic-bezier(.2,1.4,.3,1) both}
+.game .hero h1 .ln:nth-child(2)>span{animation-delay:.18s;background:linear-gradient(180deg,#ffe27a,#ff9a3c 55%,#ff2e88);-webkit-background-clip:text;background-clip:text}
+.game .hero h1 .ln{overflow:visible}
+@keyframes gSlam{from{opacity:0;transform:translateX(-60px) skewX(-18deg) scale(1.15);filter:blur(8px)}to{opacity:1;transform:none}}
+@keyframes gFade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.game .hero__sub{font-size:clamp(17px,1.6vw,22px);color:#fff;font-weight:500;text-shadow:0 2px 12px rgba(13,6,32,.9);animation:gFade .8s .5s both}
+.g-start{display:flex;flex-wrap:wrap;gap:14px;align-items:center;margin:28px 0 0;animation:gFade .8s .7s both}
+.g-start .btn--red{font-size:16px;padding:20px 38px;animation:gPulse 2.2s ease-in-out infinite}
+@keyframes gPulse{0%,100%{filter:drop-shadow(0 0 0 rgba(255,46,136,0))}50%{filter:drop-shadow(0 0 22px rgba(255,46,136,.95))}}
+.g-radio{display:inline-flex;align-items:center;gap:10px;background:rgba(13,6,32,.6);border:1px solid rgba(47,230,208,.6);color:var(--teal);font:500 13px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;padding:14px 18px;cursor:pointer;backdrop-filter:blur(6px);transition:box-shadow .3s,background .3s}
+.g-radio::before{content:"";width:9px;height:9px;border-radius:50%;background:var(--ash);transition:background .3s,box-shadow .3s}
+.g-radio.is-on::before{background:var(--teal);box-shadow:0 0 12px var(--teal);animation:gBlink 1s steps(2) infinite}
+.g-radio:hover{box-shadow:0 0 18px rgba(47,230,208,.5)}
+@keyframes gBlink{50%{opacity:.35}}
+.game .scroll-hint{color:var(--teal)}
+
+/* бегущая строка */
+.g-tick{position:relative;z-index:3;overflow:hidden;background:linear-gradient(90deg,var(--red),var(--sun));color:#0d0620;transform:rotate(-1.2deg) scale(1.03);margin:-22px 0;box-shadow:0 0 30px rgba(255,46,136,.6)}
+.g-tick div{display:flex;width:max-content;animation:gTick 36s linear infinite}
+.g-tick span{font-family:var(--serif);font-size:15px;letter-spacing:.14em;text-transform:uppercase;padding:11px 0;white-space:nowrap}
+.g-tick span::after{content:"✦";margin:0 26px;opacity:.6}
+@keyframes gTick{to{transform:translateX(-50%)}}
+[dir=rtl] .g-tick div{animation-direction:reverse}
+
+/* секции */
+.game .paper,.game .scene,.game main>section{background:radial-gradient(ellipse 90% 60% at 85% 0,rgba(123,60,255,.28),transparent 60%),radial-gradient(ellipse 70% 50% at 0 100%,rgba(255,46,136,.2),transparent 60%),#0d0620;color:#fff}
+.game .hero{background:#0d0620}
+.game .paper p,.game .who p{color:var(--ink-2)}
+.game .rule{background:linear-gradient(90deg,var(--red),var(--sun))!important;height:4px!important;transform:skewX(-30deg)}
+.game .drift,.game .who__art{opacity:.25;filter:hue-rotate(280deg) saturate(3)}
+
+/* карточки форматов — «режимы игры» */
+.game .fmt__grid{counter-reset:mode}
+.game .fmt__item{position:relative;padding:22px 22px 26px;background:linear-gradient(160deg,rgba(123,60,255,.22),rgba(255,46,136,.1));border:1px solid rgba(255,255,255,.14);clip-path:polygon(0 0,calc(100% - 22px) 0,100% 22px,100% 100%,22px 100%,0 calc(100% - 22px));transition:transform .35s cubic-bezier(.2,.8,.2,1),border-color .3s,background .3s;transform-style:preserve-3d;counter-increment:mode}
+.game .fmt__item::before{content:"РЕЖИМ 0" counter(mode);display:block;font-family:var(--serif);font-size:11px;letter-spacing:.24em;color:var(--sun);margin-bottom:10px}
+html[lang=en] .game .fmt__item::before{content:"MODE 0" counter(mode)}
+html[lang=ar] .game .fmt__item::before{content:"الوضع 0" counter(mode)}
+.game .fmt__item:hover{background:linear-gradient(160deg,rgba(123,60,255,.4),rgba(255,46,136,.28));border-color:var(--red)}
+.game .fmt__art svg *{stroke:#fff}
+.game .fmt__item:hover .fmt__art svg{filter:drop-shadow(0 0 12px var(--red))}
+.game .fmt__tag{color:var(--teal)!important;letter-spacing:.16em}
+.game .soon__item{border-color:rgba(255,255,255,.18)}
+.game .soon__label{color:var(--sun)}
+
+/* пять элементов */
+.game .el__tx b{color:#8f7fb8}
+.game .el__tab[aria-selected=true] b,.game .el__tab:hover b{color:#fff}
+.game .el__tx i,.game .el__tx small,.game .tr__note{color:var(--ash)}
+.game .el__tab.el--soul{border-top-color:rgba(255,255,255,.16)}
+.game .el__glyph{stroke:#6d5a9c}
+.game .el__stage{clip-path:polygon(0 0,calc(100% - 32px) 0,100% 32px,100% 100%,32px 100%,0 calc(100% - 32px));box-shadow:0 0 0 1px var(--red)}
+.game .el__pane img{filter:saturate(1.1)}
+.game .el__pane figcaption b{font-weight:400}
+
+/* вопросы, списки, формы */
+.game .faq details{border-color:rgba(255,255,255,.16)}
+.game .faq summary{font-family:var(--sans);font-weight:700;text-transform:none}
+.game .faq summary:hover{color:var(--red-hi)}
+.game input,.game select,.game textarea{font-family:var(--sans)}
+.game .calc,.game .sum{--paper:#1d0f40}
+
+/* направляющая слева */
+.game .trail__done{stroke:var(--red)!important;filter:drop-shadow(0 0 6px var(--red))}
+.game .trail a span,.game .trail a.ink span{color:#fff!important;font-family:var(--serif);font-size:10px}
+.game .trail a.ink:not(.is-on) b{border-color:#fff!important}
+.game .trail a.ink:not(.is-on):not(.is-past) b::after{background:#fff!important}
+.game .langs a{color:#fff!important}
+
+/* появление блоков: рывок со скосом */
+@media (prefers-reduced-motion:no-preference){
+  .game .rv{opacity:0;transform:translateX(-40px) skewX(-6deg);transition:opacity .7s cubic-bezier(.2,.8,.2,1),transform .7s cubic-bezier(.2,1.2,.3,1);transition-delay:var(--d,0ms)}
+  .game .rv.is-in{opacity:1;transform:none}
+}
+
+/* подвал: солнце и неоновая сетка */
+.game .foot{overflow:hidden;border-top:0;padding-top:260px;background:linear-gradient(180deg,#0d0620,#2a0d4f 45%,#ff2e88 100%);color:#fff}
+.game .foot::before{content:"";position:absolute;left:50%;top:40px;width:260px;height:260px;margin-left:-130px;border-radius:50%;background:linear-gradient(180deg,#ffe27a,#ff9a3c 45%,#ff2e88);-webkit-mask:repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 20px),linear-gradient(#000,#000) top/100% 52% no-repeat;mask:linear-gradient(#000,#000) top/100% 52% no-repeat,repeating-linear-gradient(180deg,#000 0 14px,transparent 14px 20px);box-shadow:0 0 80px rgba(255,154,60,.7);animation:gSun 6s ease-in-out infinite alternate}
+@keyframes gSun{to{transform:translateY(-14px)}}
+.game .foot::after{content:"";position:absolute;left:-50%;right:-50%;bottom:0;height:210px;background:repeating-linear-gradient(90deg,rgba(47,230,208,.55) 0 2px,transparent 2px 80px),repeating-linear-gradient(0deg,rgba(47,230,208,.55) 0 2px,transparent 2px 40px);transform:perspective(300px) rotateX(62deg);transform-origin:bottom;animation:gGrid 1.4s linear infinite;-webkit-mask:linear-gradient(transparent,#000 60%);mask:linear-gradient(transparent,#000 60%);pointer-events:none}
+@keyframes gGrid{to{background-position:0 0,0 40px}}
+.game .foot__in{position:relative;z-index:2}
+.game .foot a,.game .foot span{color:#fff}
+
+/* плавающие кнопки и курсор-фонарь */
+.game .eq{border-color:var(--teal);box-shadow:0 0 16px rgba(47,230,208,.5)}
+.game .eq i{background:var(--teal)}
+.game .wa-float{box-shadow:0 0 22px rgba(47,230,208,.7)}
+.g-glow{position:fixed;left:0;top:0;width:420px;height:420px;margin:-210px 0 0 -210px;border-radius:50%;pointer-events:none;z-index:1;background:radial-gradient(circle,rgba(255,46,136,.16),rgba(123,60,255,.08) 40%,transparent 65%);mix-blend-mode:screen;will-change:transform}
+/* плашка «локация» */
+.g-hud{position:fixed;z-index:55;left:50%;bottom:26px;transform:translate(-50%,30px);opacity:0;display:flex;align-items:center;gap:12px;padding:10px 18px 10px 12px;background:rgba(13,6,32,.82);border:1px solid var(--red);clip-path:polygon(10px 0,100% 0,calc(100% - 10px) 100%,0 100%);color:#fff;font:500 12px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;pointer-events:none;transition:opacity .4s,transform .5s cubic-bezier(.2,1.3,.3,1);backdrop-filter:blur(8px)}
+.g-hud.is-on{opacity:1;transform:translate(-50%,0)}
+.g-hud b{font-family:var(--serif);font-weight:400;color:var(--sun)}
+.g-hud i{width:8px;height:8px;background:var(--teal);box-shadow:0 0 10px var(--teal);transform:rotate(45deg)}
+@media (max-width:760px){.g-hud{bottom:86px;font-size:10px}.g-glow{display:none}.game .foot{padding-top:210px}.game .foot::before{width:190px;height:190px;margin-left:-95px}.g-tick span{font-size:12px}}
+@media (prefers-reduced-motion:reduce){.game .hero__poster,.g-tick div,.game .foot::after,.game .foot::before,.g-start .btn--red{animation:none}}
+
+/* --- правки и погружение --- */
+html:has(body.game){overflow-x:clip}
+body.game{overflow-x:clip}
+.game main{overflow-x:clip}
+.game .el__head h2{font-size:clamp(26px,3.4vw,46px)}
+.game .fmt__head h2{font-size:clamp(30px,4vw,54px)}
+@media (min-width:1101px) and (min-height:620px){
+  .game .el__head h2{font-size:clamp(24px,4.6vh,44px)}
+  .game .fmt__head h2{font-size:clamp(28px,5vh,52px)}
+  .game .fmt__art{height:clamp(90px,17vh,170px)}
+  .game .fmt__item h3{font-size:clamp(20px,3vh,30px)}
+  .game .fmt__item{padding:16px 20px 18px}
+}
+@media (max-width:900px){
+  .game .fmt__item{display:block;padding:18px}
+  .game .fmt__art{margin-bottom:14px}
+  .game .hero h1{font-size:clamp(40px,13vw,74px)}
+}
+/* искры над первым экраном */
+.g-sparks{position:absolute;inset:0;z-index:1;pointer-events:none;overflow:hidden}
+.g-sparks i{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;background:#ffd27a;box-shadow:0 0 10px 2px rgba(255,178,62,.8);opacity:0;animation:gSpark linear infinite}
+@keyframes gSpark{0%{opacity:0;transform:translate3d(0,0,0) scale(.6)}10%{opacity:.9}100%{opacity:0;transform:translate3d(var(--dx),-105vh,0) scale(1.2)}}
+/* «достижение открыто» */
+.g-toast{position:fixed;z-index:310;top:96px;right:max(18px,env(safe-area-inset-right,0px));display:grid;grid-template-columns:auto 1fr;gap:4px 14px;align-items:center;min-width:250px;max-width:min(360px,calc(100vw - 36px));padding:14px 20px 14px 16px;background:linear-gradient(100deg,rgba(13,6,32,.96),rgba(60,14,84,.96));border-left:4px solid var(--c,var(--sun));color:#fff;clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);transform:translateX(120%);transition:transform .55s cubic-bezier(.2,1.3,.3,1);pointer-events:none}
+[dir=rtl] .g-toast{right:auto;left:18px;transform:translateX(-120%)}
+.g-toast.is-on{transform:none}
+.g-toast svg{grid-row:1/3;width:34px;height:34px;fill:none;stroke:var(--c,var(--sun));stroke-width:2;filter:drop-shadow(0 0 8px var(--c,var(--sun)))}
+.g-toast small{font:500 10px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--c,var(--sun))}
+.g-toast b{font-family:var(--serif);font-weight:400;font-size:17px;text-transform:uppercase}
+/* большой баннер «пятый элемент открыт» */
+.g-pass{position:fixed;inset:0;z-index:320;display:grid;place-content:center;justify-items:center;gap:10px;text-align:center;pointer-events:none;opacity:0;background:radial-gradient(ellipse at center,rgba(13,6,32,.78),rgba(13,6,32,.2) 70%);transition:opacity .4s}
+.g-pass.is-on{opacity:1}
+.g-pass b{font-family:var(--serif);font-weight:400;font-size:clamp(34px,7vw,96px);line-height:1;text-transform:uppercase;padding:0 16px;background:linear-gradient(180deg,#ffe27a,#ff9a3c 55%,#ff2e88);-webkit-background-clip:text;background-clip:text;color:transparent;filter:drop-shadow(.04em .04em 0 #7b3cff);transform:scale(1.6);opacity:0}
+.g-pass.is-on b{animation:gPass .7s cubic-bezier(.2,1.5,.3,1) forwards}
+.g-pass span{font:500 clamp(12px,1.4vw,16px)/1.4 var(--sans);letter-spacing:.3em;text-transform:uppercase;color:#fff;opacity:0}
+.g-pass.is-on span{animation:gFade .5s .5s forwards}
+@keyframes gPass{to{transform:none;opacity:1}}
+/* полоса прогресса исследования */
+.g-prog{position:fixed;z-index:61;left:0;right:0;top:0;height:3px;background:rgba(255,255,255,.08);pointer-events:none}
+.g-prog i{display:block;height:100%;width:100%;transform-origin:left;transform:scaleX(0);background:linear-gradient(90deg,var(--teal),var(--red),var(--sun));box-shadow:0 0 12px var(--red);transition:transform .2s linear}
+[dir=rtl] .g-prog i{transform-origin:right}
+/* переход между страницами: шторка */
+html.ready.leaving .game .preload{background:linear-gradient(100deg,#ff2e88,#ffb23e)}
+html.ready.leaving .game .preload .gload{display:none}
+/* карточки маршрутов и программ */
+.game .atlas__list a,.game .dirchips button{font-family:var(--sans)}
+.game .pricefix{background:linear-gradient(100deg,#1d0f40,#3c0e54);border-top:1px solid var(--red)}
+.game .ps__nav button{border-color:var(--teal);color:var(--teal)}
+@media (max-width:760px){.g-toast{top:76px}}
+@media (prefers-reduced-motion:reduce){.g-sparks{display:none}}
+@media (max-width:900px){
+  .game .fmt__item{min-width:0;padding:16px}
+  .game .fmt__item>*{min-width:0}
+  .game .fmt__item::before{grid-column:2;margin:0 0 4px}
+  .game .fmt__item h3{font-size:clamp(17px,5vw,24px);overflow-wrap:anywhere}
+  .game .fmt__tag{white-space:normal!important}
+  .game .hero h1{font-size:clamp(34px,11.4vw,74px)}
+  .game .fmt__grid{min-width:0}
+}
+@media (max-width:900px){.game .fmt__item h3{font-size:clamp(15px,4.6vw,22px)!important;overflow-wrap:normal}}

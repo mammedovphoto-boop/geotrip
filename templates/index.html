@@ -11,8 +11,13 @@
   <video autoplay muted loop playsinline preload="metadata" poster="{{ root }}assets/video/poster.jpg" aria-hidden="true"><source src="{{ root }}assets/video/georgia-720.mp4" type="video/mp4"></video>
   <div class="wrap">
     <button class="hero__play" data-play aria-label="{{ h.play }}"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3.5v17l14-8.5z"/></svg></button>
-    <h1><span class="ln"><span>{{ h.h1a }}</span></span><span class="ln"><span>{{ h.h1b }}</span></span></h1>
+    {% if game %}<p class="g-kick">{{ {'ru':'Открытый мир · с 2016 года','en':'Open world · since 2016','ar':'عالم مفتوح · منذ 2016'}[lang] }}</p>
+    <h1 class="g-title"><span class="ln"><span>{{ {'ru':'Грузия','en':'Georgia','ar':'جورجيا'}[lang] }}</span></span><span class="ln"><span>{{ {'ru':'без границ','en':'unlocked','ar':'بلا حدود'}[lang] }}</span></span></h1>
+    <p class="hero__sub">{{ {'ru':'Выбери миссию. Собери команду. Каждый день — новый уровень.','en':'Pick a mission. Gather your crew. Every day is a new level.','ar':'اختر مهمتك. اجمع فريقك. كل يوم مستوى جديد.'}[lang] }}</p>
+    <p class="g-start"><a class="btn btn--red" href="#routes">{{ {'ru':'Начать игру','en':'Start game','ar':'ابدأ اللعبة'}[lang] }}{{ p.arrow() }}</a><button type="button" class="g-radio" data-g-radio>{{ {'ru':'Радио · Batumi FM','en':'Radio · Batumi FM','ar':'راديو · Batumi FM'}[lang] }}</button></p>
+    {% else %}    <h1><span class="ln"><span>{{ h.h1a }}</span></span><span class="ln"><span>{{ h.h1b }}</span></span></h1>
     <p class="hero__sub">{{ h.sub }}</p>
+    {% endif %}
   </div>
   <a class="scroll-hint" href="#about" aria-label="{{ h.down }}"><svg viewBox="0 0 22 52" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M11 0v50M3 42l8 8 8-8"/></svg></a>
 </section>
