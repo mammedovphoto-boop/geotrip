@@ -1,5 +1,6 @@
-<section class="block" id="calc"><div class="wrap">
-  <div class="scene-head"><div><div class="kicker">{{ ui.calc_k }}</div><h2>{{ ui.calc_h if not custom else ui.cons_h }}</h2></div><p class="lead" style="margin:0">{{ ui.calc_lead if not custom else ui.cons_lead }}</p></div>
+<section class="block{% if solo %} calc-solo{% endif %}" id="calc"><div class="wrap">
+  {% if solo %}<div class="scene-head"><div><div class="crumbs"><a href="{{ link('travel-in-georgia') }}">{{ nav_name('travel-in-georgia') }}</a><span>/</span><a href="{{ link(t.slug) }}">{{ t[lang].name }}</a></div><h1>{{ pr[lang].name }}</h1></div><p class="lead" style="margin:0"><b>{{ pr.days }}</b> {{ dword(pr.days) }}{% if pr[lang].acts %} · {{ pr[lang].acts|join(comma) }}{% endif %}</p></div>
+  {% else %}<div class="scene-head"><div><div class="kicker">{{ ui.calc_k }}</div><h2>{{ ui.calc_h if not custom else ui.cons_h }}</h2></div><p class="lead" style="margin:0">{{ ui.calc_lead if not custom else ui.cons_lead }}</p></div>{% endif %}
   <form class="calc" data-kind="{{ ckind }}" data-calc data-wa="{{ c.wa }}" data-wz="{{ ui.wz_step }}|{{ ui.wz_of }}|{{ ui.wz_back }}|{{ ui.wz_next }}|{{ ui.wz_done }}">
     <div class="calc__grid">
       <fieldset class="span2"{% if custom %} hidden{% endif %}><legend>{{ ui.c_format }}</legend>

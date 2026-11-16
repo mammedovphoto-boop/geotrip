@@ -1554,3 +1554,79 @@ svg.hotted path.hot{stroke:#d02a12!important;stroke-dasharray:1;stroke-dashoffse
   .el__pane.el--soul::after{background:linear-gradient(180deg,transparent 40%,#1b1916 calc(min(75vw,700px)))}
   .el__pane figcaption{position:relative;margin-top:-56px;padding:0 20px 24px;flex:1;align-content:start}
 }
+
+/* ───── 16.11: страница формата целиком в один экран — карта подстраивается под высоту окна, список не уезжает вниз ───── */
+@media (min-width:981px){
+  .mapfirst{height:100svh;min-height:520px;display:flex;flex-direction:column;align-items:stretch;padding-top:clamp(76px,9.5vh,100px);padding-bottom:clamp(12px,2.2vh,26px);box-sizing:border-box}
+  .mapfirst>.wrap{flex:1;min-height:0;display:flex;flex-direction:column}
+  .mapfirst__head{flex:none;margin-bottom:clamp(8px,1.6vh,18px)}
+  .mapfirst__head h1{font-size:clamp(28px,4.4vh,54px)}
+  .atlas.atlas--first{flex:1;min-height:0;grid-template-rows:minmax(0,1fr);align-items:stretch}
+  .atlas--first .atlas__map{container-type:size;height:100%;width:100%;min-height:0;display:grid;place-items:center;align-self:stretch;background:none;box-shadow:none;border-radius:0}
+  .atlas--first .atlas__map .geo--sat{width:min(100cqw,calc(100cqh * 1000 / 537));height:auto;max-height:none;aspect-ratio:1000/537;border-radius:10px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
+  .atlas--first .atlas__col{align-self:center;max-height:100%;overflow:auto;scrollbar-width:thin}
+}
+@media (min-width:981px) and (max-height:820px){
+  .atlas--first .atlas__list a{padding:6px 12px}
+  .atlas--first .atlas__list a b{font-size:28px}
+  .atlas--first .atlas__list a span{font-size:17px}
+  .atlas--first .atlas__tip{display:none}
+  .mapfirst__head .lead{font-size:14px}
+}
+@media (max-width:980px){
+  .mapfirst{padding:66px 0 14px!important;min-height:0}
+  .mapfirst__head{margin-bottom:8px!important}
+  .mapfirst__head h1{font-size:clamp(26px,7.4vw,34px)!important;margin-top:2px}
+  .atlas.atlas--first{gap:10px!important}
+  .atlas--first .atlas__map .geo--sat{max-height:34svh!important;width:100%;height:auto}
+  .atlas--first .dirchips{margin-bottom:8px!important}
+  .atlas--first .dirchips button{padding:7px 12px!important;font-size:11.5px!important}
+  .atlas--first .atlas__list{gap:6px!important}
+  .atlas--first .atlas__list a{padding:8px 10px!important;align-items:center!important}
+  .atlas--first .atlas__list a b{font-size:26px!important}
+  .atlas--first .atlas__list a small{display:none}
+  .atlas--first .atlas__list a span{font-size:15px!important;line-height:1.15!important}
+  .atlas--first .atlas__list .rg{margin-top:2px!important}
+  .atlas--first .atlas__tip{display:none}
+}
+
+/* ───── 16.11-2: страница программы — только опросник, целиком в один экран ───── */
+.calc-solo .scene-head{align-items:flex-end;margin-bottom:clamp(10px,2vh,22px)!important}
+.calc-solo .scene-head h1{font-size:clamp(28px,4.6vh,54px);margin:4px 0 0;line-height:1.05}
+.calc-solo .scene-head .lead{font-size:16px;color:var(--mist)}
+.calc-solo .scene-head .lead b{font-family:var(--serif);font-size:1.5em;font-weight:900;color:#fff}
+.calc-solo .crumbs{margin:0}
+@media (min-width:981px){
+  #calc.calc-solo{height:100svh;min-height:540px;box-sizing:border-box;display:flex;flex-direction:column;padding-top:clamp(76px,9.5vh,100px);padding-bottom:clamp(12px,2.2vh,26px)}
+  #calc.calc-solo>.wrap{flex:1;min-height:0;display:flex;flex-direction:column;width:100%}
+  .calc-solo .calc.wiz{flex:1;min-height:0;grid-template-rows:auto minmax(0,1fr) auto;align-items:stretch}
+  .calc-solo .calc.wiz .wz{margin-bottom:clamp(10px,1.8vh,22px)}
+  .calc-solo .calc.wiz .calc__grid{min-height:0;overflow:auto;scrollbar-width:thin;padding-inline-end:6px}
+  .calc-solo .calc.wiz .calc__grid>fieldset>legend{font-size:clamp(22px,3.4vh,36px);margin-bottom:clamp(10px,1.8vh,20px)}
+  .calc-solo .wz__nav{margin-top:clamp(8px,1.6vh,18px);padding-top:clamp(8px,1.6vh,16px)}
+  .calc-solo .calc.wiz .sum{position:static;align-self:start;max-height:100%;overflow:auto;scrollbar-width:thin;padding:clamp(14px,2.4vh,28px) clamp(18px,2vw,30px);gap:clamp(6px,1.1vh,12px)}
+  .calc-solo .calc.wiz .sum__pp{font-size:clamp(34px,6.4vh,64px)}
+  .calc-solo .sum__route{font-size:clamp(20px,3vh,28px)}
+  .calc-solo .sum dl{gap:clamp(2px,.7vh,6px) 16px;margin:2px 0}
+  .calc-solo .sum .btn{padding-block:clamp(10px,1.7vh,16px)}
+}
+@media (min-width:981px) and (max-height:760px){.calc-solo .sum__stops,.calc-solo .sum .muted{display:none}}
+@media (max-width:980px){
+  #calc.calc-solo{min-height:100svh;box-sizing:border-box;padding-top:70px!important;padding-bottom:0!important;display:flex;flex-direction:column}
+  #calc.calc-solo>.wrap{flex:1;display:flex;flex-direction:column}
+  .calc-solo .scene-head{gap:6px}
+  .calc-solo .scene-head h1{font-size:clamp(26px,7.4vw,34px)}
+  .calc-solo .scene-head .lead{font-size:14px}
+  .calc-solo .calc.wiz{flex:1;grid-template-rows:auto 1fr auto auto;align-content:start}
+  .calc-solo .wz__nav{position:sticky;bottom:0;z-index:6;margin:14px calc(-1 * var(--gutter)) 0;padding:12px var(--gutter) calc(12px + env(safe-area-inset-bottom,0px));background:rgba(8,8,8,.96);border-top:1px solid rgba(255,255,255,.12)}
+  .calc-solo .calc.wiz.wiz-last .sum{margin-bottom:18px}
+  body.has-pricefix .calc-solo .wz__nav{bottom:var(--pfh,78px)}
+  body.has-pricefix #calc.calc-solo{padding-bottom:var(--pfh,78px)!important}
+  body:has(.calc-solo) .wa-float{display:none}
+}
+/* календарь и поля в опроснике сжимаются по высоте окна, чтобы шаг целиком был виден */
+.calc-solo .cal{padding:clamp(8px,1.4vh,14px);max-width:min(380px,100%)}
+.calc-solo .cal__grid button{aspect-ratio:auto;height:clamp(26px,4.9vh,46px)}
+.calc-solo .cal__head{margin-bottom:clamp(4px,1vh,10px)}
+.calc-solo .cal__head button{width:clamp(28px,4.6vh,38px);height:clamp(28px,4.6vh,38px)}
+@media (max-width:980px){.calc-solo .cal__grid button{height:clamp(30px,5.2svh,46px)}.calc-solo .calc.wiz .calc__grid>fieldset>legend{font-size:clamp(24px,7vw,32px);margin-bottom:12px}}

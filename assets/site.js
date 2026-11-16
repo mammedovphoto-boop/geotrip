@@ -754,3 +754,7 @@ document.documentElement.classList.add('js');
   boxes.forEach(function(c){c.addEventListener('change',sync)});
   sync();
 })();
+
+/* 16.11 высота закреплённой цены — чтобы кнопки «Назад / Далее» на телефоне стояли ровно над ней */
+(function(){var pf=document.querySelector('[data-pricefix]');if(!pf||!window.ResizeObserver)return;
+  new ResizeObserver(function(){document.documentElement.style.setProperty('--pfh',Math.ceil(pf.getBoundingClientRect().height)+'px')}).observe(pf)})();

@@ -211,3 +211,52 @@ html.ready.leaving .game .preload .gload{display:none}
   .game .fmt__grid{min-width:0}
 }
 @media (max-width:900px){.game .fmt__item h3{font-size:clamp(15px,4.6vw,22px)!important;overflow-wrap:normal}}
+
+/* ───── 16.11: «режимы» как панели рисованного постера ───── */
+.game .fmt__grid{align-items:stretch}
+.game .fmt__item{display:flex!important;flex-direction:column;padding:0!important;clip-path:none;background:#150a30;border:3px solid #0d0620;outline:2px solid rgba(255,255,255,.9);box-shadow:10px 10px 0 var(--red);overflow:hidden;transition:transform .3s cubic-bezier(.2,.9,.2,1),box-shadow .3s}
+.game .fmt__item:nth-child(2){box-shadow:10px 10px 0 var(--sun)}
+.game .fmt__item:nth-child(3){box-shadow:10px 10px 0 var(--teal)}
+.game .fmt__item:hover{transform:translate(-5px,-5px) rotate(-.6deg)!important;box-shadow:16px 16px 0 var(--red);background:#1d0f40}
+.game .fmt__item:nth-child(2):hover{box-shadow:16px 16px 0 var(--sun)}
+.game .fmt__item:nth-child(3):hover{box-shadow:16px 16px 0 var(--teal)}
+.game .fmt__art{position:relative;order:-1;width:100%;height:clamp(150px,30vh,300px)!important;aspect-ratio:auto!important;margin:0!important;overflow:hidden;background:#0d0620 center/cover no-repeat;transform:none!important}
+.game .fmt__item:nth-child(1) .fmt__art{background-image:url(img/gm-bus.webp)}
+.game .fmt__item:nth-child(2) .fmt__art{background-image:url(img/gm-earth.webp)}
+.game .fmt__item:nth-child(3) .fmt__art{background-image:url(img/gm-air.webp)}
+.game .fmt__art svg{display:none}
+.game .fmt__art{transition:background-size .6s,filter .4s;background-size:108%}
+.game .fmt__item:hover .fmt__art{background-size:118%;filter:saturate(1.25) contrast(1.05)}
+.game .fmt__art::after{content:"";position:absolute;inset:0;background:radial-gradient(rgba(13,6,32,.35) 1px,transparent 1.6px) 0 0/5px 5px,linear-gradient(180deg,transparent 55%,#150a30);mix-blend-mode:multiply;pointer-events:none}
+.game .fmt__item::before{position:absolute;z-index:2;top:12px;left:0;margin:0;padding:7px 14px 7px 12px;background:#0d0620;color:var(--sun);clip-path:polygon(0 0,100% 0,calc(100% - 10px) 100%,0 100%)}
+[dir=rtl] .game .fmt__item::before{left:auto;right:0}
+.game .fmt__tag,.game .fmt__item h3,.game .fmt__item p,.game .fmt__item .more{margin-inline:20px!important}
+.game .fmt__tag{margin-top:16px!important}
+.game .fmt__item h3{margin-top:6px!important;font-size:clamp(20px,2.1vw,30px)}
+.game .fmt__item p{flex:1;color:var(--ink-2)}
+.game .fmt__item .more{margin-top:auto!important;margin-bottom:18px!important;padding-top:8px}
+.game .soon__art svg *{stroke:var(--red-hi)!important}
+.game .soon__txt b{color:#fff}.game .soon__txt small{color:var(--ash)}
+@media (min-width:1101px) and (min-height:620px){.game .fmt__art{height:clamp(110px,26vh,260px)!important}.game .fmt__item{padding:0!important}}
+@media (max-width:900px){
+  .game .fmt__item{display:grid!important;grid-template-columns:42% 1fr;grid-template-rows:auto auto 1fr;column-gap:0;box-shadow:6px 6px 0 var(--red)}
+  .game .fmt__item:nth-child(2){box-shadow:6px 6px 0 var(--sun)}.game .fmt__item:nth-child(3){box-shadow:6px 6px 0 var(--teal)}
+  .game .fmt__art{grid-row:1/span 3;height:100%!important;min-height:118px;background-size:cover!important}
+  .game .fmt__item::before{top:8px;font-size:9px;padding:5px 10px 5px 8px}
+  .game .fmt__tag,.game .fmt__item h3,.game .fmt__item .more{margin-inline:14px!important}
+  .game .fmt__tag{margin-top:12px!important}
+  .game .fmt__item .more{margin-bottom:12px!important}
+}
+/* страница формата во второй версии */
+.game .mapfirst{background:#0d0620}
+.game .mapfirst::after{background:radial-gradient(ellipse at 40% 55%,rgba(123,60,255,.15),rgba(13,6,32,.75))}
+.game .atlas--first .atlas__map .geo--sat{outline:2px solid rgba(255,255,255,.85);box-shadow:10px 10px 0 var(--red)!important;border-radius:0!important}
+.game .atlas--first .atlas__col{border-radius:0;border:1px solid var(--red);background:rgba(13,6,32,.7)}
+.game .geo--sat .rt__line{stroke:var(--red)!important}
+.game .calc-solo .wz__nav{background:rgba(13,6,32,.97)}
+.game .calc-solo .scene-head h1{text-shadow:.045em .045em 0 var(--red),.09em .09em 0 rgba(47,230,208,.55)}
+.game .sum{background:#1a0d3a;border:2px solid rgba(255,255,255,.85);box-shadow:8px 8px 0 var(--red)}
+.game .tabs2 label input:checked+span{background:linear-gradient(100deg,var(--red),var(--sun))}
+@media (min-width:981px) and (max-height:820px){.game .atlas--first .atlas__list a{padding:5px 12px}.game .atlas--first .atlas__list a b{font-size:26px}.game .atlas--first .atlas__list a span{font-size:15px}}
+@media (max-width:980px){.game .atlas--first .atlas__list a span{font-size:13.5px!important}.game .atlas--first .atlas__list a{padding:6px 9px!important}}
+@media (max-width:980px){.game .atlas--first .atlas__list a span{overflow-wrap:normal!important;hyphens:auto;font-size:12.5px!important}}
