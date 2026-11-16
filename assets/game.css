@@ -396,3 +396,4 @@ html[lang=ar] .game .atlas--first .atlas__list a small::before{content:"المه
   .g-player button{width:40px;height:40px}
   .g-player.is-on{flex-direction:column-reverse}
 }
+.game .calc-solo .calc.wiz .sum__pp.ask{font-family:var(--sans);font-weight:700;text-transform:none}.game .calc-solo .pricefix.ask b{font-family:var(--sans);font-weight:700}
